@@ -30,6 +30,32 @@ add_executable(test_lstm
 )
 target_link_libraries(test_lstm PRIVATE CorePP::CorePP)
 
-# --- Output all test binaries to tests/bin ---
-set_target_properties(test_fnn test_cnn test_gradcheck test_rnn test_lstm
+# --- GRU test ---
+add_executable(test_gru gru_test.cpp)
+target_link_libraries(test_gru PRIVATE CorePP::CorePP)
+
+# --- MaxPool2d test ---
+add_executable(test_pool pool_test.cpp)
+target_link_libraries(test_pool PRIVATE CorePP::CorePP)
+
+# --- BatchNorm test ---
+add_executable(test_bn bn_test.cpp)
+target_link_libraries(test_bn PRIVATE CorePP::CorePP)
+
+# --- Dropout test ---
+add_executable(test_dropout dropout_test.cpp)
+target_link_libraries(test_dropout PRIVATE CorePP::CorePP)
+
+# --- Embedding test ---
+add_executable(test_embed embed_test.cpp)
+target_link_libraries(test_embed PRIVATE CorePP::CorePP)
+
+# --- Residual test ---
+add_executable(test_residual residual_test.cpp)
+target_link_libraries(test_residual PRIVATE CorePP::CorePP)
+
+# --- Output all test binaries ---
+set_target_properties(
+    test_fnn test_cnn test_gradcheck test_rnn test_lstm
+    test_gru test_pool test_bn test_dropout test_embed test_residual
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
