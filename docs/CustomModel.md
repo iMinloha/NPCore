@@ -174,3 +174,59 @@ public:
 | `CleanGard()` | 清自己 | **必须清所有子层** |
 | `cuda()/cpu()` | 默认 | **必须传播到子层** |
 | `eval()/train()` | 默认 | **必须传播到子层** |
+
+## getParams / getAllGrads 多参数原理
+
+`getParams()` 和 `getAllGrads()` 返回的是 `vector`，支持**任意数量**的参数。RNN 有 3 个参数就是个例子：
+
+```cpp
+// RNN: W_ih(输入权重), W_hh(循环权重), b_h(偏置) — 3 个独立的参数矩阵
+std::vector<Matrix<float>*> getParams() override {
+    return {W_ih, W_hh, b_h};           // 3 个权重
+}
+std::vector<Matrix<float>*> getAllGrads() override {
+    return {dW_ih, dW_hh, db_h};        // 3 个梯度, 顺序必须一致
+}
+```
+
+优化器内部用循环逐对处理，不管你有几个参数：
+
+```cpp
+// Optimizer.cpp 中的通用更新逻辑:
+auto param_list = layer->getParams();   // [W1, W2, W3, ...]  任意长度
+auto grad_list  = layer->getAllGrads(); // [dW1, dW2, dW3, ...] 一一对应
+
+for (size_t p = 0; p < param_list.size() && p < grad_list.size(); ++p) {
+    if (grad_list[p] != nullptr)
+        *param_list[p] = *param_list[p] - (*grad_list[p]) * lr;
+}
+```
+
+**唯一要求**: `getParams()[i]` 和 `getAllGrads()[i]` 必须指向**同一个参数和它的梯度**。顺序任意，只要一一对应。
+
+梯度可以为 `nullptr` (无参数层如 ReLU 返回空 vector，优化器会跳过)。
+
+```cpp
+// 无参数层 (激活函数): 返回空
+std::vector<Matrix<float>*> getParams() override { return {}; }
+
+// 单参数层 (Embedding): 1 对
+return {weight};       // getParams
+return {dW};           // getAllGrads
+
+// 双参数层 (Linear, Conv2d): 2 对
+return {weight, bias};
+return {weight_grad_, bias_grad_};
+
+// 三参数层 (RNN): 3 对
+return {W_ih, W_hh, b_h};
+return {dW_ih, dW_hh, db_h};
+
+// 复合层 (ResNetBlock): 聚合子层 → 4 对 (conv1.W, conv1.b, conv2.W, conv2.b)
+auto p = c1->getParams();              // [W1, b1]
+for (auto* m : c2->getParams())        // [W2, b2]
+    p.push_back(m);
+return p;                              // → [W1, b1, W2, b2]
+```
+
+不需要额外配置 — 只要你的 `getParams()` 和 `getAllGrads()` 返回的 vector 长度一致、顺序对应，优化器自动处理一切。
