@@ -101,6 +101,89 @@ h_t = o_t ⊙ tanh(c_t)                   // 隐藏状态
 
 ```cpp
 Sequence seq({new Linear(4,8), new Sigmoid(), new Linear(8,4)});
-seq.forward(input);     // 逐层前向
-seq.getParams();        // 返回所有层的 Module*
+seq.forward(input);
+seq.getParams();
+seq.cuda();   // 搬到 GPU
+seq.eval();   // 推理模式
+```
+
+## GRU — 门控循环单元
+
+```
+r_t = σ(W_r·[x;h])   重置门
+z_t = σ(W_z·[x;h])   更新门
+n_t = tanh(W_n·[x; r⊙h])
+h_t = (1-z)⊙n + z⊙h
+```
+
+2 个门，比 LSTM 参数少 25%。
+
+## MaxPool2d — 最大池化
+
+```
+output[i,j,c] = max_{pi,pj} input[i*s+pi, j*s+pj, c]
+```
+
+默认 pool=2, stride=2。存储 argmax 用于反向传播。
+
+## BatchNorm1d — 批归一化
+
+```
+y = γ * (x - μ_batch) / √(σ²_batch + ε) + β
+```
+
+训练时用 batch 统计，推理时用 running mean/var。
+
+## LayerNorm — 层归一化
+
+```
+y = γ * (x - μ_sample) / √(σ²_sample + ε) + β
+```
+
+按样本归一化，不依赖 batch size。适合 RNN/Transformer。
+
+## Dropout — 随机失活
+
+以概率 `rate` 将元素置零，其余放大 `1/(1-rate)` 倍。推理时不做任何操作。
+
+## Embedding — 词嵌入
+
+查表操作：输入整数索引 → 输出对应 embedding 向量。权重矩阵 (vocab_size, embed_dim)。
+
+## GELU — 高斯误差线性单元
+
+```
+gelu(x) ≈ 0.5x * (1 + tanh(√(2/π)(x + 0.044715x³)))
+```
+
+## Swish / SiLU
+
+```
+swish(x) = x * sigmoid(x)
+```
+
+## Residual — 残差连接
+
+```cpp
+Residual res(new Linear(8,8));  // y = Wx + b + x
+```
+
+## ResNetBlock — 残差块
+
+```
+Conv3×3 → BN → ReLU → Conv3×3 → BN + skip → ReLU
+```
+
+## AdamW — 解耦权重衰减
+
+```cpp
+AdamW optim(params, lr=0.001, weight_decay=0.01);
+// θ = θ - lr * (m̂/(√v̂+ε) + wd * θ)
+```
+
+## CosineLR / StepLR — 学习率调度
+
+```cpp
+CosineLR sched(lr_max=0.01, lr_min=1e-4, T_max=500, setter);
+StepLR sched(lr=0.01, step_size=50, gamma=0.5, setter);
 ```

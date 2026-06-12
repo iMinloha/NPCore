@@ -20,5 +20,8 @@
 #include "Layers/Dropout.h"
 #include "Layers/Embedding.h"
 #include "Layers/Residual.h"
+#include "Layers/ResNetBlock.h"
+#include "Layers/LayerNorm.h"
+#include "Layers/GELU.h"
 
 #endif // COREPP_NN_H

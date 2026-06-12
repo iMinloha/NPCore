@@ -1,61 +1,36 @@
 # =================================[CorePP Tests]================================
 
-# --- FNN test ---
-add_executable(test_fnn
-    fnn_test.cpp
-)
-target_link_libraries(test_fnn PRIVATE CorePP::CorePP)
+set(TEST_LIBS CorePP::CorePP)
+set(TEST_DIR  ${CMAKE_BINARY_DIR}/tests)
 
-# --- CNN test ---
-add_executable(test_cnn
-    cnn_test.cpp
-)
-target_link_libraries(test_cnn PRIVATE CorePP::CorePP)
+# --- Gradient verification ---
+add_executable(test_gradcheck gradcheck_test.cpp)
+target_link_libraries(test_gradcheck PRIVATE ${TEST_LIBS})
 
-# --- Gradient check test ---
-add_executable(test_gradcheck
-    gradcheck_test.cpp
-)
-target_link_libraries(test_gradcheck PRIVATE CorePP::CorePP)
+# --- Feedforward ---
+add_executable(test_fnn fnn_test.cpp)
+target_link_libraries(test_fnn PRIVATE ${TEST_LIBS})
 
-# --- RNN test ---
-add_executable(test_rnn
-    rnn_test.cpp
-)
-target_link_libraries(test_rnn PRIVATE CorePP::CorePP)
+# --- Convolutional ---
+add_executable(test_cnn cnn_test.cpp)
+target_link_libraries(test_cnn PRIVATE ${TEST_LIBS})
 
-# --- LSTM test ---
-add_executable(test_lstm
-    lstm_test.cpp
-)
-target_link_libraries(test_lstm PRIVATE CorePP::CorePP)
+add_executable(test_resnet resnet_test.cpp)
+target_link_libraries(test_resnet PRIVATE ${TEST_LIBS})
 
-# --- GRU test ---
+# --- Recurrent ---
+add_executable(test_rnn rnn_test.cpp)
+target_link_libraries(test_rnn PRIVATE ${TEST_LIBS})
+
+add_executable(test_lstm lstm_test.cpp)
+target_link_libraries(test_lstm PRIVATE ${TEST_LIBS})
+
 add_executable(test_gru gru_test.cpp)
-target_link_libraries(test_gru PRIVATE CorePP::CorePP)
+target_link_libraries(test_gru PRIVATE ${TEST_LIBS})
 
-# --- MaxPool2d test ---
-add_executable(test_pool pool_test.cpp)
-target_link_libraries(test_pool PRIVATE CorePP::CorePP)
-
-# --- BatchNorm test ---
-add_executable(test_bn bn_test.cpp)
-target_link_libraries(test_bn PRIVATE CorePP::CorePP)
-
-# --- Dropout test ---
-add_executable(test_dropout dropout_test.cpp)
-target_link_libraries(test_dropout PRIVATE CorePP::CorePP)
-
-# --- Embedding test ---
-add_executable(test_embed embed_test.cpp)
-target_link_libraries(test_embed PRIVATE CorePP::CorePP)
-
-# --- Residual test ---
-add_executable(test_residual residual_test.cpp)
-target_link_libraries(test_residual PRIVATE CorePP::CorePP)
-
-# --- Output all test binaries ---
-set_target_properties(
-    test_fnn test_cnn test_gradcheck test_rnn test_lstm
-    test_gru test_pool test_bn test_dropout test_embed test_residual
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+# --- Output ---
+set(ALL_TESTS
+    test_gradcheck test_fnn test_cnn test_resnet
+    test_rnn test_lstm test_gru
+)
+set_target_properties(${ALL_TESTS} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_DIR})

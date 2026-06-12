@@ -52,6 +52,8 @@ public:
     // GPU: move entire model
     void cuda() { for (auto* L : layers) L->cuda(); }
     void cpu()  { for (auto* L : layers) L->cpu();  }
+    void eval() { for (auto* L : layers) L->eval();  }
+    void train(){ for (auto* L : layers) L->train(); }
 };
 
 } // namespace CoreNNSpace

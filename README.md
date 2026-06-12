@@ -4,10 +4,12 @@
 
 ## 特性
 
+- **20+ 层**: Linear, Conv2d, RNN, LSTM, GRU, MaxPool2d, BatchNorm, LayerNorm, Dropout, Embedding, GELU, Swish, Residual, ResNetBlock
 - **矩阵运算**: GotoBLAS 风格 packed GEMM 微内核，AVX2 SIMD 加速
-- **卷积**: im2col+GEMM，Winograd F(2,3) 变换支持
-- **循环网络**: RNN (BPTT)、LSTM (4门合并 GEMM)
-- **优化器**: SGD、Momentum、Adam、RMSProp、Adagrad
+- **6 种优化器**: SGD, Momentum, Adam, AdamW, RMSProp, Adagrad
+- **学习率调度**: Cosine Annealing, Step Decay
+- **GPU 加速**: `model.cuda()` 一行搬运，全程 GPU 运算
+- **梯度检验**: 自动数值梯度 vs 分析梯度对比
 - **CUDA**: 可选 GPU 加速，纯 C 接口兼容 MinGW
 - **自动梯度检验**: 数值梯度 vs 分析梯度对比
 
@@ -73,7 +75,8 @@ cmake --build _build
 |------|------|
 | [快速入门](docs/QuickStart.md) | 安装、构建、第一个模型 |
 | [API 参考](docs/API.md) | 所有类和函数 |
-| [层说明](docs/Layers.md) | Linear、Conv2d、RNN、LSTM |
+| [层说明](docs/Layers.md) | 全部 20+ 层详解 |
+| [自定义模型](docs/CustomModel.md) | 5 分钟开发自己的层 |
 | [CUDA 指南](docs/CUDA.md) | GPU 加速配置 |
 
 ## 项目结构

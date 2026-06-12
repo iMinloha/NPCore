@@ -2,9 +2,9 @@
 
 template<typename T>
 Matrix<T> Matrix<T>::operator+(Matrix<T> mat2) const {
-    COREPP_ASSERT(row == mat2.row && col == mat2.col, "Matrix shape mismatch");
-    Matrix<T> res(row, col);
-    int total = row * col;
+    COREPP_ASSERT(row == mat2.row && col == mat2.col && channel == mat2.channel, "Matrix shape mismatch");
+    Matrix<T> res(row, col, channel);
+    int total = row * col * channel;
 #ifdef __AVX__
     int i = 0;
     for (; i + 8 <= total; i += 8) {
@@ -163,8 +163,8 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> mat2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(T value) const {
-    Matrix<T> result(row, col);
-    int total = row * col;
+    Matrix<T> result(row, col, channel);
+    int total = row * col * channel;
 #ifdef __AVX__
     __m256 scalar = _mm256_set1_ps(value);
     int i = 0;
@@ -301,9 +301,9 @@ Matrix<T> Matrix<T>::rotate180() {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator-(Matrix<T> mat2) const {
-    COREPP_ASSERT(row == mat2.row && col == mat2.col, "Matrix shape mismatch");
-    Matrix<T> res(row, col);
-    int total = row * col;
+    COREPP_ASSERT(row == mat2.row && col == mat2.col && channel == mat2.channel, "Matrix shape mismatch");
+    Matrix<T> res(row, col, channel);
+    int total = row * col * channel;
 #ifdef __AVX__
     int i = 0;
     for (; i + 8 <= total; i += 8) {

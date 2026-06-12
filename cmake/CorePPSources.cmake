@@ -37,13 +37,16 @@ set(COREPP_LAYERS_HEADERS
     CorePP/Layers/Dropout.h
     CorePP/Layers/Embedding.h
     CorePP/Layers/Flatten.h
+    CorePP/Layers/GELU.h
     CorePP/Layers/GRU.h
+    CorePP/Layers/LayerNorm.h
     CorePP/Layers/Linear.h
     CorePP/Layers/LSTM.h
     CorePP/Layers/Module.h
     CorePP/Layers/ParamInit.h
     CorePP/Layers/Pool.h
     CorePP/Layers/Residual.h
+    CorePP/Layers/ResNetBlock.h
     CorePP/Layers/RNN.h
     CorePP/Layers/Sequence.h
 )
@@ -54,6 +57,8 @@ set(COREPP_OPTIMIZERS_SOURCES
 )
 
 set(COREPP_OPTIMIZERS_HEADERS
+    CorePP/Optimizers/AdamW.h
+    CorePP/Optimizers/LRScheduler.h
     CorePP/Optimizers/Optimizer.h
 )
 

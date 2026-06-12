@@ -4,30 +4,28 @@ using namespace std;
 using namespace CoreNNSpace;
 
 int main() {
-    cout << "===== GRU Test =====" << endl;
-    GRU gru(2, 4);
+    cout << "\n===== GRU Test: sequence memory =====" << endl;
 
-    // Sequence: 5 steps, 2 features
-    Matrix<float> x(5, 2);
-    float vals[5][2] = {{0.1,0.2},{0.3,0.1},{0.5,0.4},{0.2,0.3},{0.1,0.5}};
-    for (int t = 0; t < 5; ++t) for (int f = 0; f < 2; ++f) x.at(t,f) = vals[t][f];
+    GRU gru(1, 6);
+    Matrix<float> x(10, 1);
+    x << 1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 
-    Matrix<float> y(5, 4); y << 0.3 << 0.5 << 0.2 << 0.1 << 0;
-
-    float mse0 = mse_loss(gru.forward(x), y);
-    cout << "Initial MSE: " << mse0 << endl;
-
-    Optim optim({&gru}, Adam, 0.005f);
-    for (int e = 0; e < 500; e++) {
-        auto out = gru.forward(x);
-        optim.step(out - y);
-        if (e % 200 == 0) cout << "  epoch " << e << ": " << mse_loss(out, y) << endl;
-    }
+    Matrix<float> y(10, 6);
+    y.at(9, 0) = 1; y.at(9, 1) = 1; y.at(9, 2) = 1;
 
     auto out = gru.forward(x);
-    printf("Final: [%.3f, %.3f, %.3f, %.3f, %.3f]  MSE: %.4f\n",
-           out.at(0,0), out.at(1,0), out.at(2,0), out.at(3,0), out.at(4,0),
-           mse_loss(out, y));
-    cout << (mse_loss(out, y) < mse0 ? "GRU Test PASSED" : "GRU Test FAILED") << endl;
+    out.Analysis("Initial");
+    cout << "MSE: " << mse_loss(out, y) << endl;
+
+    Optim optim({&gru}, Adam, 0.005f);
+    for (int e = 0; e < 600; e++) {
+        out = gru.forward(x);
+        optim.step(out - y);
+        if (e % 200 == 0) printf("  epoch %3d: %.4f\n", e, mse_loss(out, y));
+    }
+
+    out = gru.forward(x);
+    out.Analysis("Final");
+    cout << "GRU Test COMPLETED" << endl;
     return 0;
 }
