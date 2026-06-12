@@ -194,9 +194,55 @@ cmake --build _build
 
 | 文档 | 内容 |
 |------|------|
-| [快速入门](docs/QuickStart.md) | 安装构建 + 各模型示例 |
-| [API 参考](docs/API.md) | 完整 API (Matrix/层/损失/优化器) |
-| [开发指南](docs/DevGuide.md) | 实现原理 + 编码规范 + 二次开发 |
+| [快速入门](docs/QuickStart.md) | 安装构建 + 各模型示例 (带注释) |
+| [API 参考](docs/API.md) | 完整 API (每个参数类型和作用有注释) |
+| [开发指南](docs/DevGuide.md) | 实现原理 + 编码规范 + 自定义激活/损失/层模板 |
 | [层说明](docs/Layers.md) | 全部 20+ 层数学公式 |
-| [自定义模型](docs/CustomModel.md) | 继承 Module 开发自己的层 |
+| [自定义模型](docs/CustomModel.md) | 继承 Module 开发自己的层 (简单/复合) |
 | [CUDA 指南](docs/CUDA.md) | GPU 编译与使用 |
+
+## TODO
+
+### 已完成
+- [x] Matrix 矩阵类 (2D/3D, AVX2 SIMD)
+- [x] Packed GEMM 微内核 (6×16, Kahan 求和)
+- [x] Linear 全连接层
+- [x] Conv2d 卷积层 (im2col + GEMM)
+- [x] MaxPool2d 池化层
+- [x] Flatten 展平层
+- [x] 12 种激活函数 (ReLU~Swish)
+- [x] 6 种损失函数 (MSE~KL)
+- [x] 9 种优化器 (SGD~RAdam)
+- [x] 学习率调度 (Cosine, Step)
+- [x] RNN / LSTM / GRU 循环网络
+- [x] BatchNorm1d / LayerNorm 归一化
+- [x] Dropout / Embedding 正则化与嵌入
+- [x] Residual / ResNetBlock 残差架构
+- [x] Sequence 顺序容器
+- [x] CUDA 后端 (GEMM, Element-wise, RNN/LSTM)
+- [x] GPU 常驻模式 (model.cuda())
+- [x] 梯度检验 (numerical gradient + gradcheck)
+- [x] 高层 API (nn::FNN, nn::CNN, nn::Trainer)
+- [x] Inference 模式 (eval, 跳过梯度存储)
+- [x] 参数初始化 (Xavier/He/Uniform/Gaussian/Orthogonal)
+- [x] 矩阵可视化 (Analysis, 自适应科学计数)
+- [x] 动态链接库 (DLL) 构建
+- [x] 完整文档 (README + 6 docs)
+- [x] 示例程序 (7 个 examples)
+
+### 待完成
+- [ ] Transformer / Multi-Head Attention
+- [ ] U-Net 架构
+- [ ] GAN (生成对抗网络) 训练框架
+- [ ] BatchNorm2d / GroupNorm
+- [ ] 数据加载器 (DataLoader)
+- [ ] 模型保存/加载 (序列化)
+- [ ] ONNX 导出
+- [ ] 分布式训练 (多 GPU)
+- [ ] cuDNN 后端集成
+- [ ] Python 绑定 (pybind11)
+- [ ] 更多初始化 (Kaiming Uniform, Truncated Normal)
+- [ ] 梯度累积 (Gradient Accumulation)
+- [ ] 混合精度训练 (FP16)
+- [ ] 自动混合精度 (AMP)
+- [ ] Winograd 卷积 (F(2,3) 正确实现)
