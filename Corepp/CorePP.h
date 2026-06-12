@@ -33,7 +33,7 @@
 #include "Optim.h"
 
 // --- Loss Functions ---
-#include "Loss.h"
+#include "Losses/Loss.h"
 
 // --- High-Level API ---
 #include "Model.h"

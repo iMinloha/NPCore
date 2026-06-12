@@ -1,4 +1,4 @@
-#include "Layers/GRU.h"
+#include "Layers/Recurrent/GRU.h"
 #include <cmath>
 namespace CoreNNSpace {
 

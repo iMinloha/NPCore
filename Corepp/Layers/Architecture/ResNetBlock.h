@@ -1,9 +1,9 @@
 #ifndef COREPP_LAYERS_RESNETBLOCK_H
 #define COREPP_LAYERS_RESNETBLOCK_H
 #include "Layers/Module.h"
-#include "Layers/Conv2d.h"
-#include "Layers/BatchNorm.h"
-#include "Layers/Activation.h"
+#include "Layers/Conv/Conv2d.h"
+#include "Layers/Normalization/BatchNorm.h"
+#include "Activations/Activation.h"
 namespace CoreNNSpace {
 
 // =================================[ResNet Block]================================

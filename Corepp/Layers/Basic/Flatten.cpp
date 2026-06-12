@@ -1,4 +1,4 @@
-#include "Layers/Flatten.h"
+#include "Layers/Basic/Flatten.h"
 
 namespace CoreNNSpace {
 

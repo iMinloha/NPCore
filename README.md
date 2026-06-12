@@ -2,6 +2,14 @@
 
 纯 C++20 深度学习库，支持 SIMD (AVX2/NEON) 加速和 CUDA GPU 推理。
 
+## 目录
+
+- [特性](#特性)
+- [快速开始](#快速开始)
+- [构建](#构建)
+- [文档](#文档)
+- [项目结构](#项目结构)
+
 ## 特性
 
 - **20+ 层**: Linear, Conv2d, RNN, LSTM, GRU, MaxPool2d, BatchNorm, LayerNorm, Dropout, Embedding, GELU, Swish, Residual, ResNetBlock
@@ -9,31 +17,25 @@
 - **6 种优化器**: SGD, Momentum, Adam, AdamW, RMSProp, Adagrad
 - **学习率调度**: Cosine Annealing, Step Decay
 - **GPU 加速**: `model.cuda()` 一行搬运，全程 GPU 运算
-- **梯度检验**: 自动数值梯度 vs 分析梯度对比
-- **CUDA**: 可选 GPU 加速，纯 C 接口兼容 MinGW
-- **自动梯度检验**: 数值梯度 vs 分析梯度对比
+- **梯度检验**: 数值梯度 vs 分析梯度对比
 
 ## 快速开始
 
 ```cpp
 #include "CorePP.h"
-#include "Model.h"
 using namespace CoreNNSpace;
 
 int main() {
-    // 一行创建全连接网络: 4→8→16→8→4
     auto fnn = nn::FNN({4, 8, 16, 8, 4}, nn::Sigmoid);
 
     Matrix<float> x(4, 1); x << 3 << 4 << 2 << 1;
     Matrix<float> y(4, 1); y << 1 << 0 << 0 << 0;
 
-    // 训练
     nn::Trainer(fnn, nn::MSE, Optim(fnn.getParams(), Adam, 0.01f))
         .fit(x, y, 300, [](int e, float loss) {
             printf("epoch %d: %.6f\n", e, loss);
         });
 
-    // 推理
     auto out = fnn.forward(x);
     out.Analysis("Prediction");
 }
@@ -41,29 +43,23 @@ int main() {
 
 ## 构建
 
-### 静态库 (默认)
+### 静态库
 ```bash
 cmake -G "MinGW Makefiles" -B _build
 cmake --build _build
-./_build/bin/CorePPDemo
+./_build/examples/example_fnn
 ```
 
-### 动态链接库 (DLL)
+### 动态库 (DLL)
 ```bash
-# 构建 DLL
 cmake -G "MinGW Makefiles" -B _build_shared -DBUILD_SHARED_LIBS=ON
 cmake --build _build_shared
-
-# 编译示例 (链接 DLL)
 g++ -std=c++20 -I CorePP examples/basic/main.cpp \
-    -L_build_shared/lib -lCorePP -fopenmp \
-    -o example.exe
-
-# 运行 (确保 DLL 在 PATH)
+    -L_build_shared/lib -lCorePP -fopenmp -o example.exe
 PATH="$PWD/_build_shared/bin:$PATH" ./example.exe
 ```
 
-### CUDA 版本 (需要 nvcc + MSVC)
+### CUDA
 ```bash
 cmake -G "MinGW Makefiles" -B _build -DCOREPP_ENABLE_CUDA=ON
 cmake --build _build
@@ -95,7 +91,3 @@ CorePP/
 ├── CorePP.h        # 主头文件
 └── Model.h         # 高层 API
 ```
-
-## License
-
-MIT

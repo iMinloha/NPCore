@@ -21,20 +21,20 @@ namespace CoreNNSpace {
 class CosineLR {
     float lr_max, lr_min, T_max;
     int t = 0;
-    std::function<void(float)> set_lr;  // callback to set LR on optimizer
+    ::std::function<void(float)> set_lr;  // callback to set LR on optimizer
 
 public:
     CosineLR(float lr_max, float lr_min, int T_max,
-             std::function<void(float)> setter)
+             ::std::function<void(float)> setter)
         : lr_max(lr_max), lr_min(lr_min), T_max(T_max), set_lr(setter) {}
 
     void step() {
-        float lr = lr_min + 0.5f * (lr_max - lr_min) * (1.0f + std::cos(M_PI * t / T_max));
+        float lr = lr_min + 0.5f * (lr_max - lr_min) * (1.0f + ::std::cos(M_PI * t / T_max));
         set_lr(lr);
         t++;
     }
     float current_lr() const {
-        return lr_min + 0.5f * (lr_max - lr_min) * (1.0f + std::cos(M_PI * t / T_max));
+        return lr_min + 0.5f * (lr_max - lr_min) * (1.0f + ::std::cos(M_PI * t / T_max));
     }
     void reset() { t = 0; }
 };
@@ -45,10 +45,10 @@ class StepLR {
     int step_size;
     float gamma;
     int t = 0;
-    std::function<void(float)> set_lr_;
+    ::std::function<void(float)> set_lr_;
 
 public:
-    StepLR(float lr, int step_size, float gamma, std::function<void(float)> setter)
+    StepLR(float lr, int step_size, float gamma, ::std::function<void(float)> setter)
         : lr(lr), step_size(step_size), gamma(gamma), set_lr_(setter) {}
 
     void step() {

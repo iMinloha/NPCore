@@ -52,9 +52,12 @@ public:
     void eval()  { train_mode=false; c1->eval();  c2->eval();  }
     void train() { train_mode=true;  c1->train(); c2->train(); }
     void CleanGard() override {
-        for(auto p:gard)delete p; gard.clear();
-        for(auto p:output)delete p; output.clear();
-        c1->CleanGard(); c2->CleanGard(); r1->CleanGard(); r2->CleanGard();
+        for (auto p : gard) delete p;
+        gard.clear();
+        for (auto p : output) delete p;
+        output.clear();
+        c1->CleanGard(); c2->CleanGard();
+        r1->CleanGard(); r2->CleanGard();
     }
 };
 

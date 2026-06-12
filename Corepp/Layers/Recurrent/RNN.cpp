@@ -1,4 +1,4 @@
-#include "Layers/RNN.h"
+#include "Layers/Recurrent/RNN.h"
 #include <cmath>
 
 namespace CoreNNSpace {

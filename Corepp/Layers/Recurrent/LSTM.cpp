@@ -1,4 +1,4 @@
-#include "Layers/LSTM.h"
+#include "Layers/Recurrent/LSTM.h"
 #include <cmath>
 
 namespace CoreNNSpace {

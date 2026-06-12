@@ -1,4 +1,4 @@
-#include "Layers/Conv2d.h"
+#include "Layers/Conv/Conv2d.h"
 
 namespace CoreNNSpace {
 

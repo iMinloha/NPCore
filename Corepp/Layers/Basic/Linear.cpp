@@ -1,4 +1,4 @@
-#include "Layers/Linear.h"
+#include "Layers/Basic/Linear.h"
 
 namespace CoreNNSpace {
 

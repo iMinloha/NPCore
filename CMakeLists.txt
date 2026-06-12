@@ -112,8 +112,8 @@ endif()
 # =================================[Install & Export]================================
 include(cmake/InstallRules.cmake)
 
-# =================================[Tests]================================
-option(BUILD_TESTS "Build test programs" ON)
-if(BUILD_TESTS)
-    add_subdirectory(tests)
+# =================================[Examples]================================
+option(BUILD_EXAMPLES "Build example programs" ON)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
 endif()

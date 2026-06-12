@@ -1,27 +1,34 @@
 #ifndef COREPP_NN_H
 #define COREPP_NN_H
 
-// =================================[CorePP/NN — Neural Network Layers]================================
-// Include this for building neural networks: Linear, Conv2d, activations, etc.
-// Depends on CorePP/Core.h for Matrix types.
-
 #include "Layers/Module.h"
-#include "Layers/Sequence.h"
-#include "Layers/Linear.h"
-#include "Layers/Conv2d.h"
-#include "Layers/Activation.h"
-#include "Layers/Flatten.h"
 #include "Layers/ParamInit.h"
-#include "Layers/RNN.h"
-#include "Layers/LSTM.h"
-#include "Layers/GRU.h"
-#include "Layers/Pool.h"
-#include "Layers/BatchNorm.h"
-#include "Layers/Dropout.h"
-#include "Layers/Embedding.h"
-#include "Layers/Residual.h"
-#include "Layers/ResNetBlock.h"
-#include "Layers/LayerNorm.h"
-#include "Layers/GELU.h"
+#include "Layers/Sequence.h"
 
-#endif // COREPP_NN_H
+// Basic
+#include "Layers/Basic/Linear.h"
+#include "Layers/Basic/Flatten.h"
+#include "Layers/Basic/Embedding.h"
+#include "Layers/Basic/Dropout.h"
+
+// Convolution
+#include "Layers/Conv/Conv2d.h"
+#include "Layers/Conv/Pool.h"
+
+// Recurrent
+#include "Layers/Recurrent/RNN.h"
+#include "Layers/Recurrent/LSTM.h"
+#include "Layers/Recurrent/GRU.h"
+
+// Normalization
+#include "Layers/Normalization/BatchNorm.h"
+#include "Layers/Normalization/LayerNorm.h"
+
+// Architecture
+#include "Layers/Architecture/Residual.h"
+#include "Layers/Architecture/ResNetBlock.h"
+
+// Activations
+#include "Activations/Activation.h"
+
+#endif
