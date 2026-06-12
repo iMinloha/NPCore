@@ -428,6 +428,92 @@ seq.eval();                      // 递归设置 eval 模式
 
 ---
 
+## DataLoader — 数据加载
+
+### 抽象基类
+
+```cpp
+class DataLoader {
+public:
+    enum DataSplit { Train, Test, Val };
+
+    virtual int  num_samples() const = 0;       // 当前 split 的样本数
+    virtual bool next_batch(                     // 获取下一批数据
+        Matrix<float>& x,                        // [out] 输入批次
+        Matrix<float>& y) = 0;                   // [out] 目标批次
+    // 返回 true=还有数据, false=epoch结束(自动reset)
+
+    virtual void reset() {}                     // 重置迭代器
+    virtual void set_split(DataSplit) {}        // 切换 Train/Test/Val
+
+    void train() { set_split(Train); }          // 快捷切换
+    void test()  { set_split(Test);  }
+    void val()   { set_split(Val);   }
+};
+```
+
+### 数据格式约定
+
+| 网络类型 | 输入 shape | 目标 shape |
+|----------|-----------|-----------|
+| FNN (Linear) | `(features, 1)` 列向量 | `(classes, 1)` |
+| CNN (Conv2d) | `(H, W, C)` 3D tensor | `(classes, 1)` |
+| RNN/LSTM/GRU | `(seq_len, features)` 每行一步 | `(seq_len, hidden)` |
+
+### 内置 Loader
+
+```cpp
+// 单样本: 只含一个 (x,y) 对, 每 epoch 重复 batch_size 次
+SingleSampleLoader loader(x, y, batch_size=1);
+
+// 内存: 从 vector 加载, 支持 train/test/val 划分
+InMemoryLoader loader(batch_size=32, shuffle=true);
+loader.add_sample(x1, y1);          // 逐个添加样本
+loader.add_sample(x2, y2);
+loader.split(0.7f, 0.2f, 0.1f);    // 70% train, 20% test, 10% val
+loader.train();                      // 切换到训练集
+loader.num_samples();                // → 训练集样本数
+```
+
+### 自定义 DataLoader
+
+```cpp
+class MyLoader : public DataLoader {
+    // 你的数据源 (文件、数据库、网络...)
+    vector<Matrix<float>> inputs_, targets_;
+    int cursor_ = 0;
+
+public:
+    // 必须实现
+    int num_samples() const override { return (int)inputs_.size(); }
+    void reset() override { cursor_ = 0; }
+    bool next_batch(Matrix<float>& x, Matrix<float>& y) override {
+        if (cursor_ >= (int)inputs_.size()) { cursor_ = 0; return false; }
+        x = inputs_[cursor_];       // 填充输出参数
+        y = targets_[cursor_];
+        cursor_++;
+        return true;                // 还有数据
+    }
+
+    // 可选: 实现 set_split 切换训练/测试集
+};
+```
+
+### Trainer 兼容
+
+```cpp
+MyLoader loader;
+// ... 准备数据 ...
+
+nn::Trainer(net, nn::MSE, Optim(net.getParams(), Adam, 0.01f))
+    .fit(loader, 100, [](int e, float loss) {
+        printf("epoch %d: %.4f\n", e, loss);
+    });
+// Trainer 内部自动调用 loader.reset() + while(loader.next_batch()) {...}
+```
+
+---
+
 ## 梯度检验
 
 ```cpp

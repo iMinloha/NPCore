@@ -1,11 +1,12 @@
 # =================================[CorePP Source Files]================================
 
 # --- Core module ---
-set(COREPP_CORE_SOURCES CorePP/Core/RandomGenerator.cpp)
+set(COREPP_CORE_SOURCES CorePP/Core/RandomGenerator.cpp CorePP/DataLoader.cpp)
 set(COREPP_CORE_HEADERS
     CorePP/Core/Assert.h CorePP/Core/ConvUtils.h CorePP/Core/CudaBridge.h
     CorePP/Core/GEMM.h CorePP/Core/LinearAlgebra.h CorePP/Core/Matrix.hpp
     CorePP/Core/Matrix.inl CorePP/Core/RandomGenerator.h CorePP/Core/Size.h
+    CorePP/DataLoader.h
 )
 
 # --- Activations module ---

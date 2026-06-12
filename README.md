@@ -188,6 +188,7 @@ cmake --build _build
 ./_build/examples/example_lstm        # LSTM: 长期记忆
 ./_build/examples/example_gru         # GRU: 序列记忆
 ./_build/examples/example_resnet      # ResNet: Conv→ResBlock→Pool→Linear
+./_build/examples/example_dataloader  # DataLoader: 自定义数据加载 + 训练/测试划分
 ```
 
 ## 文档
@@ -228,7 +229,8 @@ cmake --build _build
 - [x] 矩阵可视化 (Analysis, 自适应科学计数)
 - [x] 动态链接库 (DLL) 构建
 - [x] 完整文档 (README + 6 docs)
-- [x] 示例程序 (7 个 examples)
+- [x] DataLoader 数据加载框架 (Train/Test/Val)
+- [x] 示例程序 (8 个 examples)
 
 ### 待完成
 - [ ] Transformer / Multi-Head Attention

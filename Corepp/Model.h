@@ -12,6 +12,7 @@
 //       .fit(input, target, 200);
 
 #include "CorePP.h"
+#include "DataLoader.h"
 #include <functional>
 #include <initializer_list>
 
@@ -121,6 +122,24 @@ public:
             }
             if (callback && (e % 50 == 0 || e == epochs - 1))
                 callback(e, total / samples.size());
+        }
+    }
+
+    // DataLoader training — 兼容任意 DataLoader 子类
+    void fit(DataLoader& loader, int epochs,
+             std::function<void(int, float)> callback = nullptr) {
+        for (int e = 0; e < epochs; ++e) {
+            loader.reset();
+            float total = 0; int count = 0;
+            Matrix<float> x, y;
+            while (loader.next_batch(x, y)) {
+                Matrix<float> out = model_->forward(x);
+                optim_.step(loss_grad(out, y, loss_));
+                total += loss_val(out, y, loss_);
+                count++;
+            }
+            if (callback && (e % 50 == 0 || e == epochs - 1))
+                callback(e, count > 0 ? total / count : 0);
         }
     }
 };

@@ -22,8 +22,12 @@ target_link_libraries(example_gru PRIVATE ${LIBS})
 add_executable(example_resnet resnet_test.cpp)
 target_link_libraries(example_resnet PRIVATE ${LIBS})
 
+add_executable(example_dataloader dataloader_test.cpp)
+target_link_libraries(example_dataloader PRIVATE ${LIBS})
+
 set(ALL_EXAMPLES
     example_gradcheck example_fnn example_cnn
     example_rnn example_lstm example_gru example_resnet
+    example_dataloader
 )
 set_target_properties(${ALL_EXAMPLES} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIR})

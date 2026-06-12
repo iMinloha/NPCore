@@ -35,6 +35,9 @@
 // --- Loss Functions ---
 #include "Losses/Loss.h"
 
+// --- Data Loading ---
+#include "DataLoader.h"
+
 // --- High-Level API ---
 #include "Model.h"
 
