@@ -1,5 +1,5 @@
 """
-MultiHeadAttention — Forward Pass Diagram  (solid white bg)
+MultiHeadAttention - Forward Pass Diagram  (solid white bg)
 Generates: assets/img/mha.png
 """
 import matplotlib
@@ -35,7 +35,7 @@ def arrow(x1, y1, x2, y2, c=None, lw=1.1):
                                connectionstyle='arc3,rad=0'), zorder=1)
 
 # ── Title ──
-ax.text(5, 8.55, 'MultiHeadAttention — Forward Pass', ha='center', fontsize=15,
+ax.text(5, 8.55, 'MultiHeadAttention - Forward Pass', ha='center', fontsize=15,
         fontweight='bold', color=C['fg'], fontfamily='monospace')
 ax.text(5, 8.10, 'd_model=12   num_heads=3   d_head=4   causal=False',
         ha='center', fontsize=8.5, color=C['dim'], family='monospace')
@@ -80,7 +80,7 @@ arrow(5, y4, 5, y5+0.55, C['gray'], 0.9)
 
 # ── Row 7: Output ──
 y6 = 0.20
-box(ax, 2.8, y6, 4.4, 0.50, C['blue'], 'Output', '(seq_len=4,  d_model=12)  —  same shape as Input')
+box(ax, 2.8, y6, 4.4, 0.50, C['blue'], 'Output', '(seq_len=4,  d_model=12)  -  same shape as Input')
 arrow(5, y5, 5, y6+0.50, C['gray'], 0.9)
 
 # ── Legend ──

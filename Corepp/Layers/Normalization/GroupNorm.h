@@ -7,20 +7,20 @@
 
 namespace CoreNNSpace {
 
-// =================================[GroupNorm — Group Normalization]================================
+// =================================[GroupNorm - Group Normalization]================================
 // Reference: Wu & He (2018) "Group Normalization"
 //
 // Divides channels into groups and normalizes within each group over (H, W, C_per_group).
-// Unlike BatchNorm, GroupNorm is independent of batch size — it works equally well
+// Unlike BatchNorm, GroupNorm is independent of batch size - it works equally well
 // with batch_size=1 or batch_size=32, making it ideal for:
 //   - Object detection / segmentation (small batch sizes due to large inputs)
 //   - Video models (temporal batch limits)
 //   - Style transfer / GANs
 //
 // Input:  (H, W, C)
-// Output: (H, W, C) — same shape
+// Output: (H, W, C) - same shape
 //
-// y = γ_c * (x_c - μ_group(c)) / √(σ²_group(c) + ε) + β_c
+// y = gamma_c * (x_c - mu_group(c)) / sqrt(sigma^2_group(c) + eps) + beta_c
 //
 // num_groups must divide channels (typically num_groups = 32 or channels // 2).
 
@@ -147,8 +147,8 @@ public:
 
             // Gradient w.r.t. input (same derivation as LayerNorm but per-group)
             // For each position within the group:
-            //   dx = (1/σ) * [ γ * dŷ - (γ * dŷ)_mean - x̂ * (γ * dŷ * x̂)_mean ] / N
-            // where x̂ = (x - μ)/σ, dŷ = grad_output
+            //   dx = (1/sigma) * [ gamma * dŷ - (gamma * dŷ)_mean - x̂ * (gamma * dŷ * x̂)_mean ] / N
+            // where x̂ = (x - mu)/sigma, dŷ = grad_output
 
             for (int c = ch_start; c < ch_end; ++c) {
                 float gamma_c = gamma->at(c, 0);

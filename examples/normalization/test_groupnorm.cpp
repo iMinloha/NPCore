@@ -1,5 +1,5 @@
-// =================================[GroupNorm — Precision Test]================================
-// Verifies: per-group independent normalization (μ≈0, σ²≈1 within each group),
+// =================================[GroupNorm - Precision Test]================================
+// Verifies: per-group independent normalization (mu≈0, sigma^2≈1 within each group),
 //           cross-group isolation, backward gradient flow.
 
 #include "CorePP.h"
@@ -11,15 +11,15 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  GroupNorm — Precision Analysis\n";
+    std::cout << "  GroupNorm - Precision Analysis\n";
     std::cout << "============================================================\n";
 
-    constexpr int G = 2, C = 6, cpg = C / G;  // 2 groups × 3 channels
-    constexpr int H = 2, W = 3;               // 2×3 spatial = 6 positions, 6×3=18 values per group
+    constexpr int G = 2, C = 6, cpg = C / G;  // 2 groups x 3 channels
+    constexpr int H = 2, W = 3;               // 2x3 spatial = 6 positions, 6x3=18 values per group
     constexpr int N_per_group = H * W * cpg;
 
     std::cout << "\n[Config] groups=" << G << "  channels=" << C
-              << "  ch/group=" << cpg << "  spatial=" << H << "×" << W
+              << "  ch/group=" << cpg << "  spatial=" << H << "x" << W
               << "  (N per group=" << N_per_group << ")\n";
 
     GroupNorm gn(G, C);
@@ -33,11 +33,11 @@ int main() {
             for (int j = 0; j < W; ++j)
                 x.at(i, j, c) = (float)(base + c * (H * W) + i * W + j);
     }
-    x.Analysis("GroupNorm Input — Group 0 (ch0-2): 0..17, Group 1 (ch3-5): 100..117");
+    x.Analysis("GroupNorm Input - Group 0 (ch0-2): 0..17, Group 1 (ch3-5): 100..117");
 
     // Forward
     auto out = gn.forward(x);
-    out.Analysis("GroupNorm Output — each group independently normalized to μ≈0,σ²≈1");
+    out.Analysis("GroupNorm Output - each group independently normalized to mu≈0,sigma^2≈1");
 
     COREPP_ASSERT(out.row == H && out.col == W && out.channel == C, "GroupNorm output shape mismatch");
 
@@ -54,14 +54,14 @@ int main() {
                 }
         float om = sum / N_per_group;
         float ov = sum_sq / N_per_group - om * om;
-        std::cout << "  Group " << g << ": μ=" << std::scientific << std::setprecision(8) << om
-                  << "  σ²=" << ov << "  (target: μ≈0, σ²≈1)\n";
+        std::cout << "  Group " << g << ": mu=" << std::scientific << std::setprecision(8) << om
+                  << "  sigma^2=" << ov << "  (target: mu≈0, sigma^2≈1)\n";
         COREPP_ASSERT(std::abs(om) < 1e-4f, "GroupNorm mean not ~0");
         COREPP_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "GroupNorm var not ~1");
     }
 
     // Verify cross-group isolation: group 0 mean ≠ group 1 mean before norm, both ~0 after
-    std::cout << "\n  Cross-group check: both groups normalize to μ≈0 independently ✓\n";
+    std::cout << "\n  Cross-group check: both groups normalize to mu≈0 independently ✓\n";
 
     // Backward
     Matrix<float> g(H, W, C);
@@ -75,8 +75,8 @@ int main() {
 
     auto grads = gn.getAllGrads();
     if (grads.size() >= 2) {
-        if (grads[0]) grads[0]->Analysis("dγ (gamma gradient)");
-        if (grads[1]) grads[1]->Analysis("dβ (beta gradient)");
+        if (grads[0]) grads[0]->Analysis("dgamma (gamma gradient)");
+        if (grads[1]) grads[1]->Analysis("dbeta (beta gradient)");
     }
 
     gn.CleanGard();

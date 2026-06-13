@@ -1,4 +1,4 @@
-// =================================[MultiHeadAttention — Precision Test]================================
+// =================================[MultiHeadAttention - Precision Test]================================
 // Verifies: shape correctness, forward/backward consistency, gradient flow through all 8 parameter matrices.
 
 #include "CorePP.h"
@@ -10,7 +10,7 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  MultiHeadAttention — Precision Analysis\n";
+    std::cout << "  MultiHeadAttention - Precision Analysis\n";
     std::cout << "============================================================\n";
 
     constexpr int seq = 4, d_model = 32, heads = 4;
@@ -27,11 +27,11 @@ int main() {
     for (int t = 0; t < seq; ++t)
         for (int d = 0; d < d_model; ++d)
             x.at(t, d) = (float)((t + 1) * 100 + d) / 1000.0f;
-    x.Analysis("MHA Input (seq×d_model)");
+    x.Analysis("MHA Input (seqxd_model)");
 
     // Forward
     auto out = mha.forward(x);
-    out.Analysis("MHA Output (seq×d_model) — expected same shape as input");
+    out.Analysis("MHA Output (seqxd_model) - expected same shape as input");
 
     COREPP_ASSERT(out.row == seq && out.col == d_model,
                 "MHA output shape mismatch: got (%d,%d), expected (%d,%d)",
@@ -61,7 +61,7 @@ int main() {
         if (grads[i]) {
             float gs = 0; int n = grads[i]->row * grads[i]->col * grads[i]->channel;
             for (int j = 0; j < n; ++j) gs += grads[i]->data_ptr()[j];
-            std::cout << "  " << names[i] << " (" << grads[i]->row << "×" << grads[i]->col
+            std::cout << "  " << names[i] << " (" << grads[i]->row << "*" << grads[i]->col
                       << ") sum=" << std::scientific << std::setprecision(4) << gs << "\n";
         }
     }

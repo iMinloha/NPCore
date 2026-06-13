@@ -1,5 +1,5 @@
-// =================================[BatchNorm2d — Precision Test]================================
-// Verifies: per-channel μ≈0, σ²≈1 after forward; running stats accumulate in train mode;
+// =================================[BatchNorm2d - Precision Test]================================
+// Verifies: per-channel mu≈0, sigma^2≈1 after forward; running stats accumulate in train mode;
 //           eval mode uses running stats; backward produces non-zero gradients.
 
 #include "CorePP.h"
@@ -11,7 +11,7 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  BatchNorm2d — Precision Analysis\n";
+    std::cout << "  BatchNorm2d - Precision Analysis\n";
     std::cout << "============================================================\n";
 
     constexpr int H = 4, W = 4, C = 4;
@@ -28,7 +28,7 @@ int main() {
                 else if (c == 2) x.at(i,j,c) = -3.0f;
                 else             x.at(i,j,c) = (float)(30 + i * W + j);
             }
-    x.Analysis("BatchNorm2d Input (H×W×C)");
+    x.Analysis("BatchNorm2d Input (HxWxC)");
 
     // Compute expected statistics manually
     std::cout << "\n[Expected per-channel statistics]\n";
@@ -46,13 +46,13 @@ int main() {
                 ss += d * d;
             }
         exp_var[c] = ss / (H * W);
-        std::cout << "  Ch" << c << ": μ=" << std::fixed << std::setprecision(4) << exp_mean[c]
-                  << "  σ²=" << exp_var[c] << "  σ=" << std::sqrt(exp_var[c]) << "\n";
+        std::cout << "  Ch" << c << ": mu=" << std::fixed << std::setprecision(4) << exp_mean[c]
+                  << "  sigma^2=" << exp_var[c] << "  sigma=" << std::sqrt(exp_var[c]) << "\n";
     }
 
     // Forward
     auto out = bn.forward(x);
-    out.Analysis("BatchNorm2d Output — normalized (γ=1,β=0)");
+    out.Analysis("BatchNorm2d Output - normalized (gamma=1,beta=0)");
 
     COREPP_ASSERT(out.row == H && out.col == W && out.channel == C, "BatchNorm2d output shape mismatch");
 
@@ -67,14 +67,14 @@ int main() {
             }
         float om = sum / (H * W);
         float ov = sum_sq / (H * W) - om * om;
-        std::cout << "  Ch" << c << ": μ=" << std::scientific << std::setprecision(6) << om;
+        std::cout << "  Ch" << c << ": mu=" << std::scientific << std::setprecision(6) << om;
 
         COREPP_ASSERT(std::abs(om) < 1e-4f, "BatchNorm2d mean not ~0");
         if (exp_var[c] > 1e-6f) {
-            std::cout << "  σ²=" << ov << "  → σ²≈1 ✓\n";
+            std::cout << "  sigma^2=" << ov << "  -> sigma^2≈1 ✓\n";
             COREPP_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "BatchNorm2d var not ~1 for non-constant ch");
         } else {
-            std::cout << "  σ²=" << ov << "  → (constant input, σ²≈0 expected) ✓\n";
+            std::cout << "  sigma^2=" << ov << "  -> (constant input, sigma^2≈0 expected) ✓\n";
         }
     }
 
@@ -90,15 +90,15 @@ int main() {
 
     auto grads = bn.getAllGrads();
     if (grads.size() >= 2) {
-        if (grads[0]) grads[0]->Analysis("dγ (gamma gradient)");
-        if (grads[1]) grads[1]->Analysis("dβ (beta gradient)");
+        if (grads[0]) grads[0]->Analysis("dgamma (gamma gradient)");
+        if (grads[1]) grads[1]->Analysis("dbeta (beta gradient)");
     }
 
     // Eval mode
     bn.eval();
     auto eout = bn.forward(x);
     eout.Analysis("BatchNorm2d Eval-mode output (uses running stats)");
-    std::cout << "  (eval mode uses running μ,σ accumulated with momentum 0.9)\n";
+    std::cout << "  (eval mode uses running mu,sigma accumulated with momentum 0.9)\n";
 
     bn.CleanGard();
     std::cout << "\n[BatchNorm2d] ALL CHECKS PASSED\n";

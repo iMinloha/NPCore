@@ -38,7 +38,7 @@ public:
     Matrix<float> forward(Matrix<float>& input) override;
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
-    // Get params — marks weight cache dirty (will recompute on next forward)
+    // Get params - marks weight cache dirty (will recompute on next forward)
     std::vector<Matrix<float>*> getParams() override {
         weight_2d_dirty_ = true;
         return {weight, bias};

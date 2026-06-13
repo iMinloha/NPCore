@@ -9,7 +9,7 @@ namespace CoreNNSpace {
 
 // =================================[Sequence 序列容器]================================
 // Owns a list of layers. Forwards input through each layer sequentially.
-// Non-copyable, movable — ensures single ownership of layer pointers.
+// Non-copyable, movable - ensures single ownership of layer pointers.
 
 class Sequence {
 private:
@@ -20,7 +20,7 @@ public:
 
     explicit Sequence(std::vector<Module<float> *> layers) : layers(std::move(layers)) {}
 
-    // No copying — single ownership of layer pointers
+    // No copying - single ownership of layer pointers
     Sequence(const Sequence&) = delete;
     Sequence& operator=(const Sequence&) = delete;
 

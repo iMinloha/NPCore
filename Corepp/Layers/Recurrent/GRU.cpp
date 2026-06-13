@@ -23,7 +23,7 @@ Matrix<float> GRU::forward(Matrix<float>& input) {
         for (int i = 0; i < hidden_size; ++i) {
             float z = 1.0f / (1.0f + std::exp(-gates.at(hidden_size+i,0)));   // update
             float n_in = gates.at(2*hidden_size+i,0);
-            float n = std::tanh(n_in);  // new gate (simplified: ignores r⊙h weight)
+            float n = std::tanh(n_in);  // new gate (simplified: ignores r(*)h weight)
             h_t.at(i,0) = (1.0f - z) * n + z * h_prev.at(i,0);
         }
         if (train_mode) h_cache[t] = h_t;

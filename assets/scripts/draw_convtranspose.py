@@ -1,5 +1,5 @@
 """
-ConvTranspose2d — Upsampling Pipeline  (solid white bg)
+ConvTranspose2d - Upsampling Pipeline  (solid white bg)
 Generates: assets/img/convtranspose2d.png
 """
 import matplotlib
@@ -35,7 +35,7 @@ def arrow(x1, y1, x2, y2, c=None, lw=1.0):
                                connectionstyle='arc3,rad=0'), zorder=1)
 
 # ── Title ──
-ax.text(6, 7.55, 'ConvTranspose2d  —  Upsampling via GEMM + col2im',
+ax.text(6, 7.55, 'ConvTranspose2d  -  Upsampling via GEMM + col2im',
         ha='center', fontsize=14, fontweight='bold', color=C['fg'], family='monospace')
 ax.text(6, 7.12, 'C_in=4  →  C_out=2    kernel=3×3    stride=2    padding=1',
         ha='center', fontsize=8.5, color=C['dim'], family='monospace')
@@ -62,7 +62,7 @@ box(ax, 9.0, y2+0.08, 2.4, 0.50, C['purple'], 'Col (8×16)', '8 rows = C_out·K�
 # ── Step 3 ──
 y3 = 2.5
 arrow(10.2, y2, 10.2, y3+0.58, C['gray'])
-box(ax, 6.5, y3, 4.5, 0.66, C['green'], 'col2im — Scatter Columns → Spatial',
+box(ax, 6.5, y3, 4.5, 0.66, C['green'], 'col2im - Scatter Columns → Spatial',
     'Each input pixel → K×K patch in output  (stride=2 upsampling)', fs=8.5, fs2=7)
 
 # ── Step 4 ──

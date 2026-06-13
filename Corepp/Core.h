@@ -1,7 +1,7 @@
 #ifndef COREPP_CORE_H
 #define COREPP_CORE_H
 
-// =================================[CorePP/Core — Foundation Types]================================
+// =================================[CorePP/Core - Foundation Types]================================
 // Include this for matrix operations, random generation, and linear algebra.
 // Does NOT pull in neural network layers or optimizers.
 

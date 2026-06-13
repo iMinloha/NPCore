@@ -2,7 +2,7 @@
 #define CUDA_RUNTIME_H
 
 // =================================[CorePP CUDA C-API]================================
-// Pure C interface — safe to link from MinGW or any C/C++ compiler.
+// Pure C interface - safe to link from MinGW or any C/C++ compiler.
 // All functions return 0 on success, non-zero on error.
 
 #ifdef __cplusplus
@@ -18,8 +18,8 @@ int  cuda_corepp_has_device(void);              // 1 if CUDA available, 0 otherw
 // --- Memory management ---
 void* cuda_corepp_malloc(int bytes);            // Allocate GPU memory
 void  cuda_corepp_free(void* ptr);              // Free GPU memory
-void  cuda_corepp_memcpy_h2d(void* dst, const void* src, int bytes);  // Host→Device
-void  cuda_corepp_memcpy_d2h(void* dst, const void* src, int bytes);  // Device→Host
+void  cuda_corepp_memcpy_h2d(void* dst, const void* src, int bytes);  // Host->Device
+void  cuda_corepp_memcpy_d2h(void* dst, const void* src, int bytes);  // Device->Host
 
 // --- GEMM: C[M,N] = A[M,K] * B[K,N] ---
 int cuda_corepp_gemm(int M, int N, int K,

@@ -16,10 +16,10 @@ LSTM::LSTM(int input_size, int hidden_size, InitMode mode)
         for (int j = input_size; j < total_dim; ++j)
             W->at(i, j) *= 0.1f;
 
-    // Forget gate bias high → remember by default
+    // Forget gate bias high -> remember by default
     for (int i = 0; i < hidden_size; ++i)
         b->at(i, 0) = 2.0f;
-    // Input gate bias negative → closed by default (avoid noise accumulation)
+    // Input gate bias negative -> closed by default (avoid noise accumulation)
     for (int i = 0; i < hidden_size; ++i)
         b->at(hidden_size + i, 0) = -2.0f;
 }
@@ -51,7 +51,7 @@ Matrix<float> LSTM::forward(Matrix<float>& input) {
         for (int i = 0; i < input_size; ++i) xh.at(i, 0) = x_t.at(i, 0);
         for (int i = 0; i < hidden_size; ++i) xh.at(input_size + i, 0) = h_prev.at(i, 0);
 
-        // gates = W * xh + b  →  (4*hidden, 1)
+        // gates = W * xh + b  ->  (4*hidden, 1)
         Matrix<float> gates = (*W) * xh + (*b);
         if (train_mode) gate_cache[t] = gates;
 
@@ -81,7 +81,7 @@ Matrix<float> LSTM::forward(Matrix<float>& input) {
     return *result;
 }
 
-// LSTM backward (BPTT) — gradients flow through cell state AND hidden state
+// LSTM backward (BPTT) - gradients flow through cell state AND hidden state
 Matrix<float> LSTM::backward(Matrix<float>& grad_output) {
     COREPP_ASSERT(grad_output.row == seq_len, "LSTM backward seq_len mismatch");
 

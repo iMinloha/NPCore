@@ -1,4 +1,4 @@
-// =================================[ConvTranspose2d — Precision Test]================================
+// =================================[ConvTranspose2d - Precision Test]================================
 // Verifies: upsampling output shape formula, forward/backward consistency, weight/bias gradient flow.
 
 #include "CorePP.h"
@@ -10,7 +10,7 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  ConvTranspose2d — Precision Analysis\n";
+    std::cout << "  ConvTranspose2d - Precision Analysis\n";
     std::cout << "============================================================\n";
 
     constexpr int C_in = 4, C_out = 2, K = 3, S = 2, P = 1;
@@ -18,10 +18,10 @@ int main() {
     constexpr int H_out = (H_in - 1) * S - 2 * P + K;  // = 7
     constexpr int W_out = H_out;
 
-    std::cout << "\n[Config] C_in=" << C_in << " → C_out=" << C_out
+    std::cout << "\n[Config] C_in=" << C_in << " -> C_out=" << C_out
               << "  kernel=" << K << "  stride=" << S << "  pad=" << P << "\n";
-    std::cout << "  Spatial: " << H_in << "×" << W_in << " → " << H_out << "×" << W_out
-              << "  (formula: (H-1)×S - 2P + K)\n";
+    std::cout << "  Spatial: " << H_in << "x" << W_in << " -> " << H_out << "x" << W_out
+              << "  (formula: (H-1)xS - 2P + K)\n";
 
     ConvTranspose2d ct(C_in, C_out, K, S, P, InitMode::Uniform, 0.0, 0.1);
     ct.train();
@@ -31,11 +31,11 @@ int main() {
         for (int i = 0; i < H_in; ++i)
             for (int j = 0; j < W_in; ++j)
                 x.at(i, j, c) = (float)(c * 100 + i * 10 + j + 1) / 100.0f;
-    x.Analysis("ConvTranspose2d Input (H×W×C)");
+    x.Analysis("ConvTranspose2d Input (HxWxC)");
 
     // Forward
     auto out = ct.forward(x);
-    out.Analysis("ConvTranspose2d Output — upsampled 4×4→7×7");
+    out.Analysis("ConvTranspose2d Output - upsampled 4x4->7x7");
 
     COREPP_ASSERT(out.row == H_out && out.col == W_out && out.channel == C_out,
                 "ConvTranspose2d output shape: got (%d,%d,%d), expected (%d,%d,%d)",
@@ -46,7 +46,7 @@ int main() {
     std::cout << "  Output sum: " << std::fixed << std::setprecision(4) << out_sum << "\n";
 
     // Show weight sample
-    ct.getParams()[0]->Analysis("ConvTranspose2d Weight (K×K×C_in·C_out)");
+    ct.getParams()[0]->Analysis("ConvTranspose2d Weight (KxKxC_in·C_out)");
 
     // Backward
     Matrix<float> grad(H_out, W_out, C_out);

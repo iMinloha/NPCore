@@ -8,7 +8,7 @@
 namespace CoreNNSpace {
 
 // =================================[LSTM 长短期记忆网络]================================
-// Placeholder — full implementation below
+// Placeholder - full implementation below
 
 class LSTM : public Module<float> {
 private:

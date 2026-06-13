@@ -6,15 +6,15 @@
 // Reference: Goto & van de Geijn (2008) "Anatomy of High-Performance Matrix Multiplication"
 //
 // 6x16 AVX2 micro-kernel with packing.
-//   - MR=6 rows of A, NR=16 cols of B — uses all 16 YMM registers
-//   - Pack A into MR×K column-major panel (L1 cache)
-//   - Pack B into K×NR row-major panel (L1 cache)
+//   - MR=6 rows of A, NR=16 cols of B - uses all 16 YMM registers
+//   - Pack A into MRxK column-major panel (L1 cache)
+//   - Pack B into KxNR row-major panel (L1 cache)
 //   - Software prefetch for next B/A panels
 //
 // Register map (16 YMM, 256-bit):
-//   C00..C51: 12 regs — accumulator for each (row, half-col) pair
-//   B0, B1:    2 regs — current B[k] vector (2 × 8 floats)
-//   A_bcast:   1 reg  — broadcast A[row][k]
+//   C00..C51: 12 regs - accumulator for each (row, half-col) pair
+//   B0, B1:    2 regs - current B[k] vector (2 x 8 floats)
+//   A_bcast:   1 reg  - broadcast A[row][k]
 //   (1 spare)
 
 #ifdef __AVX__
@@ -23,7 +23,7 @@
 #define GEMM_MR 6
 #define GEMM_NR 16
 
-// Pack A panel: (MR, K) sub-block of A → A_packed[MR * K]
+// Pack A panel: (MR, K) sub-block of A -> A_packed[MR * K]
 // A is row-major with leading dimension lda (= col).
 // A_packed stores MR rows of length K, column-major: A_packed[row * K + k]
 static inline void gemm_pack_A(int K, const float* A, int lda,
@@ -35,7 +35,7 @@ static inline void gemm_pack_A(int K, const float* A, int lda,
     }
 }
 
-// Pack B panel: (K, NR) sub-block of B → B_packed[K * NR]
+// Pack B panel: (K, NR) sub-block of B -> B_packed[K * NR]
 // B is row-major with leading dimension ldb (= B_col).
 // B_packed stores NR cols, row-major: B_packed[k * NR + j]
 static inline void gemm_pack_B(int K, const float* B, int ldb,
@@ -152,11 +152,11 @@ static inline void gemm(int M, int N, int K,
     }
 
     // Block sizes: tuned for 32KB L1 cache
-    // A_panel: MR × KC = 6 × 256 floats = 6KB
-    // B_panel: KC × NR = 256 × 16 floats = 16KB
+    // A_panel: MR x KC = 6 x 256 floats = 6KB
+    // B_panel: KC x NR = 256 x 16 floats = 16KB
     // Total L1 ~22KB < 32KB ✓
     constexpr int KC = 256;
-    constexpr int MC = 384;  // block rows of C (384 × 6-wide panels)
+    constexpr int MC = 384;  // block rows of C (384 x 6-wide panels)
     constexpr int NC = 384;  // block cols of C
 
     // Allocate packing buffers on stack (aligned to 32 bytes)

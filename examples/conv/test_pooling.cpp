@@ -1,4 +1,4 @@
-// =================================[AvgPool2d + AdaptiveAvgPool2d — Precision Test]================================
+// =================================[AvgPool2d + AdaptiveAvgPool2d - Precision Test]================================
 // Verifies: average pooling correctness vs manual computation, gradient even-split property,
 //           adaptive pooling to fixed output size.
 
@@ -11,12 +11,12 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  AvgPool2d + AdaptiveAvgPool2d — Precision Analysis\n";
+    std::cout << "  AvgPool2d + AdaptiveAvgPool2d - Precision Analysis\n";
     std::cout << "============================================================\n";
 
     // ==================== AvgPool2d ====================
     {
-        std::cout << "\n--- AvgPool2d: 4×4×2 → 2×2×2 (pool=2, stride=2) ---\n";
+        std::cout << "\n--- AvgPool2d: 4x4x2 -> 2x2x2 (pool=2, stride=2) ---\n";
         constexpr int H = 4, W = 4, C = 2;
         AvgPool2d pool(2, 2);
         pool.train();
@@ -26,12 +26,12 @@ int main() {
             for (int i = 0; i < H; ++i)
                 for (int j = 0; j < W; ++j)
                     x.at(i, j, c) = (float)(c * 100 + i * 10 + j + 1);
-        x.Analysis("Input 4×4×2");
+        x.Analysis("Input 4x4x2");
 
         auto out = pool.forward(x);
-        out.Analysis("AvgPool2d Output 2×2×2");
+        out.Analysis("AvgPool2d Output 2x2x2");
 
-        // Manual verification: each output cell = avg of corresponding 2×2 input region
+        // Manual verification: each output cell = avg of corresponding 2x2 input region
         float expect[2][2];
         for (int oi = 0; oi < 2; ++oi)
             for (int oj = 0; oj < 2; ++oj) {
@@ -53,7 +53,7 @@ int main() {
         Matrix<float> g(2, 2, C);
         for (int i = 0; i < 2 * 2 * C; ++i) g.data_ptr()[i] = 1.0f;
         auto dx = pool.backward(g);
-        dx.Analysis("AvgPool2d dL/dx — each input gets 1/4 of output grad");
+        dx.Analysis("AvgPool2d dL/dx - each input gets 1/4 of output grad");
         COREPP_ASSERT(std::abs(dx.at(0,0,0) - 0.25f) < 1e-5f, "AvgPool2d backward: expected 0.25");
 
         pool.CleanGard();
@@ -62,7 +62,7 @@ int main() {
 
     // ==================== AdaptiveAvgPool2d ====================
     {
-        std::cout << "\n--- AdaptiveAvgPool2d: 5×3×3 → 1×1×3 (global pooling) ---\n";
+        std::cout << "\n--- AdaptiveAvgPool2d: 5x3x3 -> 1x1x3 (global pooling) ---\n";
         constexpr int H = 5, W = 3, C = 3;
         AdaptiveAvgPool2d apool(1, 1);
         apool.train();
@@ -76,10 +76,10 @@ int main() {
                     else if (c == 1) x.at(i, j, c) = (float)(i * W + j + 1);
                     else             x.at(i, j, c) = 7.0f;
                 }
-        x.Analysis("Input 5×3×3");
+        x.Analysis("Input 5x3x3");
 
         auto out = apool.forward(x);
-        out.Analysis("AdaptiveAvgPool2d Output 1×1×3 (global avg per channel)");
+        out.Analysis("AdaptiveAvgPool2d Output 1x1x3 (global avg per channel)");
 
         // Expected per-channel mean
         float expect[3] = {1.0f, (float)(1+15)/2.0f, 7.0f};  // ch1: avg of 1..15 = 8

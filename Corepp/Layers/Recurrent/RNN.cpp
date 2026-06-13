@@ -19,7 +19,7 @@ RNN::RNN(int input_size, int hidden_size, InitMode mode)
             W_hh->at(i, j) *= 0.1f;
 }
 
-// Extract row t from (seq_len, dim) matrix → column vector (dim, 1)
+// Extract row t from (seq_len, dim) matrix -> column vector (dim, 1)
 Matrix<float> RNN::row_to_col(const Matrix<float>& mat, int t, int dim) const {
     Matrix<float> col(dim, 1);
     for (int i = 0; i < dim; ++i)

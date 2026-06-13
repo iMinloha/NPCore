@@ -1,5 +1,5 @@
 """
-Normalization Methods — Visual Comparison  (solid white bg)
+Normalization Methods - Visual Comparison  (solid white bg)
 Generates: assets/img/normalization.png
 """
 import matplotlib
@@ -45,7 +45,7 @@ def draw_grid(ax, x, y, w, h, n_rows, n_cols, label, color, highlight, sub=''):
         ax.text(x+w/2, y-0.42, sub, ha='center', fontsize=6.5, color=C['dim'], family='monospace', zorder=3)
 
 # ── Title ──
-ax.text(6, 8.10, 'Normalization — What Gets Normalized?', ha='center', fontsize=15,
+ax.text(6, 8.10, 'Normalization - What Gets Normalized?', ha='center', fontsize=15,
         fontweight='bold', color=C['fg'], family='monospace')
 ax.text(6, 7.68, 'Input tensor shape:  (Batch=N,  Height=H,  Width=W,  Channels=C)',
         ha='center', fontsize=9, color=C['dim'], family='monospace')
@@ -77,7 +77,7 @@ for i, (name, color, desc, batch_info, use_case) in enumerate(methods):
                     hl.add((r, c))
     else:
         hl = {(r, c) for r in range(6) for c in range(10)}
-    draw_grid(ax, 4.0, y+0.05, 2.8, 0.60, 6, 10, f'{name} — highlighted region', color, hl)
+    draw_grid(ax, 4.0, y+0.05, 2.8, 0.60, 6, 10, f'{name} - highlighted region', color, hl)
 
     ax.text(7.6, y+0.40, use_case, fontsize=8.5, color=color, family='monospace',
             fontweight='bold', zorder=3)

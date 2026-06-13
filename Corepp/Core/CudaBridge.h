@@ -1,14 +1,14 @@
 #ifndef COREPP_CORE_CUDABRIDGE_H
 #define COREPP_CORE_CUDABRIDGE_H
 
-// =================================[CorePP CUDA Bridge — 自动 GPU 加速]================================
+// =================================[CorePP CUDA Bridge - 自动 GPU 加速]================================
 //
 // 所有 Matrix 运算和 Activation 通过此桥接自动分发到 CUDA。
-// 在 Layers/ 中新建模型不需要任何 CUDA 代码 — 自动获得 GPU 加速。
+// 在 Layers/ 中新建模型不需要任何 CUDA 代码 - 自动获得 GPU 加速。
 //
 // 原理:
-//   Matrix::operator*  → 检测 CUDA → cuda_gemm() 或 CPU gemm()
-//   Activation::forward → 检测 CUDA → cuda_sigmoid/tanh() 或 CPU
+//   Matrix::operator*  -> 检测 CUDA -> cuda_gemm() 或 CPU gemm()
+//   Activation::forward -> 检测 CUDA -> cuda_sigmoid/tanh() 或 CPU
 
 #ifdef COREPP_ENABLE_CUDA
 extern "C" {
@@ -34,7 +34,7 @@ inline int   cuda_corepp_lstm_cell(int, int, int, const float*, const float*,
 
 namespace CoreNNSpace {
 
-// =================================[CudaDevice — 单例]================================
+// =================================[CudaDevice - 单例]================================
 class CudaDevice {
 public:
     static CudaDevice& instance() {
@@ -77,7 +77,7 @@ inline bool cuda_gemm_device(int M, int N, int K,
     return false;
 }
 
-// =================================[CPU GEMM dispatch (H2D→kernel→D2H)]================================
+// =================================[CPU GEMM dispatch (H2D->kernel->D2H)]================================
 inline bool cuda_should_use(int total_ops) {
     return CudaDevice::instance().available() && total_ops > 4096;
 }

@@ -6,11 +6,11 @@
 
 namespace CoreNNSpace {
 
-// =================================[GRU — Gated Recurrent Unit]================================
-// r_t = σ(W_ir·x + W_hr·h + b_r)    重置门
-// z_t = σ(W_iz·x + W_hz·h + b_z)    更新门
-// n_t = tanh(W_in·x + r⊙(W_hn·h) + b_n)  新状态候选
-// h_t = (1-z)⊙n + z⊙h_{t-1}          最终状态
+// =================================[GRU - Gated Recurrent Unit]================================
+// r_t = sigma(W_ir·x + W_hr·h + b_r)    重置门
+// z_t = sigma(W_iz·x + W_hz·h + b_z)    更新门
+// n_t = tanh(W_in·x + r(*)(W_hn·h) + b_n)  新状态候选
+// h_t = (1-z)(*)n + z(*)h_{t-1}          最终状态
 //
 // 合并权重: W(3H, I+H), b(3H, 1)
 

@@ -10,13 +10,13 @@ namespace CoreNNSpace {
 // =================================[RNN Recurrent Neural Network Layer]================================
 // Elman RNN: h_t = tanh(W_ih * x_t + W_hh * h_{t-1} + b_h)
 //
-// Input:  Matrix(seq_len, input_size)  — each ROW is one time step x_t (1×input_size)
-// Output: Matrix(seq_len, hidden_size) — each ROW is hidden state h_t
+// Input:  Matrix(seq_len, input_size)  - each ROW is one time step x_t (1xinput_size)
+// Output: Matrix(seq_len, hidden_size) - each ROW is hidden state h_t
 //
 // Backward: BPTT (Backpropagation Through Time) with gradient clipping.
 // Stores all intermediate hidden states for gradient computation.
 //
-// Weights: W_ih(hidden×input), W_hh(hidden×hidden), b_h(hidden×1)
+// Weights: W_ih(hiddenxinput), W_hh(hiddenxhidden), b_h(hiddenx1)
 
 class RNN : public Module<float> {
 private:
@@ -50,10 +50,10 @@ public:
         delete dW_hh; delete db_h;
     }
 
-    // Forward: input(seq_len, input_size) → output(seq_len, hidden_size)
+    // Forward: input(seq_len, input_size) -> output(seq_len, hidden_size)
     Matrix<float> forward(Matrix<float>& input) override;
 
-    // Backward (BPTT): grad_output(seq_len, hidden_size) → grad_input(seq_len, input_size)
+    // Backward (BPTT): grad_output(seq_len, hidden_size) -> grad_input(seq_len, input_size)
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
     std::vector<Matrix<float>*> getParams() override { return {W_ih, W_hh, b_h}; }

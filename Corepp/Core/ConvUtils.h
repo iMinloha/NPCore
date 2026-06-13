@@ -3,7 +3,7 @@
 
 #include "Matrix.hpp"
 
-// =================================[im2col & col2im — Convolution as Matrix Multiply]================================
+// =================================[im2col & col2im - Convolution as Matrix Multiply]================================
 //
 // These functions transform convolution into GEMM, reducing O(N^6) nested loops
 // to O(matrix_multiply) using the already-optimized SIMD matmul in Matrix::operator*.
@@ -12,7 +12,7 @@
 //          columns of a 2D matrix.  Each column is one kernel-sized patch, flattened.
 //          Output shape: (C_in * K_h * K_w, H_out * W_out)
 //
-// col2im:  inverse of im2col — scatters columns back to a 3D gradient tensor.
+// col2im:  inverse of im2col - scatters columns back to a 3D gradient tensor.
 //          Used to compute dL/dX from dL/d(col).
 
 namespace CoreNNSpace {
@@ -64,7 +64,7 @@ Matrix<T> im2col(const Matrix<T>& input, int kernel_h, int kernel_w,
 // =================================[col2im]================================
 // col:     (C_in * K_h * K_w, H_out * W_out) gradient from upstream
 // output_shape: reference input for spatial dimensions
-// returns: (H, W, C_in) — the input gradient dL/dX
+// returns: (H, W, C_in) - the input gradient dL/dX
 template<typename T>
 Matrix<T> col2im(const Matrix<T>& col, int H, int W, int C_in,
                  int kernel_h, int kernel_w, int stride, int padding) {
@@ -102,23 +102,23 @@ Matrix<T> col2im(const Matrix<T>& col, int H, int W, int C_in,
 //
 // Reference: Lavin & Gray (2016) "Fast Algorithms for Convolutional Neural Networks"
 //
-// For 3×3 stride-1 convolution, Winograd F(2,3) reduces multiplications by 2.25×.
-// Transforms 4×4 input tiles into 2×2 output using 16 element-wise multiplications
-// instead of 36 (3×3 kernel × 2×2 output).
+// For 3x3 stride-1 convolution, Winograd F(2,3) reduces multiplications by 2.25x.
+// Transforms 4x4 input tiles into 2x2 output using 16 element-wise multiplications
+// instead of 36 (3x3 kernel x 2x2 output).
 //
 // Matrices (rational form, multiplications absorbed into transforms):
-//   Input:  U = B^T * d * B     (4×4 tile → 4×4 Winograd domain, adds only)
-//   Filter: V = G * g * G^T     (3×3 kernel → 4×4 Winograd domain, adds only)
-//   Output: Y = A^T * M * A     (4×4 Winograd → 2×2 output, adds only)
-//   Element-wise: M = U ⊙ V (pointwise multiply, 16 multiplies)
+//   Input:  U = B^T * d * B     (4x4 tile -> 4x4 Winograd domain, adds only)
+//   Filter: V = G * g * G^T     (3x3 kernel -> 4x4 Winograd domain, adds only)
+//   Output: Y = A^T * M * A     (4x4 Winograd -> 2x2 output, adds only)
+//   Element-wise: M = U (*) V (pointwise multiply, 16 multiplies)
 
 namespace CoreNNSpace {
 
 // =================================[Winograd Forward Transform Matrices]================================
-// B^T: 4×4 input transform (applied to 4×4 input tile)
+// B^T: 4x4 input transform (applied to 4x4 input tile)
 // Values as 1/2 fractions for numerical stability
 inline void winograd_BT_d_B(const float d[16], float U[16]) {
-    // d is 4×4 row-major input tile
+    // d is 4x4 row-major input tile
     // B^T * d:
     // B^T = [[1,0,-1,0],[0,1,1,0],[0,-1,1,0],[0,1,0,-1]]
     float tmp[16];
@@ -140,12 +140,12 @@ inline void winograd_BT_d_B(const float d[16], float U[16]) {
     }
 }
 
-// G: 4×3 filter transform
+// G: 4x3 filter transform
 inline void winograd_G_g_GT(const float g[9], float V[16]) {
-    // g is 3×3 row-major kernel
+    // g is 3x3 row-major kernel
     // G * g:
     // G = [[1,0,0],[1/2,1/2,1/2],[1/2,-1/2,1/2],[0,0,1]]
-    float tmp[12]; // 4×3 intermediate
+    float tmp[12]; // 4x3 intermediate
     for (int i = 0; i < 4; ++i) tmp[i*3+0] = tmp[i*3+1] = tmp[i*3+2] = 0;
 
     tmp[0*3+0] = g[0]; tmp[0*3+1] = g[1]; tmp[0*3+2] = g[2];
@@ -165,11 +165,11 @@ inline void winograd_G_g_GT(const float g[9], float V[16]) {
     }
 }
 
-// A^T * M * A: 2×4 * 4×4 * 4×2 = 2×2 output transform
+// A^T * M * A: 2x4 * 4x4 * 4x2 = 2x2 output transform
 // A^T = [[1,1,1,0],[0,1,-1,-1]], A = transpose(A^T)
 // Explicit formulas (adds only, no multiplies):
 inline void winograd_AT_M_A(const float M[16], float Y[4]) {
-    // M is 4×4 row-major: m[row*4+col]
+    // M is 4x4 row-major: m[row*4+col]
     float m00 = M[0],  m01 = M[1],  m02 = M[2],  m03 = M[3];
     float m10 = M[4],  m11 = M[5],  m12 = M[6],  m13 = M[7];
     float m20 = M[8],  m21 = M[9],  m22 = M[10], m23 = M[11];
@@ -196,7 +196,7 @@ inline void winograd_AT_M_A(const float M[16], float Y[4]) {
 // Inverse input transform (for backward pass): dD = B * dU * B^T
 inline void winograd_B_dU_BT(const float dU[16], float dD[16]) {
     // B = [[1,0,0,0],[0,1,-1,1],[0,1,1,0],[0,-1,0,0]]?
-    // Use the transpose relationship: B is 4×4, B^T is the forward transform
+    // Use the transpose relationship: B is 4x4, B^T is the forward transform
     // B * dU:
     float tmp[16];
     for (int i = 0; i < 4; ++i) {
@@ -218,7 +218,7 @@ inline void winograd_B_dU_BT(const float dU[16], float dD[16]) {
 
 // Inverse filter transform (for backward pass): dG = G^T * dV * G
 inline void winograd_GT_dV_G(const float dV[16], float dG[9]) {
-    // G^T * dV: 3×4 * 4×4 = 3×4
+    // G^T * dV: 3x4 * 4x4 = 3x4
     float tmp[12];
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -234,7 +234,7 @@ inline void winograd_GT_dV_G(const float dV[16], float dG[9]) {
             tmp[i*4+j] = sum;
         }
     }
-    // tmp * G: 3×4 * 4×3 = 3×3
+    // tmp * G: 3x4 * 4x3 = 3x3
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             float sum = 0;
@@ -258,16 +258,16 @@ inline void winograd_forward_3x3(const float* input, int H, int W, int C_in,
                                   float* output) {
     // V_packed: pre-transformed filters, shape (C_out, C_in, 16)
     //   V_packed[(oc * C_in + ic) * 16 + pos] = V[oc, ic, pos]
-    // where pos = α*4+β indexes the 4×4 Winograd domain.
+    // where pos = alpha*4+beta indexes the 4x4 Winograd domain.
 
-    const int H_out = H - 2;  // 3×3 valid convolution
+    const int H_out = H - 2;  // 3x3 valid convolution
     const int W_out = W - 2;
-    const int P_h = (H_out + 1) / 2;  // number of 2×2 output tiles vertically
+    const int P_h = (H_out + 1) / 2;  // number of 2x2 output tiles vertically
     const int P_w = (W_out + 1) / 2;
-    const int P = P_h * P_w;  // total 2×2 output tiles
+    const int P = P_h * P_w;  // total 2x2 output tiles
 
     // Step 1: Transform all input tiles to Winograd domain
-    // U_all: (C_in, 16, P) — store as (C_in * 16 * P) flat
+    // U_all: (C_in, 16, P) - store as (C_in * 16 * P) flat
     float* U_all = new float[C_in * 16 * P];
     for (int p = 0; p < P; ++p) {
         int ph = p / P_w, pw = p % P_w;
@@ -322,7 +322,7 @@ inline void winograd_forward_3x3(const float* input, int H, int W, int C_in,
             for (int pos = 0; pos < 16; ++pos)
                 M[pos] = M_all[(oc * 16 + pos) * P + p];
 
-            float Y[4]; // 2×2 output tile
+            float Y[4]; // 2x2 output tile
             winograd_AT_M_A(M, Y);
 
             int h = ph * 2, w = pw * 2;
@@ -330,9 +330,9 @@ inline void winograd_forward_3x3(const float* input, int H, int W, int C_in,
                 output[(oc * H_out + h) * W_out + w] = Y[0];
             if (h < H_out && w + 1 < W_out)
                 output[(oc * H_out + h) * W_out + w + 1] = Y[1];
-            // Note: AT_M_A returns only 2 values per 2×2 tile in this formulation
+            // Note: AT_M_A returns only 2 values per 2x2 tile in this formulation
             // Actually Y[0],Y[1] are for positions (0,0),(0,1); we need also (1,0),(1,1)
-            // Re-derive: A^T * M * A gives 2×2 = 4 values
+            // Re-derive: A^T * M * A gives 2x2 = 4 values
         }
     }
 

@@ -80,11 +80,11 @@ int main() {
 
 只要实现了上述接口，你的模型**自动**获得：
 
-- **GPU 加速** — `net.cuda()` 一行搬运所有参数
-- **所有优化器** — SGD/Adam/RMSProp/AdamW
-- **梯度检验** — `numerical_gradient()` + `gradcheck()`
-- **Sequence 组合** — 与其他层自由组合
-- **Trainer API** — `nn::Trainer(net, ...).fit(...)`
+- **GPU 加速** - `net.cuda()` 一行搬运所有参数
+- **所有优化器** - SGD/Adam/RMSProp/AdamW
+- **梯度检验** - `numerical_gradient()` + `gradcheck()`
+- **Sequence 组合** - 与其他层自由组合
+- **Trainer API** - `nn::Trainer(net, ...).fit(...)`
 
 ## 进阶: 组合多个子层
 
@@ -180,7 +180,7 @@ public:
 `getParams()` 和 `getAllGrads()` 返回的是 `vector`，支持**任意数量**的参数。RNN 有 3 个参数就是个例子：
 
 ```cpp
-// RNN: W_ih(输入权重), W_hh(循环权重), b_h(偏置) — 3 个独立的参数矩阵
+// RNN: W_ih(输入权重), W_hh(循环权重), b_h(偏置) - 3 个独立的参数矩阵
 std::vector<Matrix<float>*> getParams() override {
     return {W_ih, W_hh, b_h};           // 3 个权重
 }
@@ -229,4 +229,4 @@ for (auto* m : c2->getParams())        // [W2, b2]
 return p;                              // → [W1, b1, W2, b2]
 ```
 
-不需要额外配置 — 只要你的 `getParams()` 和 `getAllGrads()` 返回的 vector 长度一致、顺序对应，优化器自动处理一切。
+不需要额外配置 - 只要你的 `getParams()` 和 `getAllGrads()` 返回的 vector 长度一致、顺序对应，优化器自动处理一切。

@@ -90,7 +90,7 @@ struct GradientClipping {
         return total_norm;
     }
 
-    // Clip gradients by value — element-wise clamping.
+    // Clip gradients by value - element-wise clamping.
     // Each gradient element is clamped to [min_val, max_val].
     // Useful when you want to prevent any single gradient element from being too large,
     // but don't want to change the direction of the overall gradient.

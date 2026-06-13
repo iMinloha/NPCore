@@ -45,7 +45,7 @@ int main() {
     });
 
     // ---- 第2步: 准备数据 ----
-    // Matrix(rows, cols) — 2D 矩阵, 列向量用 (N, 1)
+    // Matrix(rows, cols) - 2D 矩阵, 列向量用 (N, 1)
     Matrix<float> x(4, 1);              // 输入: 4行1列 (4维特征向量)
     x << 3 << 4 << 2 << 1;             // 流式赋值: 逐行填充
     Matrix<float> y(4, 1);              // 目标: one-hot 编码
@@ -106,7 +106,7 @@ Matrix<float> y(2, 1); y << 1 << 0;    // 二分类: 第0类
 RNN rnn(2, 4);                          // 输入2维, 隐藏状态4维
                                         // h_t = tanh(W_ih·x_t + W_hh·h_{t-1} + b)
 
-// 输入: (seq_len, features) — 每行是一个时间步
+// 输入: (seq_len, features) - 每行是一个时间步
 Matrix<float> x(5, 2);                  // 5个时间步, 每步2个特征
 x << 0.1 << 0.2  << 0.3 << 0.1  << 0.5 << 0.4
   << 0.2 << 0.3  << 0.1 << 0.5;

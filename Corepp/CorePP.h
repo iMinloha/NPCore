@@ -1,7 +1,7 @@
 #ifndef COREPP_COREPP_H
 #define COREPP_COREPP_H
 
-// =================================[CorePP — C++ Deep Learning Library]================================
+// =================================[CorePP - C++ Deep Learning Library]================================
 //
 // Configuration Macros:
 //   AlgorithmAccelerator  - Enable block-tiled matrix multiplication (L1 cache optimized)

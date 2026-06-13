@@ -7,7 +7,7 @@
 namespace CoreNNSpace {
 
 // =================================[ResNet Block]================================
-// Conv3x3 → BN → ReLU → Conv3x3 → BN  +  skip → ReLU
+// Conv3x3 -> BN -> ReLU -> Conv3x3 -> BN  +  skip -> ReLU
 // If channels change, skip uses 1x1 conv to match dimensions.
 class ResNetBlock : public Module<float> {
     Conv2d *conv1, *conv2, *skip_conv = nullptr;

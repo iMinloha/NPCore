@@ -1,9 +1,9 @@
 #ifndef COREPP_AUTOGRAD_H
 #define COREPP_AUTOGRAD_H
 
-// =================================[CorePP/Autograd — Gradient Checking Utility]================================
+// =================================[CorePP/Autograd - Gradient Checking Utility]================================
 //
-// Lightweight numerical gradient verification — NOT a full autodiff framework.
+// Lightweight numerical gradient verification - NOT a full autodiff framework.
 // Use these to verify that hand-derived analytical gradients are correct.
 //
 // Decision: Do NOT introduce automatic symbolic differentiation.
@@ -67,7 +67,7 @@ bool gradcheck(const Matrix<T>& analytical_grad,
     if (analytical_grad.row != numerical_grad.row ||
         analytical_grad.col != numerical_grad.col ||
         analytical_grad.channel != numerical_grad.channel) {
-        std::cerr << "[gradcheck] ERROR: shape mismatch — analytical ("
+        std::cerr << "[gradcheck] ERROR: shape mismatch - analytical ("
                   << analytical_grad.row << "," << analytical_grad.col << ","
                   << analytical_grad.channel << ") vs numerical ("
                   << numerical_grad.row << "," << numerical_grad.col << ","

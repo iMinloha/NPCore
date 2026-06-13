@@ -27,7 +27,7 @@ inline Module<float>* Tanh()    { return new Activation::Sigmoid(); }  // alias
 inline Module<float>* Flatten() { return new CoreNNSpace::Flatten(); }
 
 // =================================[FNN: Feedforward Network]================================
-// nn::FNN({4, 8, 4}, nn::Sigmoid)  →  4→Sigmoid→8→Sigmoid→4
+// nn::FNN({4, 8, 4}, nn::Sigmoid)  ->  4->Sigmoid->8->Sigmoid->4
 inline Sequence FNN(std::initializer_list<int> sizes,
                      Module<float>* (*activation)() = Sigmoid) {
     std::vector<Module<float>*> layers;
@@ -42,7 +42,7 @@ inline Sequence FNN(std::initializer_list<int> sizes,
 }
 
 // =================================[CNN: Convolutional Network]================================
-// nn::CNN({3, 4, 2}, 3, nn::Sigmoid)  →  Conv(3→4,k3)→Sig→Conv(4→2,k3)→Sig→Flatten→Linear
+// nn::CNN({3, 4, 2}, 3, nn::Sigmoid)  ->  Conv(3->4,k3)->Sig->Conv(4->2,k3)->Sig->Flatten->Linear
 inline Sequence CNN(std::initializer_list<int> channels,
                      int kernel = 3,
                      Module<float>* (*activation)() = Sigmoid,
@@ -125,7 +125,7 @@ public:
         }
     }
 
-    // DataLoader training — 兼容任意 DataLoader 子类
+    // DataLoader training - 兼容任意 DataLoader 子类
     void fit(DataLoader& loader, int epochs,
              std::function<void(int, float)> callback = nullptr) {
         for (int e = 0; e < epochs; ++e) {

@@ -5,11 +5,11 @@
 
 namespace CoreNNSpace {
 
-// =================================[AdamW — Adam with Decoupled Weight Decay]================================
+// =================================[AdamW - Adam with Decoupled Weight Decay]================================
 // Reference: Loshchilov & Hutter (2019) "Decoupled Weight Decay Regularization"
 //
 // Unlike L2 regularization (added to gradient), AdamW applies weight decay
-// directly to parameters:  θ = θ - lr * (m_hat / (√v_hat + ε) + wd * θ)
+// directly to parameters:  θ = θ - lr * (m_hat / (sqrtv_hat + eps) + wd * θ)
 //
 // Usage:
 //   AdamW optim(params, 0.001f, 0.01f);  // lr=0.001, weight_decay=0.01

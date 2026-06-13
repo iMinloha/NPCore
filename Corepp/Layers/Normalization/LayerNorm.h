@@ -6,7 +6,7 @@
 namespace CoreNNSpace {
 
 // =================================[LayerNorm]================================
-// Normalize across feature dimension: y = γ * (x - μ)/√(σ²+ε) + β
+// Normalize across feature dimension: y = gamma * (x - mu)/sqrt(sigma^2+eps) + beta
 // Unlike BatchNorm, statistics are per-sample, no running averages needed.
 class LayerNorm : public Module<float> {
     Matrix<float> *gamma, *beta, *dgamma = nullptr, *dbeta = nullptr;

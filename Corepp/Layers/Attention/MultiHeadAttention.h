@@ -8,17 +8,17 @@
 
 namespace CoreNNSpace {
 
-// =================================[MultiHeadAttention — Transformer Core]================================
+// =================================[MultiHeadAttention - Transformer Core]================================
 // Reference: Vaswani et al. (2017) "Attention Is All You Need"
 //
 // y = Concat(head_0, ..., head_{h-1}) * W_o
-// head_i = Attention(Q_i, K_i, V_i) = softmax(Q_i K_i^T / √d_head + mask) * V_i
+// head_i = Attention(Q_i, K_i, V_i) = softmax(Q_i K_i^T / sqrtd_head + mask) * V_i
 //
-// Input shape:  (seq_len, d_model) — 2D matrix, rows=tokens, cols=features
-// Output shape: (seq_len, d_model) — same shape as input
+// Input shape:  (seq_len, d_model) - 2D matrix, rows=tokens, cols=features
+// Output shape: (seq_len, d_model) - same shape as input
 //
 // When causal=true, a lower-triangular mask is applied so position t only attends
-// to positions ≤ t (used in decoder / autoregressive generation).
+// to positions <= t (used in decoder / autoregressive generation).
 
 class MultiHeadAttention : public Module<float> {
 private:
@@ -85,7 +85,7 @@ public:
         const int H = num_heads;
         const int Dh = d_head;
 
-        // 1. Linear projections: Q, K, V  → each (d_model, seq_len)
+        // 1. Linear projections: Q, K, V  -> each (d_model, seq_len)
         //   input is (seq_len, d_model), transpose to (d_model, seq_len) for matmul
         Matrix<float> input_T = input.Translate();  // (d_model, seq_len)
 
@@ -93,7 +93,7 @@ public:
         Matrix<float> K_raw = (*W_k) * input_T;
         Matrix<float> V_raw = (*W_v) * input_T;
 
-        // Add bias: broadcast (d_model, 1) → (d_model, seq_len)
+        // Add bias: broadcast (d_model, 1) -> (d_model, seq_len)
         for (int d = 0; d < D; ++d) {
             float bq = b_q->at(d, 0), bk = b_k->at(d, 0), bv = b_v->at(d, 0);
             for (int t = 0; t < seq_len; ++t) {
@@ -103,7 +103,7 @@ public:
             }
         }
 
-        // 2. Reshape to multi-head: (d_model, seq_len) → (num_heads, d_head, seq_len)
+        // 2. Reshape to multi-head: (d_model, seq_len) -> (num_heads, d_head, seq_len)
         //    Store as (d_head, seq_len, num_heads) using channel dimension
         Matrix<float> Q_mh(Dh, seq_len, H);
         Matrix<float> K_mh(Dh, seq_len, H);
@@ -120,7 +120,7 @@ public:
             }
         }
 
-        // 3. Scaled dot-product attention per head → output_mh: (d_head, seq_len, num_heads)
+        // 3. Scaled dot-product attention per head -> output_mh: (d_head, seq_len, num_heads)
         Matrix<float> out_mh(Dh, seq_len, H);
         Matrix<float> attn_weights(seq_len, seq_len, H);  // saved for backward
 
@@ -173,7 +173,7 @@ public:
                     out_mh.at(d, t, h) = out_h.at(d, t);
         }
 
-        // 4. Concat heads: (d_head, seq_len, num_heads) → (d_model, seq_len)
+        // 4. Concat heads: (d_head, seq_len, num_heads) -> (d_model, seq_len)
         Matrix<float> concat(D, seq_len);
         for (int h = 0; h < H; ++h) {
             for (int d = 0; d < Dh; ++d) {
@@ -183,7 +183,7 @@ public:
             }
         }
 
-        // 5. Output projection: (d_model, seq_len) → (d_model, seq_len)
+        // 5. Output projection: (d_model, seq_len) -> (d_model, seq_len)
         Matrix<float> result_raw = (*W_o) * concat;  // (d_model, seq_len)
         for (int d = 0; d < D; ++d)
             for (int t = 0; t < seq_len; ++t)
@@ -262,7 +262,7 @@ public:
         Matrix<float> d_concat = W_o_T * d_result;  // (d_model, seq_len)
 
         // --- 2. Gradient through attention heads ---
-        // Reshape d_concat → d_out_mh: (d_head, seq_len, num_heads)
+        // Reshape d_concat -> d_out_mh: (d_head, seq_len, num_heads)
         Matrix<float> d_out_mh(Dh, seq_len, H);
         for (int h = 0; h < H; ++h) {
             for (int d = 0; d < Dh; ++d) {
@@ -297,7 +297,7 @@ public:
             Matrix<float> d_out_h = d_out_mh.getChannel(h);  // (d_head, seq_len)
 
             // dV = d_out * attn^T: (d_head, seq_len) * (seq_len, seq_len) = (d_head, seq_len)
-            // (out = V * attn → dL/dV = dL/dout * attn^T)
+            // (out = V * attn -> dL/dV = dL/dout * attn^T)
             // Build attn_h: (seq_len, seq_len) matrix from attn_w channel h
             Matrix<float> attn_h(seq_len, seq_len);
             for (int i = 0; i < seq_len; ++i)
@@ -331,12 +331,12 @@ public:
             }
 
             // dK = Q * d_scores^T: (d_head, seq_len) * (seq_len, seq_len) = (d_head, seq_len)
-            // (scores = K^T * Q → ∂L/∂K = Q * (∂L/∂scores)^T)
+            // (scores = K^T * Q -> ∂L/∂K = Q * (∂L/∂scores)^T)
             Matrix<float> d_scores_T = d_scores.Translate();
             Matrix<float> dK_h = Q_h * d_scores_T;       // (d_head, seq_len) * (seq_len, seq_len) = (d_head, seq_len)
 
             // dQ = K * d_scores: (d_head, seq_len) * (seq_len, seq_len) = (d_head, seq_len)
-            // (scores = K^T * Q → ∂L/∂Q = K * ∂L/∂scores)
+            // (scores = K^T * Q -> ∂L/∂Q = K * ∂L/∂scores)
             Matrix<float> K_h = K_mh.getChannel(h);      // (d_head, seq_len)
             Matrix<float> dQ_h = K_h * d_scores;          // (d_head, seq_len) * (seq_len, seq_len) = (d_head, seq_len)
 
@@ -348,7 +348,7 @@ public:
             }
         }
 
-        // --- 3. Reshape dQ/dK/dV from (d_head, seq_len, num_heads) → (d_model, seq_len) ---
+        // --- 3. Reshape dQ/dK/dV from (d_head, seq_len, num_heads) -> (d_model, seq_len) ---
         Matrix<float> dQ_raw(D, seq_len);
         Matrix<float> dK_raw(D, seq_len);
         Matrix<float> dV_raw(D, seq_len);

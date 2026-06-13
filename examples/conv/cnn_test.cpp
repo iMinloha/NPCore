@@ -8,12 +8,12 @@ int main() {
     cout << "\n===== CNN Test: Conv+Pool+Flatten+Linear =====" << endl;
 
     Sequence seq({
-        new Conv2d(1, 4, 3, 1, 0),       // 8x8x1 → 6x6x4
+        new Conv2d(1, 4, 3, 1, 0),       // 8x8x1 -> 6x6x4
         new Activation::ReLU(),
-        new MaxPool2d(2, 2),               // 6x6x4 → 3x3x4
-        new Conv2d(4, 4, 3, 1, 0),        // 3x3x4 → 1x1x4
+        new MaxPool2d(2, 2),               // 6x6x4 -> 3x3x4
+        new Conv2d(4, 4, 3, 1, 0),        // 3x3x4 -> 1x1x4
         new Activation::ReLU(),
-        new Flatten(),                      // → 4
+        new Flatten(),                      // -> 4
         new Linear(4, 2),
     });
 

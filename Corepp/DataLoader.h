@@ -18,7 +18,7 @@ namespace CoreNNSpace {
 //
 //   批次: next_batch() 将多个样本在 row 维度拼接
 //         FNN: (batch_size * features, 1) 或 (batch_size, features)
-//         RNN: 仍需保持 (seq_len, features) — 不支持不等长序列批处理
+//         RNN: 仍需保持 (seq_len, features) - 不支持不等长序列批处理
 
 enum class DataSplit { Train, Test, Val };
 
@@ -43,7 +43,7 @@ public:
 };
 
 // =================================[内置: 单样本 DataLoader]================================
-// 用于只有一个 (x, y) 对的场景 — 每个 epoch 返回同一个样本 batch_size 次
+// 用于只有一个 (x, y) 对的场景 - 每个 epoch 返回同一个样本 batch_size 次
 class SingleSampleLoader : public DataLoader {
     Matrix<float> x_, y_;
     int batch_size_, count_ = 0;

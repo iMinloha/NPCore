@@ -3,7 +3,7 @@
 using namespace std;
 using namespace CoreNNSpace;
 
-// Inline ResNet block: Conv(k3,s1,p1)→ReLU→Conv(k3,s1,p1) + skip → ReLU
+// Inline ResNet block: Conv(k3,s1,p1)->ReLU->Conv(k3,s1,p1) + skip -> ReLU
 class MyResBlock : public Module<float> {
     Conv2d *c1, *c2;
     Activation::ReLU *r1, *r2;

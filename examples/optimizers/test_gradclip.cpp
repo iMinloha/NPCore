@@ -1,4 +1,4 @@
-// =================================[GradientClipping — Precision Test]================================
+// =================================[GradientClipping - Precision Test]================================
 // Verifies: clip_by_value clamps to [min,max], clip_by_norm scales to max_norm while preserving direction.
 
 #include "CorePP.h"
@@ -10,7 +10,7 @@ using namespace CoreNNSpace;
 
 int main() {
     std::cout << "\n============================================================\n";
-    std::cout << "  GradientClipping — Precision Analysis\n";
+    std::cout << "  GradientClipping - Precision Analysis\n";
     std::cout << "============================================================\n";
 
     Linear linear(8, 4);

@@ -83,14 +83,14 @@ public:
                                  delete dgamma; dgamma=nullptr; delete dbeta; dbeta=nullptr; }
 };
 
-// =================================[BatchNorm2d — 2D Batch Normalization for Images]================================
+// =================================[BatchNorm2d - 2D Batch Normalization for Images]================================
 // Normalizes over (H, W) per channel for 3D image tensors of shape (H, W, C).
-// Essential for CNN training — accelerates convergence and allows higher learning rates.
+// Essential for CNN training - accelerates convergence and allows higher learning rates.
 //
-// During training:  μ_c = mean over H×W of channel c,  σ²_c = var over H×W of channel c
-// During eval:     uses running estimates of μ and σ² (default momentum 0.9)
+// During training:  mu_c = mean over HxW of channel c,  sigma^2_c = var over HxW of channel c
+// During eval:     uses running estimates of mu and sigma^2 (default momentum 0.9)
 //
-// y = γ_c * (x - μ_c) / √(σ²_c + ε) + β_c
+// y = gamma_c * (x - mu_c) / sqrt(sigma^2_c + eps) + beta_c
 
 class BatchNorm2d : public Module<float> {
     int channels;

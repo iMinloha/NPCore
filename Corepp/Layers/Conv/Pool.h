@@ -54,7 +54,7 @@ public:
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
     void CleanGard() override { for(auto p:gard)delete p; gard.clear(); for(auto p:output)delete p; output.clear(); delete mask; mask=nullptr; }
 };
-// =================================[AvgPool2d — Average Pooling]================================
+// =================================[AvgPool2d - Average Pooling]================================
 // Averages over pooling windows instead of taking the max.
 // Essential for many CNN variants (e.g., ResNet's final pooling before classifier).
 //
@@ -119,12 +119,12 @@ public:
     }
 };
 
-// =================================[AdaptiveAvgPool2d — Adaptive Average Pooling]================================
+// =================================[AdaptiveAvgPool2d - Adaptive Average Pooling]================================
 // Pools to a fixed output size regardless of input dimensions.
 // Essential for CNNs that must handle variable-size inputs (e.g., classifier head).
 //
 // Input:  (H, W, C)
-// Output: (output_h, output_w, C) — fixed size
+// Output: (output_h, output_w, C) - fixed size
 //
 // Uses the standard adaptive pooling algorithm: for each output position,
 // average over the corresponding region of the input.
@@ -137,7 +137,7 @@ public:
     AdaptiveAvgPool2d(int output_h, int output_w)
         : output_h(output_h), output_w(output_w) {}
 
-    // Convenience: single int → square output (e.g., AdaptiveAvgPool2d(1) for global pooling)
+    // Convenience: single int -> square output (e.g., AdaptiveAvgPool2d(1) for global pooling)
     AdaptiveAvgPool2d(int output_size = 1)
         : output_h(output_size), output_w(output_size) {}
 

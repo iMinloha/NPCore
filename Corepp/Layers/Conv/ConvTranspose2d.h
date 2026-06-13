@@ -9,7 +9,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[ConvTranspose2d — Transposed Convolution]================================
+// =================================[ConvTranspose2d - Transposed Convolution]================================
 // Reference: Dumoulin & Visin (2016) "A guide to convolution arithmetic for deep learning"
 //
 // Also known as "deconvolution" or "fractionally-strided convolution".
@@ -21,11 +21,11 @@ namespace CoreNNSpace {
 //   W_out = (W_in - 1) * stride - 2 * padding + kernel_size
 //
 // The forward pass is equivalent to the backward pass of Conv2d:
-//   1. Multiply transposed weight matrix with flattened input  →  col
+//   1. Multiply transposed weight matrix with flattened input  ->  col
 //   2. col2im to scatter columns back to spatial output
 //
 // Weight shape: (kernel_size, kernel_size, C_in * C_out)
-//   — same convention as Conv2d (kernel_h, kernel_w, in_ch*out_ch)
+//   - same convention as Conv2d (kernel_h, kernel_w, in_ch*out_ch)
 
 class ConvTranspose2d : public Module<float> {
 private:
@@ -35,7 +35,7 @@ private:
 
     int in_channels, out_channels, kernel_size, stride, padding;
 
-    // Cached weight_2d_T: (C_out * K * K, C_in) — transposed layout for matmul
+    // Cached weight_2d_T: (C_out * K * K, C_in) - transposed layout for matmul
     mutable Matrix<float>* weight_2d_T_cache_ = nullptr;
     mutable bool weight_2d_T_dirty_ = true;
 
@@ -59,8 +59,8 @@ public:
         delete weight_2d_T_cache_;
     }
 
-    // ===============================[weight_2d_T — Transposed Weight Layout]===============================
-    // Returns (C_out * K * K, C_in) — the transposed 2D weight for GEMM.
+    // ===============================[weight_2d_T - Transposed Weight Layout]===============================
+    // Returns (C_out * K * K, C_in) - the transposed 2D weight for GEMM.
     // This is the transpose of what Conv2d.weight_2d() returns.
     Matrix<float> weight_2d_T() const {
         if (weight_2d_T_cache_ && !weight_2d_T_dirty_) return *weight_2d_T_cache_;
@@ -91,7 +91,7 @@ public:
     // ===============================[Forward]===============================
     // 1. Flatten input: (C_in, H_in*W_in)
     // 2. col = weight_2d_T * input_2d: (C_out*K*K, H_in*W_in)
-    // 3. col2im → (H_out, W_out, C_out) + bias
+    // 3. col2im -> (H_out, W_out, C_out) + bias
     Matrix<float> forward(Matrix<float>& input) override {
         COREPP_ASSERT(input.channel == in_channels,
                     "Input channels mismatch. Expected %d, got %d", in_channels, input.channel);
@@ -103,21 +103,21 @@ public:
         int H_out = (H_in - 1) * stride - 2 * padding + K;
         int W_out = (W_in - 1) * stride - 2 * padding + K;
 
-        // Step 1: Flatten input → (C_in, H_in * W_in)
+        // Step 1: Flatten input -> (C_in, H_in * W_in)
         Matrix<float> input_2d(in_channels, H_in * W_in);
         for (int c = 0; c < in_channels; ++c)
             for (int i = 0; i < H_in; ++i)
                 for (int j = 0; j < W_in; ++j)
                     input_2d.at(c, i * W_in + j) = input.at(i, j, c);
 
-        // Step 2: col = W_T * input_2d  →  (C_out * K * K, H_in * W_in)
+        // Step 2: col = W_T * input_2d  ->  (C_out * K * K, H_in * W_in)
         const Matrix<float>& W_T = weight_2d_T();
         Matrix<float> col = W_T * input_2d;
 
-        // Step 3: col2im → (H_out, W_out, C_out)
+        // Step 3: col2im -> (H_out, W_out, C_out)
         // col has rows = C_out * K * K, cols = H_in * W_in
-        // For ConvTranspose2d, each input position maps to a K×K patch in the output.
-        // Columns of 'col' correspond to input positions; each column is a K×K×C_out patch.
+        // For ConvTranspose2d, each input position maps to a KxK patch in the output.
+        // Columns of 'col' correspond to input positions; each column is a KxKxC_out patch.
         auto* out = new Matrix<float>(H_out, W_out, out_channels);
 
         for (int oc = 0; oc < out_channels; ++oc) {
@@ -174,7 +174,7 @@ public:
 
         // --- Weight gradient ---
         // dW = im2col(grad_output) * input_2d^T, then reshape to (K, K, C_in*C_out)
-        // im2col on grad_output: (H_out, W_out, C_out) → (C_out * K * K, H_in * W_in)
+        // im2col on grad_output: (H_out, W_out, C_out) -> (C_out * K * K, H_in * W_in)
         Matrix<float> go_col = im2col(grad_output, K, K, stride, padding);
 
         // input_2d: (C_in, H_in * W_in)
@@ -221,10 +221,10 @@ public:
         //
         // Actually: forward is col = W^T * input_2d
         // dL/d(input_2d) = W * dL/d(col)
-        // dL/d(col) = go_col (since col→out is just col2im, and col2im's backward is im2col)
+        // dL/d(col) = go_col (since col->out is just col2im, and col2im's backward is im2col)
         //
-        // Wait — let me think more carefully. The forward chain is:
-        // input → input_2d → col → out
+        // Wait - let me think more carefully. The forward chain is:
+        // input -> input_2d -> col -> out
         //
         // col = W_T * input_2d
         // out = col2im(col) + bias
