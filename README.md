@@ -139,15 +139,18 @@ auto output = mha.forward(embedding);    // (seq_len, 512) -> (seq_len, 512)
 
 ## 文档
 
-| 文档 | 说明 |
-|:-----|:-----|
-| [快速入门](docs/QuickStart.md) | 安装构建 + 各模型示例 |
-| [API 参考](docs/API.md) | 完整 API 文档 |
-| [层说明](docs/Layers.md) | 全部 25+ 层的数学公式 |
-| [开发指南](docs/DevGuide.md) | 实现原理 + 编码规范 + 自定义层模板 |
-| [自定义模型](docs/CustomModel.md) | 继承 Module 开发自己的层 |
-| [示例程序](docs/Examples.md) | 14 个示例的教学文档 |
-| [CUDA 指南](docs/CUDA.md) | GPU 编译与使用 |
+由浅入深:
+
+| 文档 | 难度 | 说明 |
+|:-----|:----:|:-----|
+| [快速入门](docs/QuickStart.md) | ★ | 安装 + 第一个模型 |
+| [示例程序](docs/Examples.md) | ★★ | 14 个示例及期望输出 |
+| [数据加载](docs/DataLoader.md) | ★★ | 图像/序列/CSV/自定义加载 |
+| [层说明](docs/Layers.md) | ★★★ | 25+ 层数学公式与推导 |
+| [API 参考](docs/API.md) | ★★★ | 完整类与方法参考 |
+| [开发指南](docs/DevGuide.md) | ★★★★ | 实现原理 + 编码规范 |
+| [自定义模型](docs/CustomModel.md) | ★★★★ | 继承 Module 开发新层 |
+| [CUDA 指南](docs/CUDA.md) | ★★★★★ | GPU 编译与内核 |
 
 ---
 
