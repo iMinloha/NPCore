@@ -5,8 +5,8 @@
 继承 `Module<float>`，实现 `forward()` 和 `backward()`：
 
 ```cpp
-#include "CorePP.h"
-using namespace CoreNNSpace;
+#include "NPCore.h"
+using namespace NPCore;
 
 // 1. 定义你的模型
 class MyLayer : public Module<float> {

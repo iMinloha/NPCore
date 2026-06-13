@@ -14,7 +14,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone <url> && cd CorePP
+git clone <url> && cd NPCore
 
 # 2. CPU 编译 (MinGW)
 cmake -G "MinGW Makefiles" -B _build   # -G 指定生成器, -B 指定构建目录
@@ -27,8 +27,8 @@ cmake --build _build                    # 编译, 输出在 _build/lib/ 和 _bui
 ## 第一个模型: 全连接网络
 
 ```cpp
-#include "CorePP.h"                     // 所有模块的入口头文件
-using namespace CoreNNSpace;            // 引入核心命名空间
+#include "NPCore.h"                     // 所有模块的入口头文件
+using namespace NPCore;            // 引入核心命名空间
 
 int main() {
     // ---- 第1步: 构建网络 ----
@@ -144,7 +144,7 @@ for (int e = 0; e < 800; e++) {
 ### ResNet 残差网络
 
 ```cpp
-// 自定义 ResNet 块 (内联在文件中, 不需修改 CorePP 源码)
+// 自定义 ResNet 块 (内联在文件中, 不需修改 NPCore 源码)
 class MyResBlock : public Module<float> {
     Conv2d *c1, *c2;                    // 两个卷积层
     Activation::ReLU *r1, *r2;          // 两个激活

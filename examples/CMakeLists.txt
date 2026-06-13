@@ -1,4 +1,4 @@
-set(LIBS CorePP::CorePP)
+set(LIBS NPCore::NPCore)
 set(DIR  ${CMAKE_BINARY_DIR}/examples)
 
 # ============================================================

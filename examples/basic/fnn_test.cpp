@@ -1,10 +1,10 @@
-// =================================[CorePP Example: Fully Connected Network]================================
+// =================================[NPCore Example: Fully Connected Network]================================
 // 4 inputs -> 8 -> 16 -> 8 -> 4 outputs, Sigmoid activation, MSE loss, RMSProp optimizer
 #include <iostream>
 #include <chrono>
-#include "CorePP.h"
+#include "NPCore.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     cout << "\n===== FNN: 4->8->16->8->4 =====" << endl;

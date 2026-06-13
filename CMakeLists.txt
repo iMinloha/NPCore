@@ -1,17 +1,17 @@
-# =================================[CorePP — C++ Deep Learning Library]================================
+# =================================[NPCore — C++ Deep Learning Library]================================
 cmake_minimum_required(VERSION 3.18)
-project(CorePP
+project(NPCore
     VERSION 1.0.0
     DESCRIPTION "C++ Deep Learning Library with SIMD + CUDA acceleration"
     LANGUAGES CXX
 )
 
 # =================================[Options]================================
-option(BUILD_SHARED_LIBS "Build CorePP as shared library (DLL)" OFF)
-option(COREPP_ENABLE_CUDA "Enable CUDA GPU acceleration" OFF)
+option(BUILD_SHARED_LIBS "Build NPCore as shared library (DLL)" OFF)
+option(NPCORE_ENABLE_CUDA "Enable CUDA GPU acceleration" OFF)
 
 # =================================[CUDA Detection & Setup]================================
-if(COREPP_ENABLE_CUDA)
+if(NPCORE_ENABLE_CUDA)
     find_package(CUDAToolkit QUIET)
     if(CUDAToolkit_FOUND)
         enable_language(CUDA)
@@ -42,16 +42,16 @@ if(COREPP_ENABLE_CUDA)
             message(STATUS "CUDA host compiler: ${CMAKE_CUDA_HOST_COMPILER}")
         endif()
 
-        set(COREPP_CUDA_SOURCES
-            CorePP/Cuda/cuda_device.cu
-            CorePP/Cuda/cuda_gemm.cu
-            CorePP/Cuda/cuda_elementwise.cu
-            CorePP/Cuda/cuda_rnn.cu
+        set(NPCORE_CUDA_SOURCES
+            NPCore/Cuda/cuda_device.cu
+            NPCore/Cuda/cuda_gemm.cu
+            NPCore/Cuda/cuda_elementwise.cu
+            NPCore/Cuda/cuda_rnn.cu
         )
         message(STATUS "CUDA Toolkit found: ${CUDAToolkit_VERSION}")
     else()
         message(WARNING "CUDA Toolkit not found. Building CPU-only.")
-        set(COREPP_ENABLE_CUDA OFF)
+        set(NPCORE_ENABLE_CUDA OFF)
     endif()
 endif()
 
@@ -69,9 +69,9 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # =================================[Source Files]================================
-include(cmake/CorePPSources.cmake)
+include(cmake/NPCoreSources.cmake)
 
-foreach(_src ${COREPP_ALL_SOURCES})
+foreach(_src ${NPCORE_ALL_SOURCES})
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_src}")
         message(FATAL_ERROR "Missing source file: ${_src}")
     endif()
@@ -79,34 +79,34 @@ endforeach()
 
 # =================================[Library Target]================================
 if(BUILD_SHARED_LIBS)
-    add_library(CorePP SHARED
-        ${COREPP_ALL_SOURCES}
-        ${COREPP_CUDA_SOURCES}
+    add_library(NPCore SHARED
+        ${NPCORE_ALL_SOURCES}
+        ${NPCORE_CUDA_SOURCES}
     )
-    target_compile_definitions(CorePP PRIVATE COREPP_BUILD_DLL)
-    target_compile_definitions(CorePP PUBLIC  COREPP_USE_DLL)
+    target_compile_definitions(NPCore PRIVATE NPCORE_BUILD_DLL)
+    target_compile_definitions(NPCore PUBLIC  NPCORE_USE_DLL)
 else()
-    add_library(CorePP STATIC
-        ${COREPP_ALL_SOURCES}
-        ${COREPP_CUDA_SOURCES}
+    add_library(NPCore STATIC
+        ${NPCORE_ALL_SOURCES}
+        ${NPCORE_CUDA_SOURCES}
     )
 endif()
 
-add_library(CorePP::CorePP ALIAS CorePP)
+add_library(NPCore::NPCore ALIAS NPCore)
 
-target_include_directories(CorePP PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/CorePP>
-    $<INSTALL_INTERFACE:include>
+target_include_directories(NPCore PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/NPCore>
+    $<INSTALL_INTERFACE:include/NPCore>
 )
 
-if(COREPP_ENABLE_CUDA)
-    target_include_directories(CorePP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/CorePP/Cuda)
-    target_compile_definitions(CorePP PUBLIC COREPP_ENABLE_CUDA)
-    target_link_libraries(CorePP PUBLIC CUDA::cudart)
+if(NPCORE_ENABLE_CUDA)
+    target_include_directories(NPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/NPCore/Cuda)
+    target_compile_definitions(NPCore PUBLIC NPCORE_ENABLE_CUDA)
+    target_link_libraries(NPCore PUBLIC CUDA::cudart)
 endif()
 
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(CorePP PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(NPCore PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
 # =================================[Install & Export]================================

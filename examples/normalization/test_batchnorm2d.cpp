@@ -2,12 +2,12 @@
 // Verifies: per-channel mu≈0, sigma^2≈1 after forward; running stats accumulate in train mode;
 //           eval mode uses running stats; backward produces non-zero gradients.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     std::cout << "\n============================================================\n";
@@ -54,7 +54,7 @@ int main() {
     auto out = bn.forward(x);
     out.Analysis("BatchNorm2d Output - normalized (gamma=1,beta=0)");
 
-    COREPP_ASSERT(out.row == H && out.col == W && out.channel == C, "BatchNorm2d output shape mismatch");
+    NPCORE_ASSERT(out.row == H && out.col == W && out.channel == C, "BatchNorm2d output shape mismatch");
 
     // Verify per-channel statistics after normalization
     std::cout << "\n[Post-normalization statistics]\n";
@@ -69,10 +69,10 @@ int main() {
         float ov = sum_sq / (H * W) - om * om;
         std::cout << "  Ch" << c << ": mu=" << std::scientific << std::setprecision(6) << om;
 
-        COREPP_ASSERT(std::abs(om) < 1e-4f, "BatchNorm2d mean not ~0");
+        NPCORE_ASSERT(std::abs(om) < 1e-4f, "BatchNorm2d mean not ~0");
         if (exp_var[c] > 1e-6f) {
             std::cout << "  sigma^2=" << ov << "  -> sigma^2≈1 ✓\n";
-            COREPP_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "BatchNorm2d var not ~1 for non-constant ch");
+            NPCORE_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "BatchNorm2d var not ~1 for non-constant ch");
         } else {
             std::cout << "  sigma^2=" << ov << "  -> (constant input, sigma^2≈0 expected) ✓\n";
         }
@@ -82,7 +82,7 @@ int main() {
     Matrix<float> g(H, W, C);
     for (int i = 0; i < H * W * C; ++i) g.data_ptr()[i] = 0.1f;
     auto dx = bn.backward(g);
-    COREPP_ASSERT(dx.row == H && dx.col == W && dx.channel == C, "BatchNorm2d backward shape mismatch");
+    NPCORE_ASSERT(dx.row == H && dx.col == W && dx.channel == C, "BatchNorm2d backward shape mismatch");
 
     float dx_sum = 0;
     for (int i = 0; i < H * W * C; ++i) dx_sum += dx.data_ptr()[i];

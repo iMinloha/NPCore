@@ -2,12 +2,12 @@
 // Verifies: average pooling correctness vs manual computation, gradient even-split property,
 //           adaptive pooling to fixed output size.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     std::cout << "\n============================================================\n";
@@ -47,14 +47,14 @@ int main() {
             for (int j = 0; j < 2; ++j)
                 max_err = std::max(max_err, std::abs(out.at(i, j, 0) - expect[i][j]));
         std::cout << "  Manual vs actual max error: " << std::scientific << max_err << "\n";
-        COREPP_ASSERT(max_err < 1e-4f, "AvgPool2d value mismatch vs manual computation");
+        NPCORE_ASSERT(max_err < 1e-4f, "AvgPool2d value mismatch vs manual computation");
 
         // Backward: gradient evenly distributed
         Matrix<float> g(2, 2, C);
         for (int i = 0; i < 2 * 2 * C; ++i) g.data_ptr()[i] = 1.0f;
         auto dx = pool.backward(g);
         dx.Analysis("AvgPool2d dL/dx - each input gets 1/4 of output grad");
-        COREPP_ASSERT(std::abs(dx.at(0,0,0) - 0.25f) < 1e-5f, "AvgPool2d backward: expected 0.25");
+        NPCORE_ASSERT(std::abs(dx.at(0,0,0) - 0.25f) < 1e-5f, "AvgPool2d backward: expected 0.25");
 
         pool.CleanGard();
         std::cout << "  [AvgPool2d] PASSED\n";
@@ -89,7 +89,7 @@ int main() {
         std::cout << "  Expected: ch0=" << expect[0] << " ch1=" << expect[1]
                   << " ch2=" << expect[2] << "\n";
         std::cout << "  Max error: " << std::scientific << max_err << "\n";
-        COREPP_ASSERT(max_err < 1e-4f, "AdaptiveAvgPool2d value mismatch");
+        NPCORE_ASSERT(max_err < 1e-4f, "AdaptiveAvgPool2d value mismatch");
 
         // Backward with non-uniform gradient
         Matrix<float> g(1, 1, C);
@@ -98,8 +98,8 @@ int main() {
         int area = H * W;
         std::cout << "  dL/dx[0,0,0]=" << dx.at(0,0,0) << " (expected " << (1.0f/area) << ")\n";
         std::cout << "  dL/dx[0,0,1]=" << dx.at(0,0,1) << " (expected " << (2.0f/area) << ")\n";
-        COREPP_ASSERT(std::abs(dx.at(0,0,0) - 1.0f/area) < 1e-5f, "AdaptiveAvgPool2d backward ch0");
-        COREPP_ASSERT(std::abs(dx.at(0,0,1) - 2.0f/area) < 1e-5f, "AdaptiveAvgPool2d backward ch1");
+        NPCORE_ASSERT(std::abs(dx.at(0,0,0) - 1.0f/area) < 1e-5f, "AdaptiveAvgPool2d backward ch0");
+        NPCORE_ASSERT(std::abs(dx.at(0,0,1) - 2.0f/area) < 1e-5f, "AdaptiveAvgPool2d backward ch1");
 
         apool.CleanGard();
         std::cout << "  [AdaptiveAvgPool2d] PASSED\n";

@@ -1,7 +1,7 @@
 #include <iostream>
-#include "CorePP.h"
+#include "NPCore.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 // Inline ResNet block: Conv(k3,s1,p1)->ReLU->Conv(k3,s1,p1) + skip -> ReLU
 class MyResBlock : public Module<float> {

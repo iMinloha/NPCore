@@ -2,12 +2,12 @@
 // Verifies: output shape matches input, forward is finite, backward returns gradient,
 //           all 8 weight/bias matrices receive gradients.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 static void check(const char* label, bool ok) {
     std::cout << "  " << (ok ? "[PASS]" : "[FAIL]") << " " << label << "\n";

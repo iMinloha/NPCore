@@ -1,10 +1,10 @@
-// =================================[CorePP Example: DataLoader]================================
+// =================================[NPCore Example: DataLoader]================================
 // Demonstrates InMemoryLoader train/test split + Trainer.fit(DataLoader&)
 #include <iostream>
-#include "CorePP.h"
+#include "NPCore.h"
 #include "Model.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 // ---- 自定义 DataLoader 示例 ----
 class MyLoader : public DataLoader {

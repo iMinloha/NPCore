@@ -20,7 +20,7 @@ CUDA 代码通过纯 C 接口 (`extern "C"`) 暴露，确保 MinGW 和 MSVC ABI 
 ## 一键构建
 
 ```bash
-cmake -G "MinGW Makefiles" -B _build -DCOREPP_ENABLE_CUDA=ON
+cmake -G "MinGW Makefiles" -B _build -DNPCORE_ENABLE_CUDA=ON
 cmake --build _build
 ```
 

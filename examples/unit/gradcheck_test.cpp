@@ -1,8 +1,8 @@
 #include <iostream>
-#include "CorePP.h"
+#include "NPCore.h"
 #include "Autograd.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     cout << "\n===== Gradient Check: Linear Layer =====" << endl;

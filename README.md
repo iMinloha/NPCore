@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="assets/img/architecture.png" alt="CorePP Architecture" width="720">
+  <img src="assets/img/architecture.png" alt="NPCore Architecture" width="720">
 </p>
 
 ---
 
 <p align="center">
-  <strong>CorePP</strong> — 纯 C++20 深度学习库，AVX2 SIMD 与 CUDA GPU 双后端加速
+  <strong>NPCore</strong> — 纯 C++20 深度学习库，AVX2 SIMD 与 CUDA GPU 双后端加速
 </p>
 
 <p align="center">
@@ -42,8 +42,8 @@
 ## 快速开始
 
 ```cpp
-#include "CorePP.h"
-using namespace CoreNNSpace;
+#include "NPCore.h"
+using namespace NPCore;
 
 int main() {
     // 一行创建网络: 4 → 8 → 16 → 8 → 4
@@ -88,10 +88,57 @@ auto output = mha.forward(embedding);    // (seq_len, 512) -> (seq_len, 512)
 | 平台 | 编译器 | 命令 |
 |:-----|:------|:-----|
 | CPU | MinGW GCC 12+ / MSVC 2022 | `cmake -G "MinGW Makefiles" -B _build && cmake --build _build` |
-| GPU (CUDA) | + CUDA Toolkit 11.0+ | `cmake -B _build -DCOREPP_ENABLE_CUDA=ON` |
+| GPU (CUDA) | + CUDA Toolkit 11.0+ | `cmake -B _build -DNPCORE_ENABLE_CUDA=ON` |
 | DLL | 同 CPU | `cmake -B _build -DBUILD_SHARED_LIBS=ON` |
 
 > **依赖:** CMake 3.18+, C++20 编译器。可选: CUDA 11.0+ 用于 GPU。
+
+### 安装到指定路径
+
+```bash
+# 安装到默认路径 (_build/install)
+cmake --install _build
+
+# 安装到自定义路径
+cmake --install _build --prefix /path/to/install
+```
+
+安装后的目录结构:
+```
+prefix/
+├── include/
+│   └── NPCore/       NPCore.h  Layers/  Optimizers/  ...
+├── lib/
+│   ├── libNPCore.a         静态库
+│   └── cmake/NPCore/       CMake 包配置 (find_package 用)
+```
+
+### 在外部项目中使用
+
+将 `install/` 复制到你的项目目录，然后零配置构建:
+
+```
+your_project/
+├── install/              # 复制 NPCore 安装目录
+├── CMakeLists.txt
+└── main.cpp
+```
+
+```cmake
+# CMakeLists.txt — 自动检测 install/
+find_package(NPCore REQUIRED)
+find_package(OpenMP REQUIRED)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE NPCore::NPCore OpenMP::OpenMP_CXX)
+```
+
+```bash
+mkdir _b && cd _b
+cmake ..          # 零参数，自动使用 install/
+cmake --build .
+```
+
+> 完整示例见 `examples/standalone/` — 已包含 `install/`，可直接 `cmake .. && cmake --build .` 运行。
 
 ---
 
@@ -170,7 +217,7 @@ auto output = mha.forward(embedding);    // (seq_len, 512) -> (seq_len, 512)
 ## 项目结构
 
 ```
-CorePP/
+NPCore/
 ├── Core/                          矩阵引擎 (GEMM, SIMD, CUDA bridge)
 ├── Layers/
 │   ├── Basic/                     Linear  Flatten  Embedding  Dropout
@@ -188,7 +235,7 @@ CorePP/
 ├── docs/                          7 篇文档
 ├── Model.h                        高层 API (nn::FNN, nn::CNN, nn::Trainer)
 ├── Autograd.h                     梯度检验工具
-└── CorePP.h                       单头文件引入
+└── NPCore.h                       单头文件引入
 ```
 
 ---

@@ -1,9 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-include("${CMAKE_CURRENT_LIST_DIR}/CorePPTargets.cmake")
-
-# CorePP is a header-only + static library package.
-# SIMD flags are encoded at build time; no runtime detection needed here.
-
-check_required_components(CorePP)

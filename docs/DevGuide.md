@@ -12,7 +12,7 @@
 | 私有成员 | 后缀 `_` | `weight_grad_`, `col_cache_` | 只用于 private 成员 |
 | 常量 | UPPER 或 PascalCase | `BLOCK_SIZE`, `XavierUniform` | 编译时常量大写 |
 | 文件名 | PascalCase | `Conv2d.h`, `CudaBridge.h` | 与主类同名 |
-| 命名空间 | PascalCase | `CoreNNSpace`, `Activation` | |
+| 命名空间 | PascalCase | `NPCore`, `Activation` | |
 
 ### 文件组织原则
 
@@ -420,8 +420,8 @@ public:
 
 ```
 1. 文件放到对应子目录
-2. 在 cmake/CorePPSources.cmake 中注册
-3. 在 CorePP/NN.h (或对应模块头) 添加 #include
+2. 在 cmake/NPCoreSources.cmake 中注册
+3. 在 NPCore/NN.h (或对应模块头) 添加 #include
 
 完成。之后 cmake --build _build 自动编译。
 ```

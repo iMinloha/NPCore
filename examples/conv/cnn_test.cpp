@@ -1,8 +1,8 @@
 #include <iostream>
 #include <chrono>
-#include "CorePP.h"
+#include "NPCore.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     cout << "\n===== CNN Test: Conv+Pool+Flatten+Linear =====" << endl;

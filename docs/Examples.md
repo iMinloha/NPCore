@@ -17,10 +17,32 @@ examples/
 ├── attention/            test_mha            多头注意力
 ├── optimizers/           test_gradclip       梯度裁剪
 ├── architecture/         test_resnet         残差网络
-└── data/                 test_dataloader     数据加载
+└── standalone/           demo_app            完整 API 演示 (外部复用)
+                          demo_classifier     CNN 图像分类器
 ```
 
 运行: `cmake --build _build && ./_build/examples/test_mha`
+
+### 独立项目 (standalone/)
+演示如何将 NPCore 作为外部库使用:
+
+```bash
+# 方式 A: 从源码自动编译
+cd examples/standalone && mkdir _b && cd _b
+cmake .. -DNPCORE_SOURCE_DIR=../../
+cmake --build .
+
+# 方式 B: 使用已安装的库
+cmake .. -DNPCore_DIR=/path/to/install/lib/cmake/NPCore
+cmake --build .
+```
+
+| Demo | 内容 |
+|------|------|
+| demo_app | FNN+梯度裁剪、CNN+BatchNorm+Pooling、Transformer、DataLoader |
+| demo_classifier | 8层 CNN: Conv->BN->ReLU->Pool->Conv->BN->ReLU->AdaptivePool->Flatten->Linear, 对角/反对角分类 |
+
+
 
 ---
 

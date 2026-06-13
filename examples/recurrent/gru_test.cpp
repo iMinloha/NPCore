@@ -1,7 +1,7 @@
 #include <iostream>
-#include "CorePP.h"
+#include "NPCore.h"
 using namespace std;
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     cout << "\n===== GRU Test: sequence memory =====" << endl;

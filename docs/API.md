@@ -3,9 +3,9 @@
 ## 命名空间
 
 ```cpp
-using namespace CoreNNSpace;              // 所有类 (Matrix, Linear, Optim, ...)
-using namespace CoreNNSpace::Activation;  // 激活函数 (ReLU, Sigmoid, ...)
-using namespace CoreNNSpace::nn;          // 高层 API (FNN, CNN, Trainer)
+using namespace NPCore;              // 所有类 (Matrix, Linear, Optim, ...)
+using namespace NPCore::Activation;  // 激活函数 (ReLU, Sigmoid, ...)
+using namespace NPCore::nn;          // 高层 API (FNN, CNN, Trainer)
 ```
 
 ---
@@ -362,7 +362,7 @@ GradientClipping::clip_by_value(grad_matrix, min_val, max_val);
 
 ## 激活函数
 
-在 `CoreNNSpace::Activation` 子命名空间。全部使用方式相同:
+在 `NPCore::Activation` 子命名空间。全部使用方式相同:
 
 ```cpp
 new Activation::ReLU()       // ReLU:     max(0, x), 导数: 0/1

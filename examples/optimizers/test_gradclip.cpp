@@ -1,12 +1,12 @@
 // =================================[GradientClipping - Precision Test]================================
 // Verifies: clip_by_value clamps to [min,max], clip_by_norm scales to max_norm while preserving direction.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     std::cout << "\n============================================================\n";
@@ -42,7 +42,7 @@ int main() {
                 float v = wg->data_ptr()[i];
                 if (v < -0.5f || v > 0.5f) { in_range = false; break; }
             }
-            COREPP_ASSERT(in_range, "clip_by_value: values outside [-0.5, 0.5] after clip");
+            NPCORE_ASSERT(in_range, "clip_by_value: values outside [-0.5, 0.5] after clip");
         }
         delete wg_before;
         std::cout << "  PASSED\n";
@@ -74,7 +74,7 @@ int main() {
             float expected = 3.0f;
             std::cout << "  Scaling applied: factor=" << (3.0f/norm_before)
                       << " (expected norm=3.0)\n";
-            COREPP_ASSERT(std::abs(norm_after - expected) < 1e-4f, "clip_by_norm scaling incorrect");
+            NPCORE_ASSERT(std::abs(norm_after - expected) < 1e-4f, "clip_by_norm scaling incorrect");
         }
         std::cout << "  PASSED\n";
     }

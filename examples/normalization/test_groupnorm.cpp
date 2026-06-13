@@ -2,12 +2,12 @@
 // Verifies: per-group independent normalization (mu≈0, sigma^2≈1 within each group),
 //           cross-group isolation, backward gradient flow.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 int main() {
     std::cout << "\n============================================================\n";
@@ -39,7 +39,7 @@ int main() {
     auto out = gn.forward(x);
     out.Analysis("GroupNorm Output - each group independently normalized to mu≈0,sigma^2≈1");
 
-    COREPP_ASSERT(out.row == H && out.col == W && out.channel == C, "GroupNorm output shape mismatch");
+    NPCORE_ASSERT(out.row == H && out.col == W && out.channel == C, "GroupNorm output shape mismatch");
 
     // Verify per-group statistics
     std::cout << "\n[Post-normalization per-group statistics]\n";
@@ -56,8 +56,8 @@ int main() {
         float ov = sum_sq / N_per_group - om * om;
         std::cout << "  Group " << g << ": mu=" << std::scientific << std::setprecision(8) << om
                   << "  sigma^2=" << ov << "  (target: mu≈0, sigma^2≈1)\n";
-        COREPP_ASSERT(std::abs(om) < 1e-4f, "GroupNorm mean not ~0");
-        COREPP_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "GroupNorm var not ~1");
+        NPCORE_ASSERT(std::abs(om) < 1e-4f, "GroupNorm mean not ~0");
+        NPCORE_ASSERT(std::abs(ov - 1.0f) < 2e-3f, "GroupNorm var not ~1");
     }
 
     // Verify cross-group isolation: group 0 mean ≠ group 1 mean before norm, both ~0 after
@@ -67,7 +67,7 @@ int main() {
     Matrix<float> g(H, W, C);
     for (int i = 0; i < H * W * C; ++i) g.data_ptr()[i] = 0.1f;
     auto dx = gn.backward(g);
-    COREPP_ASSERT(dx.row == H && dx.col == W && dx.channel == C, "GroupNorm backward shape mismatch");
+    NPCORE_ASSERT(dx.row == H && dx.col == W && dx.channel == C, "GroupNorm backward shape mismatch");
 
     float dx_sum = 0;
     for (int i = 0; i < H * W * C; ++i) dx_sum += dx.data_ptr()[i];

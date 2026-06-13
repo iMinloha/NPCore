@@ -1,12 +1,12 @@
 // =================================[ConvTranspose2d - Precision Test]================================
 // Verifies: output shape formula, forward/backward shape consistency, gradients computed.
 
-#include "CorePP.h"
+#include "NPCore.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace CoreNNSpace;
+using namespace NPCore;
 
 static void check(const char* label, bool ok) {
     std::cout << "  " << (ok ? "[PASS]" : "[FAIL]") << " " << label << "\n";

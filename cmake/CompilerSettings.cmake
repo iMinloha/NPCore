@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    add_compile_definitions(COREPP_HAS_OPENMP)
+    add_compile_definitions(NPCORE_HAS_OPENMP)
 endif()
 
 # --- SIMD Detection ---
@@ -41,7 +41,7 @@ if(MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
     # Static linking to avoid DLL dependencies
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-    message(STATUS "CorePP: MinGW detected — using -march=native, -static")
+    message(STATUS "NPCore: MinGW detected — using -march=native, -static")
 endif()
 
 # --- MSVC-specific ---
@@ -50,7 +50,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
     # Multi-processor compilation
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-    message(STATUS "CorePP: MSVC detected — using /arch:AVX2, /MP")
+    message(STATUS "NPCore: MSVC detected — using /arch:AVX2, /MP")
 endif()
 
 # --- Common warnings ---

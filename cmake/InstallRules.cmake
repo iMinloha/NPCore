@@ -1,20 +1,22 @@
-# =================================[CorePP Install & Export Rules]================================
+# =================================[NPCore Install & Export Rules]================================
 
-# --- Install headers (preserve directory structure) ---
+# --- Install headers into include/NPCore/ (standard namespaced layout) ---
+# Users write: #include <NPCore/NPCore.h>
 install(
-    DIRECTORY CorePP/
-    DESTINATION include/CorePP
+    DIRECTORY NPCore/
+    DESTINATION include/NPCore
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "*.inl"
     PATTERN "test" EXCLUDE
+    PATTERN "Cuda" EXCLUDE
 )
 
 # --- Install library target ---
 install(
-    TARGETS CorePP
-    EXPORT CorePPTargets
+    TARGETS NPCore
+    EXPORT NPCoreTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
@@ -24,21 +26,21 @@ install(
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    cmake/CorePPConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/CorePPConfig.cmake
-    INSTALL_DESTINATION lib/cmake/CorePP
+    cmake/NPCoreConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/NPCoreConfig.cmake
+    INSTALL_DESTINATION lib/cmake/NPCore
 )
 
 install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/CorePPConfig.cmake
-    DESTINATION lib/cmake/CorePP
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/NPCoreConfig.cmake
+    DESTINATION lib/cmake/NPCore
 )
 
 install(
-    EXPORT CorePPTargets
-    FILE CorePPTargets.cmake
-    NAMESPACE CorePP::
-    DESTINATION lib/cmake/CorePP
+    EXPORT NPCoreTargets
+    FILE NPCoreTargets.cmake
+    NAMESPACE NPCore::
+    DESTINATION lib/cmake/NPCore
 )
 
 # --- Create install directory at build time ---
