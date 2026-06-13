@@ -9,7 +9,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[ConvTranspose2d — 转置卷积 / 反卷积]================================
+// =================================[ConvTranspose2d — Transposed Convolution]================================
 // Reference: Dumoulin & Visin (2016) "A guide to convolution arithmetic for deep learning"
 //
 // Also known as "deconvolution" or "fractionally-strided convolution".

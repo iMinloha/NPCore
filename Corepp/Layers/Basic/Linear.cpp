@@ -21,13 +21,13 @@ Matrix<float> Linear::backward(Matrix<float>& grad_output) {
     // 从 gard 读取保存的输入
     Matrix<float>& input_cache = *gard.back();
 
-    // 计算权重梯度: dL/dW = grad_output * input^T
+    // Weight gradient: dL/dW = grad_output * input^T
     weight_grad_ = new Matrix<float>(grad_output * input_cache.Translate());
 
-    // 计算偏置梯度: dL/db = grad_output
+    // Bias gradient: dL/db = grad_output
     bias_grad_ = new Matrix<float>(grad_output);
 
-    // 返回输入梯度: dL/dx = W^T * grad_output
+    // Input gradient: dL/dx = W^T * grad_output
     return weight->Translate() * grad_output;
 }
 

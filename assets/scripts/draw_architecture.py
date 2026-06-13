@@ -1,5 +1,5 @@
 """
-CorePP — Library Architecture Overview  (transparent bg)
+CorePP — Library Architecture Overview  (solid white bg)
 Generates: assets/img/architecture.png
 """
 import matplotlib
@@ -14,14 +14,14 @@ ax.axis('off')
 
 C = {'cyan': '#0d7377', 'blue': '#1a56db', 'purple': '#6d28d9',
      'green': '#166534', 'orange': '#b45309', 'red': '#b91c1c',
-     'gray': '#9ca3af', 'fg': '#111827', 'dim': '#4b5563', 'white': '#ffffff'}
+     'gray': '#6b7280', 'fg': '#111827', 'dim': '#374151', 'white': '#ffffff'}
 
 def box(ax, x, y, w, h, color, title, sub=None, fs=9.5, fs2=7):
     b = FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.12',
-                       facecolor=color, edgecolor='none', alpha=0.08, linewidth=0, zorder=1)
+                       facecolor=color, edgecolor='none', alpha=0.20, linewidth=0, zorder=1)
     ax.add_patch(b)
     b2 = FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.12',
-                        facecolor='none', edgecolor=color, alpha=0.55, linewidth=1.0, zorder=2)
+                        facecolor='none', edgecolor=color, alpha=0.95, linewidth=1.3, zorder=2)
     ax.add_patch(b2)
     ax.text(x+w/2, y+h/2, title, ha='center', va='center', fontsize=fs,
             fontweight='bold', color=color, fontfamily='monospace', zorder=3)
@@ -32,15 +32,15 @@ def box(ax, x, y, w, h, color, title, sub=None, fs=9.5, fs2=7):
 
 def section(ax, x, y, w, h, color, label, items, fs=9):
     b = FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.10',
-                       facecolor=color, edgecolor='none', alpha=0.06, linewidth=0, zorder=1)
+                       facecolor=color, edgecolor='none', alpha=0.14, linewidth=0, zorder=1)
     ax.add_patch(b)
     b2 = FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.10',
-                        facecolor='none', edgecolor=color, alpha=0.50, linewidth=0.9, zorder=2)
+                        facecolor='none', edgecolor=color, alpha=0.85, linewidth=1.1, zorder=2)
     ax.add_patch(b2)
     ax.text(x+w/2, y+h-0.18, label, ha='center', va='center', fontsize=fs,
             fontweight='bold', color=color, fontfamily='monospace', zorder=3)
     for i, item in enumerate(items):
-        ax.text(x+w/2, y+h-0.42-i*0.24, item, ha='center', va='top', fontsize=6.2,
+        ax.text(x+w/2, y+h-0.44-i*0.24, item, ha='center', va='top', fontsize=6.2,
                 color=C['dim'], fontfamily='monospace', zorder=3)
 
 # ── Header ──
@@ -150,11 +150,10 @@ for i, (num, label) in enumerate(stats):
             color=C['fg'], family='monospace')
     ax.text(sx, y6+0.08, label, ha='center', fontsize=8, color=C['dim'], family='monospace')
 
-# connecting lines
 for yt, yb in [(y1, y2+1.55), (y2, y3+1.40), (y3, y4+1.90), (y4, y5+0.95)]:
-    ax.plot([7.5, 7.5], [yt, yb], color=C['gray'], lw=0.6, alpha=0.25, zorder=0)
+    ax.plot([7.5, 7.5], [yt, yb], color=C['gray'], lw=0.6, alpha=0.35, zorder=0)
 
 plt.tight_layout(pad=0.3)
-plt.savefig('../img/architecture.png', dpi=180, bbox_inches='tight', transparent=True, edgecolor='none')
+plt.savefig('../img/architecture.png', dpi=180, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()
 print('Saved: assets/img/architecture.png')

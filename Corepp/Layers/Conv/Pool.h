@@ -54,7 +54,7 @@ public:
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
     void CleanGard() override { for(auto p:gard)delete p; gard.clear(); for(auto p:output)delete p; output.clear(); delete mask; mask=nullptr; }
 };
-// =================================[AvgPool2d — 平均池化]================================
+// =================================[AvgPool2d — Average Pooling]================================
 // Averages over pooling windows instead of taking the max.
 // Essential for many CNN variants (e.g., ResNet's final pooling before classifier).
 //
@@ -119,7 +119,7 @@ public:
     }
 };
 
-// =================================[AdaptiveAvgPool2d — 自适应平均池化]================================
+// =================================[AdaptiveAvgPool2d — Adaptive Average Pooling]================================
 // Pools to a fixed output size regardless of input dimensions.
 // Essential for CNNs that must handle variable-size inputs (e.g., classifier head).
 //

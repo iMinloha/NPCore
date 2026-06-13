@@ -7,7 +7,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[RNN 循环神经网络层]================================
+// =================================[RNN Recurrent Neural Network Layer]================================
 // Elman RNN: h_t = tanh(W_ih * x_t + W_hh * h_{t-1} + b_h)
 //
 // Input:  Matrix(seq_len, input_size)  — each ROW is one time step x_t (1×input_size)

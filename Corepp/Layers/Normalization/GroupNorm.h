@@ -7,7 +7,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[GroupNorm — 分组归一化]================================
+// =================================[GroupNorm — Group Normalization]================================
 // Reference: Wu & He (2018) "Group Normalization"
 //
 // Divides channels into groups and normalizes within each group over (H, W, C_per_group).

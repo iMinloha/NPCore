@@ -491,79 +491,149 @@ const Matrix<T>& Matrix<T>::setChannel(Matrix<T>& mat, int channel) {
 
 template<typename T>
 void Matrix<T>::Analysis(const std::string& title) {
-    // --- Smart number formatting: auto scientific for tiny/huge, fixed for normal ---
+    // ── Number formatter: auto scientific for tiny/huge, fixed for mid-range ──
     auto fmt = [](T v) -> std::string {
         T av = std::abs(v);
         std::ostringstream oss;
         if (av == T(0)) {
-            return "0";
+            return " 0";
         } else if (av < T(1e-6) || av >= T(1e7)) {
-            oss << std::scientific << std::setprecision(4) << v;
-        } else if (av < T(0.001)) {
-            oss << std::scientific << std::setprecision(4) << v;
+            oss << std::scientific << std::setprecision(3) << v;
+        } else if (av < T(0.01)) {
+            oss << std::scientific << std::setprecision(2) << v;
         } else if (av < T(1)) {
-            oss << std::fixed << std::setprecision(6) << v;
+            oss << std::fixed << std::setprecision(5) << v;
         } else if (av < T(10)) {
-            oss << std::fixed << std::setprecision(4) << v;
-        } else if (av < T(100)) {
             oss << std::fixed << std::setprecision(3) << v;
+        } else if (av < T(100)) {
+            oss << std::fixed << std::setprecision(2) << v;
         } else if (av < T(1000)) {
             oss << std::fixed << std::setprecision(1) << v;
         } else {
             oss << std::fixed << std::setprecision(0) << v;
         }
-        return oss.str();
+        std::string s = oss.str();
+        // Pad positive numbers for alignment
+        if (s[0] != '-' && s != " 0") s = " " + s;
+        return s;
     };
 
-    // --- Sign prefix: + / - / ~ (near-zero) ---
-    auto sign = [](T v) -> char {
-        if (v > T(1e-9))  return '+';
-        if (v < T(-1e-9)) return '-';
-        return '~';
+    auto sgn = [](T v) -> std::string {
+        if (v > T(1e-12))  return "+";
+        if (v < T(-1e-12)) return "-";
+        return "~";
     };
 
-    // --- Compute column width ---
-    int cellW = 8;  // minimum
+    // ── Compute column widths ──
+    int cellW = 7;
     for (int i = 0; i < row; ++i)
         for (int j = 0; j < col; ++j)
             for (int c = 0; c < (channel > 1 ? channel : 1); ++c) {
                 T v = (channel == 1) ? at(i, j) : at(i, j, c);
-                int len = (int)fmt(std::abs(v)).length();
+                int len = (int)(sgn(v) + fmt(std::abs(v))).length();
                 if (len + 1 > cellW) cellW = len + 1;
             }
 
     int totalW = col * (cellW + 1) + 3;
-    int lblW   = (row > 9) ? 3 : 2;
+    int lblW   = (row > 99) ? 4 : (row > 9 ? 3 : 2);
 
-    auto hline = [&](char l, char /*m*/, char r, char fill) {
-        std::cout << std::string(lblW, ' ') << l << std::string(totalW - 2, fill) << r << '\n';
+    // ── ASCII box-drawing helpers ──
+    int innerW = totalW - 2;
+    auto hline = [&](char left, char /*mid*/, char right, char fill) {
+        std::cout << std::string(lblW, ' ') << left
+                  << std::string(innerW, fill) << right << '\n';
     };
+    auto top = [&]() { hline('+', '-', '+', '-'); };
+    auto mid = [&]() { hline('+', '-', '+', '-'); };
+    auto bot = [&]() { hline('+', '-', '+', '-'); };
+    auto sep = [&]() { hline('|', '.', '|', '-'); };
 
-    // --- Header ---
-    hline('+', '=', '+', '=');
-    std::cout << std::string(lblW, ' ') << "| " << std::left << std::setw(totalW - 4)
-              << title << " [" << row << "x" << col;
-    if (channel > 1) std::cout << "x" << channel;
-    std::cout << "]\n";
-    hline('+', '=', '+', '=');
+    // ── Title bar ──
+    std::ostringstream hdr;
+    hdr << title << "  [" << row << "x" << col;
+    if (channel > 1) hdr << "x" << channel;
+    hdr << "]";
+    top();
+    std::cout << std::string(lblW, ' ') << "| " << std::left
+              << std::setw(innerW - 1) << hdr.str() << "|\n";
+    mid();
 
-    // --- Data ---
+    // ── Column indices ──
+    if (col <= 20) {
+        std::cout << std::string(lblW, ' ') << "| ";
+        for (int j = 0; j < col; ++j) {
+            std::ostringstream cidx;
+            cidx << "c" << j;
+            std::cout << std::setw(cellW + 1) << std::left << cidx.str().substr(0, cellW);
+        }
+        std::cout << " |\n";
+        sep();
+    }
+
+    // ── Data ──
+    // Track stats
+    T tmin = T(0), tmax = T(0);
+    double tsum = 0;
+    bool first = true;
+    long long n = 0;
+
     int slices = (channel > 1) ? channel : 1;
     for (int ch = 0; ch < slices; ++ch) {
         if (channel > 1 && ch > 0) {
-            std::cout << std::string(lblW, ' ') << "| -- ch:" << ch
-                      << std::string(totalW - 12, ' ') << "|\n";
+            std::ostringstream chlbl;
+            chlbl << "channel " << ch;
+            std::cout << std::string(lblW, ' ') << "| "
+                      << std::left << std::setw(innerW - 1) << chlbl.str() << "|\n";
+            sep();
         }
         for (int i = 0; i < row; ++i) {
             std::cout << std::setw(lblW - 1) << i << " |";
             for (int j = 0; j < col; ++j) {
                 T v = (channel == 1) ? at(i, j) : at(i, j, ch);
-                std::cout << sign(v) << std::setw(cellW) << std::right << fmt(std::abs(v));
+                std::cout << sgn(v) << std::setw(cellW) << std::right << fmt(std::abs(v));
+                if (first) { tmin = tmax = v; first = false; }
+                else { if (v < tmin) tmin = v; if (v > tmax) tmax = v; }
+                tsum += static_cast<double>(v);
+                ++n;
             }
             std::cout << " |\n";
         }
     }
-    hline('+', '-', '+', '-');
+
+    // ── Footer with statistics ──
+    mid();
+    double mean = tsum / n;
+    double var = 0;
+    for (int i = 0; i < row; ++i)
+        for (int j = 0; j < col; ++j)
+            for (int c = 0; c < (channel > 1 ? channel : 1); ++c) {
+                T v = (channel == 1) ? at(i, j) : at(i, j, c);
+                double d = static_cast<double>(v) - mean;
+                var += d * d;
+            }
+    var /= n;
+    double stddev = std::sqrt(var);
+
+    auto stat_val = [&](const char* label, double val) -> std::string {
+        std::ostringstream oss;
+        oss << label << "=";
+        if (std::abs(val) < 1e-4) oss << std::scientific << std::setprecision(2) << val;
+        else if (std::abs(val) < 0.01) oss << std::fixed << std::setprecision(6) << val;
+        else if (std::abs(val) < 1) oss << std::fixed << std::setprecision(4) << val;
+        else if (std::abs(val) < 100) oss << std::fixed << std::setprecision(3) << val;
+        else oss << std::fixed << std::setprecision(1) << val;
+        return oss.str();
+    };
+
+    std::ostringstream footer;
+    footer << "sum=" << std::fixed << std::setprecision(2) << tsum
+           << "  " << stat_val("min", static_cast<double>(tmin))
+           << "  " << stat_val("max", static_cast<double>(tmax))
+           << "  " << stat_val("mean", mean)
+           << "  " << stat_val("std", stddev);
+    std::cout << std::string(lblW, ' ') << "| "
+              << std::left << std::setw(innerW - 1) << footer.str() << "|\n";
+    bot();
 }
 
 // ====================================[Device Transfer]=================================

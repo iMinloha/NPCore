@@ -1,5 +1,5 @@
-// =================================[CorePP 示例: DataLoader]================================
-// 演示 InMemoryLoader 的 train/test 划分 + Trainer.fit(DataLoader&)
+// =================================[CorePP Example: DataLoader]================================
+// Demonstrates InMemoryLoader train/test split + Trainer.fit(DataLoader&)
 #include <iostream>
 #include "CorePP.h"
 #include "Model.h"

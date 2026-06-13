@@ -5,7 +5,7 @@
 ---
 
 <p align="center">
-  <strong>CorePP</strong> — A pure C++20 deep learning library with AVX2 SIMD &amp; CUDA GPU backends.
+  <strong>CorePP</strong> — 纯 C++20 深度学习库，AVX2 SIMD 与 CUDA GPU 双后端加速
 </p>
 
 <p align="center">
@@ -19,44 +19,34 @@
 
 ---
 
-## :zap: Highlights
+## 特性总览
 
-| Category | Count | Items |
-|:---------|:-----:|:------|
-| Layers | **25+** | `Linear` `Conv2d` `ConvTranspose2d` `MaxPool2d` `AvgPool2d` `AdaptiveAvgPool2d` `Flatten` `RNN` `LSTM` `GRU` `BatchNorm1d` `BatchNorm2d` `LayerNorm` `GroupNorm` `Dropout` `Embedding` `MultiHeadAttention` `Residual` `ResNetBlock` |
-| Activations | **12** | `ReLU` `LeakyReLU` `Sigmoid` `Tanh` `SoftMax` `ELU` `SELU` `Softplus` `Mish` `GELU` `Swish` |
-| Losses | **6** | `MSE` `MAE` `SmoothL1` `CrossEntropy` `BCE` `KL Divergence` |
-| Optimizers | **10** | `SGD` `Momentum` `Adam` `AdamW` `RMSProp` `Adagrad` `Adadelta` `NAdam` `RAdam` + `CosineLR` `StepLR` |
-| Utilities | — | `GradientClipping` · `DataLoader` · `numerical_gradient` · `gradcheck` |
+| 类别 | 数量 | 内容 |
+|:-----|:----:|:-----|
+| 层 | **25+** | `Linear` `Conv2d` `ConvTranspose2d` `MaxPool2d` `AvgPool2d` `AdaptiveAvgPool2d` `Flatten` `RNN` `LSTM` `GRU` `BatchNorm1d` `BatchNorm2d` `LayerNorm` `GroupNorm` `Dropout` `Embedding` `MultiHeadAttention` `Residual` `ResNetBlock` |
+| 激活函数 | **12** | `ReLU` `LeakyReLU` `Sigmoid` `Tanh` `SoftMax` `ELU` `SELU` `Softplus` `Mish` `GELU` `Swish` |
+| 损失函数 | **6** | `MSE` `MAE` `SmoothL1` `CrossEntropy` `BCE` `KL Divergence` |
+| 优化器 | **10** | `SGD` `Momentum` `Adam` `AdamW` `RMSProp` `Adagrad` `Adadelta` `NAdam` `RAdam` + `CosineLR` `StepLR` |
+| 工具 | — | `GradientClipping` · `DataLoader` · `numerical_gradient` · `gradcheck` |
 
-### :art: Normalization Family
-
-<p align="center">
-  <img src="assets/img/normalization.png" alt="Normalization Methods" width="560">
-</p>
-
-### :brain: Transformer Attention
+### 核心架构图
 
 <p align="center">
-  <img src="assets/img/mha.png" alt="MultiHeadAttention" width="500">
-</p>
-
-### :arrow_up: Convolutional Upsampling
-
-<p align="center">
-  <img src="assets/img/convtranspose2d.png" alt="ConvTranspose2d" width="560">
+  <img src="assets/img/normalization.png" alt="Normalization" width="540"><br>
+  <img src="assets/img/mha.png" alt="MultiHeadAttention" width="540"><br>
+  <img src="assets/img/convtranspose2d.png" alt="ConvTranspose2d" width="540">
 </p>
 
 ---
 
-## :rocket: Quick Start
+## 快速开始
 
 ```cpp
 #include "CorePP.h"
 using namespace CoreNNSpace;
 
 int main() {
-    // One-liner network:  4 → 8 → 16 → 8 → 4
+    // 一行创建网络: 4 → 8 → 16 → 8 → 4
     auto net = nn::FNN({4, 8, 16, 8, 4}, nn::Sigmoid);
 
     Matrix<float> x(4, 1); x << 3 << 4 << 2 << 1;
@@ -72,100 +62,113 @@ int main() {
 ```
 
 <details>
-<summary><b>GPU Acceleration — one line</b></summary>
+<summary><b>GPU 加速 — 一行代码</b></summary>
 
 ```cpp
-net.cuda();   // move entire network to GPU
-net.cpu();    // move back to CPU
+net.cuda();   // 整个网络搬到 GPU
+net.cpu();    // 搬回 CPU
 ```
 
 </details>
 
 <details>
-<summary><b>Transformer Decoder — causal attention</b></summary>
+<summary><b>Transformer 解码器 — 因果注意力</b></summary>
 
 ```cpp
 MultiHeadAttention mha(/*d_model=*/512, /*heads=*/8, /*causal=*/true);
-auto output = mha.forward(embedding);    // (seq_len, 512) → (seq_len, 512)
+auto output = mha.forward(embedding);    // (seq_len, 512) -> (seq_len, 512)
 ```
 
 </details>
 
 ---
 
-## :hammer_and_wrench: Build
+## 编译与安装
 
-| Platform | Compiler | Command |
-|:---------|:---------|:--------|
+| 平台 | 编译器 | 命令 |
+|:-----|:------|:-----|
 | CPU | MinGW GCC 12+ / MSVC 2022 | `cmake -G "MinGW Makefiles" -B _build && cmake --build _build` |
 | GPU (CUDA) | + CUDA Toolkit 11.0+ | `cmake -B _build -DCOREPP_ENABLE_CUDA=ON` |
-| DLL | same as CPU | `cmake -B _build -DBUILD_SHARED_LIBS=ON` |
+| DLL | 同 CPU | `cmake -B _build -DBUILD_SHARED_LIBS=ON` |
 
-> **Requires:** CMake 3.18+, C++20 compiler. Optional: CUDA 11.0+ for GPU.
+> **依赖:** CMake 3.18+, C++20 编译器。可选: CUDA 11.0+ 用于 GPU。
 
 ---
 
-## :books: Example Programs
+## 示例程序
 
-> 14 categorized examples — each prints input/output/expected precision analysis.
+> 14 个分类示例，每个都会打印输入/输出/期望值的精度分析。
 
 ```bash
-# Unit
-./_build/examples/test_gradcheck         # analytical vs numerical gradient
+# 单元测试
+./_build/examples/test_gradcheck         # 数值梯度 vs 解析梯度
 
-# Basic
-./_build/examples/test_fnn               # 4→8→16→8→4  fully connected
+# 基础层
+./_build/examples/test_fnn               # 全连接网络: 4->8->16->8->4
 
-# Convolution
-./_build/examples/test_cnn               # Conv → ReLU → Pool → Flatten → Linear
-./_build/examples/test_convtranspose2d   # upsampling: 4×4 → 7×7
+# 卷积
+./_build/examples/test_cnn               # Conv -> ReLU -> Pool -> Flatten -> Linear
+./_build/examples/test_convtranspose2d   # 转置卷积 (U-Net 解码器)
 ./_build/examples/test_pooling           # AvgPool2d + AdaptiveAvgPool2d
 
-# Recurrent
-./_build/examples/test_rnn               # Elman RNN  (BPTT)
-./_build/examples/test_lstm              # LSTM  (4-gate fused GEMM)
-./_build/examples/test_gru               # GRU   (2-gate)
+# 循环网络
+./_build/examples/test_rnn               # Elman RNN (BPTT)
+./_build/examples/test_lstm              # LSTM (4门合并GEMM)
+./_build/examples/test_gru               # GRU  (2门)
 
-# Normalization
-./_build/examples/test_batchnorm2d       # spatial BN  (CNN)
-./_build/examples/test_groupnorm         # group-wise  (Detection / GAN)
+# 归一化
+./_build/examples/test_batchnorm2d       # 空间批归一化 (CNN)
+./_build/examples/test_groupnorm         # 分组归一化 (检测/分割/GAN)
 
-# Attention
-./_build/examples/test_mha               # MultiHeadAttention  (Transformer)
+# 注意力
+./_build/examples/test_mha               # 多头注意力 (Transformer)
 
-# Tools
-./_build/examples/test_gradclip          # GradientClipping  (RNN / Transformer stability)
+# 工具
+./_build/examples/test_gradclip          # 梯度裁剪 (RNN/Transformer 稳定性)
 
-# Architecture
-./_build/examples/test_resnet            # ResNet: Conv → ResBlock → Pool → Linear
+# 架构
+./_build/examples/test_resnet            # ResNet: Conv -> ResBlock -> Pool -> Linear
 
-# Data
-./_build/examples/test_dataloader        # custom dataset + train/test split
+# 数据
+./_build/examples/test_dataloader        # 自定义数据集 + Train/Test 划分
 ```
 
-> :open_book: See **[Examples Guide](docs/Examples.md)** for detailed teaching documentation.
+> 详见 [示例程序指南](docs/Examples.md)
 
 ---
 
-## :bookmark_tabs: Documentation
+## 文档
 
-| Document | Description |
-|:---------|:------------|
-| [Quick Start](docs/QuickStart.md) | Installation, build, and annotated model examples |
-| [API Reference](docs/API.md) | Complete API — every parameter documented |
-| [Layers Guide](docs/Layers.md) | All 25+ layers with mathematical formulas |
-| [Developer Guide](docs/DevGuide.md) | Internals, coding conventions, custom layer templates |
-| [Custom Models](docs/CustomModel.md) | Inherit `Module` to build your own layers |
-| [Example Programs](docs/Examples.md) | 14 teaching examples with precision analysis |
-| [CUDA Guide](docs/CUDA.md) | GPU compilation & usage |
+| 文档 | 说明 |
+|:-----|:-----|
+| [快速入门](docs/QuickStart.md) | 安装构建 + 各模型示例 |
+| [API 参考](docs/API.md) | 完整 API 文档 |
+| [层说明](docs/Layers.md) | 全部 25+ 层的数学公式 |
+| [开发指南](docs/DevGuide.md) | 实现原理 + 编码规范 + 自定义层模板 |
+| [自定义模型](docs/CustomModel.md) | 继承 Module 开发自己的层 |
+| [示例程序](docs/Examples.md) | 14 个示例的教学文档 |
+| [CUDA 指南](docs/CUDA.md) | GPU 编译与使用 |
 
 ---
 
-## :file_folder: Project Structure
+## 性能
+
+| 算子 | 配置 | 耗时 | 吞吐 |
+|:-----|:-----|:-----|:-----|
+| GEMM | 1024×1024 | 268 ms | **8.0 GFLOPS** |
+| Conv2d | 64×64×3 -> 16ch, k3 | 4.1 ms | — |
+| FNN | 256->512->256, 100 ep | 583 ms | 5.8 ms/epoch |
+| LSTM | 32->128, seq50, 20 ep | 1545 ms | 77 ms/epoch |
+
+> 测试环境: MinGW GCC 15.2, Intel i7-12700H, AVX2, `-march=native`
+
+---
+
+## 项目结构
 
 ```
 CorePP/
-├── Core/                          Matrix engine (GEMM, SIMD, CUDA bridge)
+├── Core/                          矩阵引擎 (GEMM, SIMD, CUDA bridge)
 ├── Layers/
 │   ├── Basic/                     Linear  Flatten  Embedding  Dropout
 │   ├── Conv/                      Conv2d  ConvTranspose2d  Pool (Avg/Max/Adaptive)
@@ -174,29 +177,16 @@ CorePP/
 │   ├── Attention/                 MultiHeadAttention
 │   └── Architecture/              Residual  ResNetBlock  Sequence
 ├── Optimizers/                    SGD  Momentum  Adam  AdamW  ...  GradientClipping
-├── Activations/                   12 activation functions
-├── Losses/                        6 loss functions
-├── Cuda/                          CUDA kernels (GEMM, element-wise, RNN)
-├── examples/                      14 categorized tests
-├── assets/                        Diagrams & generation scripts
-├── docs/                          7 documentation files
-├── Model.h                        High-level API (nn::FNN, nn::CNN, nn::Trainer)
-├── Autograd.h                     Gradient checking utilities
-└── CorePP.h                       Single-header include
+├── Activations/                   12 种激活函数
+├── Losses/                        6 种损失函数
+├── Cuda/                          CUDA 内核 (GEMM, element-wise, RNN)
+├── examples/                      14 个分类测试
+├── assets/                        架构图与生成脚本
+├── docs/                          7 篇文档
+├── Model.h                        高层 API (nn::FNN, nn::CNN, nn::Trainer)
+├── Autograd.h                     梯度检验工具
+└── CorePP.h                       单头文件引入
 ```
-
----
-
-## :test_tube: Performance
-
-| Operator | Configuration | Wall Time | Throughput |
-|:---------|:--------------|:----------|:-----------|
-| GEMM | 1024×1024 | 268 ms | **8.0 GFLOPS** |
-| Conv2d | 64×64×3 → 16ch, k3 | 4.1 ms | — |
-| FNN | 256→512→256, 100 ep | 583 ms | 5.8 ms/epoch |
-| LSTM | 32→128, seq50, 20 ep | 1545 ms | 77 ms/epoch |
-
-> :computer: MinGW GCC 15.2, Intel i7-12700H, AVX2, `-march=native`
 
 ---
 

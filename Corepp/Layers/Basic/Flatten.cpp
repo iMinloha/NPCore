@@ -3,15 +3,15 @@
 namespace CoreNNSpace {
 
 Matrix<float> Flatten::forward(Matrix<float> &input) {
-    // 保存原始形状用于反向传播
+    // Save original shape for backward
     original_row = input.row;
     original_col = input.col;
     original_channel = input.channel;
 
-    // 记录输入（存储原始形状信息）
+    // Record input (stores original shape info)
     gard.push_back(new Matrix<float>(input));
 
-    // 展平: (row, col, channel) -> (row * col * channel, 1)
+    // Flatten: (row, col, channel) -> (row * col * channel, 1)
     int total = input.row * input.col * input.channel;
     auto* result = new Matrix<float>(total, 1);
 
@@ -26,7 +26,7 @@ Matrix<float> Flatten::forward(Matrix<float> &input) {
 }
 
 Matrix<float> Flatten::backward(Matrix<float>& grad_output) {
-    // 将展平的梯度还原为原始多维形状
+    // Restore flattened gradient to original multi-dimensional shape
     auto* reshaped = new Matrix<float>(original_row, original_col, original_channel);
 
     int idx = 0;

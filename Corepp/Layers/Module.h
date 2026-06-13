@@ -6,8 +6,8 @@
 
 namespace CoreNNSpace {
 
-// =================================[Module 抽象基类]================================
-// 所有神经网络层的基类，采用虚基类多态设计
+// =================================[Module Abstract Base Class]================================
+// Base class for all neural network layers, virtual-base polymorphic design
 
 template<typename T>
 class Module {
@@ -15,12 +15,12 @@ protected:
     std::vector<Matrix<T>*> gard;
     std::vector<Matrix<T>*> output;
 
-    // 预计算的权重/偏置梯度（由 backward() 填充，优化器读取）
+    // Pre-computed weight/bias gradients (filled by backward(), read by optimizer)
     Matrix<T>* weight_grad_ = nullptr;
     Matrix<T>* bias_grad_ = nullptr;
 
 public:
-    // 动量（与梯度的作用类似）
+    // Momentum (similar role to gradients)
     Matrix<T> m, v;
 
     // Train/eval mode
@@ -35,34 +35,34 @@ public:
     Module() = default;
     virtual ~Module();
 
-    // 前向传播
+    // Forward pass
     virtual Matrix<T> forward(Matrix<T> &input) = 0;
 
-    // 反向传播: 给定损失对输出的梯度, 返回损失对输入的梯度
-    // 同时将权重/偏置梯度存储在 weight_grad_ / bias_grad_ 中
+    // Backward: given loss gradient w.r.t. output, return loss gradient w.r.t. input
+    // Also stores weight/bias gradients in weight_grad_ / bias_grad_
     virtual Matrix<T> backward(Matrix<T>& grad_output) = 0;
 
-    // 获取参数
+    // Get parameters
     virtual std::vector<Matrix<float> *> getParams() = 0;
 
-    // 获取所有梯度 (与 getParams 顺序对应, RNN/LSTM 有多个权重矩阵)
+    // Get all gradients (corresponds to getParams order; RNN/LSTM have multiple weight matrices)
     virtual std::vector<Matrix<float>*> getAllGrads() {
         return {weight_grad_, bias_grad_};
     }
 
-    // 获取存储的梯度（激活层返回导数，参数层返回输入）
+    // Get stored gradient (activation layers return derivative, parameter layers return input)
     virtual Matrix<T>* getGard() = 0;
 
-    // 获取输出
+    // Get output
     virtual Matrix<T>* getOutput() = 0;
 
-    // 获取预计算的权重梯度（backward 后有效）
+    // Get pre-computed weight gradient (valid after backward)
     Matrix<T>* getWeightGrad() { return weight_grad_; }
 
-    // 获取预计算的偏置梯度（backward 后有效）
+    // Get pre-computed bias gradient (valid after backward)
     Matrix<T>* getBiasGrad() { return bias_grad_; }
 
-    // 梯度清除
+    // Clear gradients
     virtual void CleanGard() = 0;
 };
 

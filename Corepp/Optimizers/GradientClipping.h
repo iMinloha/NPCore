@@ -8,7 +8,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[Gradient Clipping — 梯度裁剪]================================
+// =================================[Gradient Clipping]================================
 // Reference: Pascanu et al. (2013) "On the difficulty of training Recurrent Neural Networks"
 //
 // Gradient clipping prevents exploding gradients by constraining gradient magnitude.

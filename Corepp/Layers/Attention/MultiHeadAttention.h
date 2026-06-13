@@ -8,7 +8,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[MultiHeadAttention — Transformer 核心]================================
+// =================================[MultiHeadAttention — Transformer Core]================================
 // Reference: Vaswani et al. (2017) "Attention Is All You Need"
 //
 // y = Concat(head_0, ..., head_{h-1}) * W_o

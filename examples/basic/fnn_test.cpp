@@ -1,5 +1,5 @@
-// =================================[CorePP 示例: 全连接网络]================================
-// 4输入 → 8 → 16 → 8 → 4输出，Sigmoid 激活，MSE 损失，RMSProp 优化器
+// =================================[CorePP Example: Fully Connected Network]================================
+// 4 inputs -> 8 -> 16 -> 8 -> 4 outputs, Sigmoid activation, MSE loss, RMSProp optimizer
 #include <iostream>
 #include <chrono>
 #include "CorePP.h"

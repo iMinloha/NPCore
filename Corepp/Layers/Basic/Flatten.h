@@ -6,8 +6,8 @@
 
 namespace CoreNNSpace {
 
-// =================================[Flatten 展平层]================================
-// 将多维输入展平为 2D 列向量 (col=1), 用于 Conv2d -> Linear 之间
+// =================================[Flatten Layer]================================
+// Flattens multi-dimensional input to a 2D column vector (col=1), for Conv2d -> Linear
 
 class Flatten : public Module<float> {
 private:
@@ -19,7 +19,7 @@ public:
 
     Matrix<float> forward(Matrix<float> &input) override;
 
-    // 反向传播: 将展平后的梯度还原为原始形状
+    // Backward: reshape flattened gradient back to original shape
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
     std::vector<Matrix<float>*> getParams() override { return {}; }

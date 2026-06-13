@@ -7,7 +7,7 @@
 
 namespace CoreNNSpace {
 
-// =================================[Linear 全连接层]================================
+// =================================[Linear Fully-Connected Layer]================================
 // y = W * x + b
 
 class Linear : public Module<float> {
@@ -28,19 +28,19 @@ public:
     // 前向传播
     Matrix<float> forward(Matrix<float> &input) override;
 
-    // 反向传播: 计算并存储 weight/bias 梯度, 返回输入梯度
+    // Backward: compute and store weight/bias gradients, return input gradient
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
     // 获取参数
     std::vector<Matrix<float>*> getParams() override { return {weight, bias}; }
 
-    // 获取梯度
+    // Get gradients
     Matrix<float>* getGard() override { return gard.empty() ? nullptr : gard.back(); }
 
-    // 获取输出
+    // Get output
     Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
 
-    // 清除梯度
+    // Clear gradients
     void CleanGard() override {
         for (auto ptr : gard) delete ptr;
         gard.clear();
