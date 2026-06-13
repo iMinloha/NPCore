@@ -1,33 +1,84 @@
 set(LIBS CorePP::CorePP)
 set(DIR  ${CMAKE_BINARY_DIR}/examples)
 
-add_executable(example_gradcheck gradcheck_test.cpp)
-target_link_libraries(example_gradcheck PRIVATE ${LIBS})
+# ============================================================
+# Categories:
+#   unit/         — unit tests & gradient checks
+#   basic/        — basic layers (Linear, etc.)
+#   conv/         — convolution & pooling
+#   recurrent/    — RNN, LSTM, GRU
+#   normalization/— BatchNorm, LayerNorm, GroupNorm
+#   attention/    — MultiHeadAttention (Transformer)
+#   optimizers/   — optimizers & gradient clipping
+#   architecture/ — high-level architectures (ResNet, etc.)
+#   data/         — data loading
+# ============================================================
 
-add_executable(example_fnn fnn_test.cpp)
-target_link_libraries(example_fnn PRIVATE ${LIBS})
+# --- Unit ---
+add_executable(test_gradcheck unit/gradcheck_test.cpp)
+target_link_libraries(test_gradcheck PRIVATE ${LIBS})
 
-add_executable(example_cnn cnn_test.cpp)
-target_link_libraries(example_cnn PRIVATE ${LIBS})
+# --- Basic ---
+add_executable(test_fnn basic/fnn_test.cpp)
+target_link_libraries(test_fnn PRIVATE ${LIBS})
 
-add_executable(example_rnn rnn_test.cpp)
-target_link_libraries(example_rnn PRIVATE ${LIBS})
+# --- Convolution ---
+add_executable(test_cnn              conv/cnn_test.cpp)
+add_executable(test_convtranspose2d  conv/test_convtranspose2d.cpp)
+add_executable(test_pooling          conv/test_pooling.cpp)
+target_link_libraries(test_cnn             PRIVATE ${LIBS})
+target_link_libraries(test_convtranspose2d PRIVATE ${LIBS})
+target_link_libraries(test_pooling         PRIVATE ${LIBS})
 
-add_executable(example_lstm lstm_test.cpp)
-target_link_libraries(example_lstm PRIVATE ${LIBS})
+# --- Recurrent ---
+add_executable(test_rnn  recurrent/rnn_test.cpp)
+add_executable(test_lstm recurrent/lstm_test.cpp)
+add_executable(test_gru  recurrent/gru_test.cpp)
+target_link_libraries(test_rnn  PRIVATE ${LIBS})
+target_link_libraries(test_lstm PRIVATE ${LIBS})
+target_link_libraries(test_gru  PRIVATE ${LIBS})
 
-add_executable(example_gru gru_test.cpp)
-target_link_libraries(example_gru PRIVATE ${LIBS})
+# --- Normalization ---
+add_executable(test_batchnorm2d normalization/test_batchnorm2d.cpp)
+add_executable(test_groupnorm   normalization/test_groupnorm.cpp)
+target_link_libraries(test_batchnorm2d PRIVATE ${LIBS})
+target_link_libraries(test_groupnorm   PRIVATE ${LIBS})
 
-add_executable(example_resnet resnet_test.cpp)
-target_link_libraries(example_resnet PRIVATE ${LIBS})
+# --- Attention ---
+add_executable(test_mha attention/test_mha.cpp)
+target_link_libraries(test_mha PRIVATE ${LIBS})
 
-add_executable(example_dataloader dataloader_test.cpp)
-target_link_libraries(example_dataloader PRIVATE ${LIBS})
+# --- Optimizers ---
+add_executable(test_gradclip optimizers/test_gradclip.cpp)
+target_link_libraries(test_gradclip PRIVATE ${LIBS})
 
+# --- Architecture ---
+add_executable(test_resnet architecture/resnet_test.cpp)
+target_link_libraries(test_resnet PRIVATE ${LIBS})
+
+# --- Data ---
+add_executable(test_dataloader data/dataloader_test.cpp)
+target_link_libraries(test_dataloader PRIVATE ${LIBS})
+
+# --- All targets ---
 set(ALL_EXAMPLES
-    example_gradcheck example_fnn example_cnn
-    example_rnn example_lstm example_gru example_resnet
-    example_dataloader
+    # Unit
+    test_gradcheck
+    # Basic
+    test_fnn
+    # Convolution
+    test_cnn test_convtranspose2d test_pooling
+    # Recurrent
+    test_rnn test_lstm test_gru
+    # Normalization
+    test_batchnorm2d test_groupnorm
+    # Attention
+    test_mha
+    # Optimizers
+    test_gradclip
+    # Architecture
+    test_resnet
+    # Data
+    test_dataloader
 )
 set_target_properties(${ALL_EXAMPLES} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIR})

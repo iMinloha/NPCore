@@ -7,4 +7,7 @@
 
 #include "Optimizers/Optimizer.h"
 
+// Gradient Clipping
+#include "Optimizers/GradientClipping.h"
+
 #endif // COREPP_OPTIM_H

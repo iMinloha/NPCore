@@ -83,5 +83,150 @@ public:
                                  delete dgamma; dgamma=nullptr; delete dbeta; dbeta=nullptr; }
 };
 
+// =================================[BatchNorm2d — 2D Batch Normalization for Images]================================
+// Normalizes over (H, W) per channel for 3D image tensors of shape (H, W, C).
+// Essential for CNN training — accelerates convergence and allows higher learning rates.
+//
+// During training:  μ_c = mean over H×W of channel c,  σ²_c = var over H×W of channel c
+// During eval:     uses running estimates of μ and σ² (default momentum 0.9)
+//
+// y = γ_c * (x - μ_c) / √(σ²_c + ε) + β_c
+
+class BatchNorm2d : public Module<float> {
+    int channels;
+    Matrix<float> *gamma, *beta;
+    Matrix<float> *running_mean, *running_var;
+    Matrix<float> *dgamma = nullptr, *dbeta = nullptr;
+    float momentum = 0.9f, eps = 1e-5f;
+    bool track_running = true;
+
+public:
+    BatchNorm2d(int channels) : channels(channels) {
+        gamma = new Matrix<float>(channels, 1);
+        beta  = new Matrix<float>(channels, 1);
+        running_mean = new Matrix<float>(channels, 1);
+        running_var  = new Matrix<float>(channels, 1);
+        InitMatrixFunc(*gamma, Ones);
+        InitMatrixFunc(*beta,  Zeros);
+    }
+
+    ~BatchNorm2d() override {
+        delete gamma; delete beta;
+        delete running_mean; delete running_var;
+        delete dgamma; delete dbeta;
+    }
+
+    Matrix<float> forward(Matrix<float>& input) override {
+        int H = input.row, W = input.col, C = input.channel;
+        int spatial = H * W;
+        auto* out = new Matrix<float>(H, W, C);
+
+        // Compute per-channel mean and variance over spatial dims
+        Matrix<float> mean(C, 1), var(C, 1);
+        for (int c = 0; c < C; ++c) {
+            float sum = 0.0f;
+            for (int i = 0; i < H; ++i)
+                for (int j = 0; j < W; ++j)
+                    sum += input.at(i, j, c);
+            mean.at(c, 0) = sum / spatial;
+
+            float sum_sq = 0.0f;
+            for (int i = 0; i < H; ++i)
+                for (int j = 0; j < W; ++j) {
+                    float d = input.at(i, j, c) - mean.at(c, 0);
+                    sum_sq += d * d;
+                }
+            var.at(c, 0) = sum_sq / spatial;
+        }
+
+        // Update running statistics (train mode)
+        if (train_mode && track_running) {
+            for (int c = 0; c < C; ++c) {
+                running_mean->at(c, 0) = momentum * running_mean->at(c, 0)
+                    + (1.0f - momentum) * mean.at(c, 0);
+                running_var->at(c, 0) = momentum * running_var->at(c, 0)
+                    + (1.0f - momentum) * var.at(c, 0);
+            }
+        }
+
+        auto& m = train_mode ? mean : *running_mean;
+        auto& v = train_mode ? var  : *running_var;
+
+        // Save for backward
+        if (train_mode) {
+            gard.push_back(new Matrix<float>(input));
+            gard.push_back(new Matrix<float>(mean));
+            gard.push_back(new Matrix<float>(var));
+        }
+
+        // Normalize
+        for (int c = 0; c < C; ++c) {
+            float inv_std = 1.0f / std::sqrt(v.at(c, 0) + eps);
+            float gm = gamma->at(c, 0), bt = beta->at(c, 0);
+            for (int i = 0; i < H; ++i)
+                for (int j = 0; j < W; ++j)
+                    out->at(i, j, c) = gm * (input.at(i, j, c) - m.at(c, 0)) * inv_std + bt;
+        }
+
+        output.push_back(out);
+        return *out;
+    }
+
+    Matrix<float> backward(Matrix<float>& grad_output) override {
+        int H = grad_output.row, W = grad_output.col, C = grad_output.channel;
+        int spatial = H * W;
+
+        auto& x = *gard[gard.size() - 3];
+        auto& mean = *gard[gard.size() - 2];
+        auto& var  = *gard[gard.size() - 1];
+
+        dgamma = new Matrix<float>(C, 1);
+        dbeta  = new Matrix<float>(C, 1);
+        auto* gi = new Matrix<float>(H, W, C);
+
+        for (int c = 0; c < C; ++c) {
+            float inv_std = 1.0f / std::sqrt(var.at(c, 0) + eps);
+            float gamma_c = gamma->at(c, 0);
+
+            // Aggregates
+            float dx_hat_sum = 0.0f, dx_hat_x_centered_sum = 0.0f;
+            for (int i = 0; i < H; ++i) {
+                for (int j = 0; j < W; ++j) {
+                    float dx_hat = grad_output.at(i, j, c) * gamma_c;
+                    dx_hat_sum += dx_hat;
+                    dx_hat_x_centered_sum += dx_hat * (x.at(i, j, c) - mean.at(c, 0));
+                    dgamma->at(c, 0) += grad_output.at(i, j, c)
+                        * (x.at(i, j, c) - mean.at(c, 0)) * inv_std;
+                    dbeta->at(c, 0) += grad_output.at(i, j, c);
+                }
+            }
+
+            float scale = inv_std / spatial;
+            for (int i = 0; i < H; ++i) {
+                for (int j = 0; j < W; ++j) {
+                    gi->at(i, j, c) = scale * (spatial * grad_output.at(i, j, c) * gamma_c
+                        - dx_hat_sum
+                        - (x.at(i, j, c) - mean.at(c, 0)) * inv_std * inv_std * dx_hat_x_centered_sum);
+                }
+            }
+        }
+
+        return *gi;
+    }
+
+    std::vector<Matrix<float>*> getParams() override { return {gamma, beta}; }
+    std::vector<Matrix<float>*> getAllGrads() override { return {dgamma, dbeta}; }
+    Matrix<float>* getGard() override { return nullptr; }
+    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    void CleanGard() override {
+        for (auto p : gard) delete p;
+        gard.clear();
+        for (auto p : output) delete p;
+        output.clear();
+        delete dgamma; dgamma = nullptr;
+        delete dbeta;  dbeta  = nullptr;
+    }
+};
+
 } // namespace
 #endif

@@ -34,7 +34,7 @@ public:
 
     // --- 可选重写 ---
     virtual void reset() {}                     // 重置迭代器 (每个 epoch 开始时调用)
-    virtual void set_split(DataSplit s) {}      // 切换 Train/Test/Val
+    virtual void set_split(DataSplit /*split*/) {}  // 切换 Train/Test/Val (default no-op)
 
     // --- 便捷方法 ---
     void train() { set_split(DataSplit::Train); }
@@ -79,7 +79,7 @@ public:
     }
 
     // 按比例划分: train_ratio + test_ratio + val_ratio = 1.0
-    void split(float train_r, float test_r, float val_r = 0.0f) {
+    void split(float train_r, float test_r, float /*val_r*/ = 0.0f) {
         int n = (int)inputs_.size();
         train_idx_.clear(); test_idx_.clear(); val_idx_.clear();
         for (int i = 0; i < n; ++i) {

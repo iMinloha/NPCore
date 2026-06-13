@@ -13,6 +13,7 @@
 
 // Convolution
 #include "Layers/Conv/Conv2d.h"
+#include "Layers/Conv/ConvTranspose2d.h"
 #include "Layers/Conv/Pool.h"
 
 // Recurrent
@@ -23,6 +24,10 @@
 // Normalization
 #include "Layers/Normalization/BatchNorm.h"
 #include "Layers/Normalization/LayerNorm.h"
+#include "Layers/Normalization/GroupNorm.h"
+
+// Attention
+#include "Layers/Attention/MultiHeadAttention.h"
 
 // Architecture
 #include "Layers/Architecture/Residual.h"

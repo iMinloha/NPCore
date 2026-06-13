@@ -29,6 +29,26 @@ y[h,w,oc] = Σ_ic Σ_{ki,kj} x[h+ki, w+kj, ic] * W[ki,kj,oc,ic] + b[oc]
 - Backward: `dW = G2 * col^T`, `dX = col2im(W^T * G2)`
 - 权重缓存: `weight_2d` 懒更新，避免重复变换
 
+## ConvTranspose2d — 转置卷积 (反卷积)
+
+```
+Forward:  input_2d → W_T * input_2d → col2im → output + bias
+Backward: grad_output → im2col → W * im2col → input_grad
+```
+
+| 参数 | 说明 |
+|------|------|
+| `in_channels` | 输入通道数 |
+| `out_channels` | 输出通道数 |
+| `kernel_size` | 卷积核大小 (默认 3) |
+| `stride` | 步长 (默认 2，实现上采样) |
+| `padding` | 填充 (默认 1) |
+
+输出尺寸: `H_out = (H_in - 1) * stride - 2 * padding + kernel_size`
+
+本质是 Conv2d 反向传播的前向版本。广泛用于 U-Net 解码器和 GAN 生成器。
+权重形状 `(K, K, C_in * C_out)` 与 Conv2d 保持一致，内部自动转置。
+
 ## Sigmoid
 
 ```
@@ -126,13 +146,56 @@ output[i,j,c] = max_{pi,pj} input[i*s+pi, j*s+pj, c]
 
 默认 pool=2, stride=2。存储 argmax 用于反向传播。
 
-## BatchNorm1d — 批归一化
+## AvgPool2d — 平均池化
+
+```
+output[i,j,c] = avg_{pi,pj} input[i*s+pi, j*s+pj, c]
+```
+
+反向传播将梯度均匀分配给池化窗口内的所有位置。
+广泛用于 ResNet 最终分类器前和 DenseNet 过渡层。
+
+## AdaptiveAvgPool2d — 自适应平均池化
+
+```
+output size = (output_h, output_w)  // 固定输出尺寸，与输入尺寸无关
+```
+
+使用等分区域算法: 每个输出位置对应输入的一个比例区域，对该区域取平均。
+关键用途:
+- `AdaptiveAvgPool2d(1)` → 全局平均池化 (Global Average Pooling)
+- ResNet / ResNeXt 分类器前: 任意尺寸 feature map → 固定尺寸向量
+
+## BatchNorm1d — 批归一化 (1D)
 
 ```
 y = γ * (x - μ_batch) / √(σ²_batch + ε) + β
 ```
 
-训练时用 batch 统计，推理时用 running mean/var。
+训练时用 batch 统计，推理时用 running mean/var (动量=0.9)。
+
+## BatchNorm2d — 批归一化 (2D/图像)
+
+```
+y_c = γ_c * (x_c - μ_c) / √(σ²_c + ε) + β_c    // c = 通道索引
+```
+
+对 `(H, W, C)` 图像张量在空间维度 `H×W` 上归一化，每个通道独立统计。
+- Forward: 计算 per-channel μ,σ² → normalize → affine (γ,β)
+- Backward: O(H×W×C) 高效计算，使用折叠求和
+- train(): 更新 running_mean/running_var (动量 0.9)
+- eval(): 使用 running 统计量
+
+## GroupNorm — 分组归一化
+
+```
+y = γ_c * (x_c - μ_group(c)) / √(σ²_group(c) + ε) + β_c
+```
+
+将 C 个通道分为 G 组，每组内归一化 (H×W×C/G 个元素)。
+- 不依赖 batch size: batch=1 也能正常工作
+- 适用场景: 目标检测 (Faster R-CNN)、分割 (Mask R-CNN)、GAN (StyleGAN)
+- 通常 G=32 或 G=min(32, C)
 
 ## LayerNorm — 层归一化
 
@@ -142,6 +205,15 @@ y = γ * (x - μ_sample) / √(σ²_sample + ε) + β
 
 按样本归一化，不依赖 batch size。适合 RNN/Transformer。
 
+### 归一化对比
+
+| 方法 | 归一化维度 | 依赖 Batch | 典型用途 |
+|------|-----------|-----------|---------|
+| BatchNorm1d | (N,) per feature | 是 | MLP |
+| BatchNorm2d | (H,W) per channel | 是 | CNN, ResNet |
+| LayerNorm | (F,) per sample | 否 | RNN, Transformer |
+| GroupNorm | (H,W,C/G) per group | 否 | 检测/分割/GAN |
+
 ## Dropout — 随机失活
 
 以概率 `rate` 将元素置零，其余放大 `1/(1-rate)` 倍。推理时不做任何操作。
@@ -149,6 +221,28 @@ y = γ * (x - μ_sample) / √(σ²_sample + ε) + β
 ## Embedding — 词嵌入
 
 查表操作：输入整数索引 → 输出对应 embedding 向量。权重矩阵 (vocab_size, embed_dim)。
+
+## MultiHeadAttention — 多头注意力 (Transformer 核心)
+
+```
+MultiHead(Q,K,V) = Concat(head_0, ..., head_{h-1}) * W_o
+head_i = Attention(Q_i, K_i, V_i) = softmax(Q_i K_i^T / √d_head + mask) * V_i
+```
+
+| 参数 | 说明 |
+|------|------|
+| `d_model` | 模型总维度 (必须被 num_heads 整除) |
+| `num_heads` | 注意力头数 (默认 8) |
+| `causal` | 因果掩码 (默认 false，用于 decoder 自回归) |
+
+计算流程:
+1. Q,K,V = W_q*input, W_k*input, W_v*input (各 d_model×d_model)
+2. 拆分为 (d_head, seq_len, num_heads) 多头形状
+3. 每头: scores = K^T * Q / √d_head → softmax → V * attn
+4. 合并多头 → W_o 投影 → 输出
+
+反向传播: 完整梯度链 (softmax → attention → Q/K/V projection → input)。
+8 个参数矩阵 (W_q,W_k,W_v,W_o + 4 bias)。
 
 ## GELU — 高斯误差线性单元
 
@@ -187,3 +281,17 @@ AdamW optim(params, lr=0.001, weight_decay=0.01);
 CosineLR sched(lr_max=0.01, lr_min=1e-4, T_max=500, setter);
 StepLR sched(lr=0.01, step_size=50, gamma=0.5, setter);
 ```
+
+## GradientClipping — 梯度裁剪
+
+```cpp
+// 按范数裁剪: 保持梯度方向，限制最大幅度
+GradientClipping::clip_by_norm(modules, max_norm=5.0f);
+float norm = GradientClipping::clip_by_norm(modules, 5.0f, true); // 返回范数
+
+// 按值裁剪: 逐元素 clamp
+GradientClipping::clip_by_value(modules, min_val=-1.0f, max_val=1.0f);
+```
+
+RNN/LSTM/Transformer 训练必需品，防止梯度爆炸。
+推荐使用 `clip_by_norm` (保持方向)，`clip_by_value` 用于调试极端值。

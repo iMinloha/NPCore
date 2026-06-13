@@ -192,12 +192,40 @@ Conv2d(int in_ch, int out_ch, int kernel=3, int stride=1, int padding=0,
 // 内部: im2col + GEMM, weight_2d 缓存懒更新
 ```
 
+### ConvTranspose2d — 转置卷积
+
+```cpp
+ConvTranspose2d(int in_channels, int out_channels, int kernel=3,
+                int stride=2, int padding=1,
+                InitMode mode=XavierUniform, double mu=0.0, double sigma=1.0)
+// 输出尺寸: H_out = (H_in-1)*stride - 2*padding + kernel
+// 本质: Conv2d 反向传播的前向版本 — W^T 乘输入 + col2im
+// 用途: U-Net 解码器、GAN 生成器的上采样
+```
+
 ### MaxPool2d — 最大池化
 
 ```cpp
 MaxPool2d(int pool_size=2, int stride=2)
 //        ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^   池化窗口 / 步长
 // 输入: (H, W, C) → 输出: (H/2, W/2, C)
+```
+
+### AvgPool2d — 平均池化
+
+```cpp
+AvgPool2d(int pool_size=2, int stride=2)
+// 反向传播: 梯度均匀分配给池化窗口内所有位置 (grad/ (pool²))
+// 用途: ResNet 分类器前池化、DenseNet 过渡层
+```
+
+### AdaptiveAvgPool2d — 自适应平均池化
+
+```cpp
+AdaptiveAvgPool2d(int output_size=1)           // 正方形输出
+AdaptiveAvgPool2d(int output_h, int output_w)  // 矩形输出
+// 输出固定尺寸, 与输入 H,W 无关 — 全局平均池化 / 任意尺寸→固定尺寸
+// 用途: 任意分辨率 CNN → 固定分类向量
 ```
 
 ### RNN — 循环网络
@@ -246,6 +274,26 @@ LayerNorm(int features)
 // 适合 RNN / Transformer
 ```
 
+### BatchNorm2d — 批归一化 (图像)
+
+```cpp
+BatchNorm2d(int channels)
+// 输入: (H, W, C) — 在 H×W 空间维度上归一化, per-channel
+// 训练: 用当前 batch 的 per-channel mean/var
+// 推理: 用 running mean/var (动量 0.9)
+// 用途: CNN 训练 — 加速收敛、允许更高学习率
+```
+
+### GroupNorm — 分组归一化
+
+```cpp
+GroupNorm(int num_groups, int channels)
+//         ^^^^^^^^^^^^^  ^^^^^^^^^^^^^   分组数 (通常 32) / 总通道数
+// 输入: (H, W, C) — 在 (H,W,C/G) 维度上归一化
+// 无 running stats, batch=1 也能正常工作
+// 用途: 目标检测 (Faster R-CNN)、分割 (Mask R-CNN)、GAN (StyleGAN)
+```
+
 ### Dropout — 随机失活
 
 ```cpp
@@ -264,6 +312,18 @@ Embedding(int vocab_size, int embed_dim)
 // 输出: (seq_len, embed_dim) 查表结果
 ```
 
+### MultiHeadAttention — 多头注意力
+
+```cpp
+MultiHeadAttention(int d_model, int num_heads=8, bool causal=false)
+//                 ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
+//                 模型总维度      注意力头数         因果掩码 (decoder)
+// d_model 必须被 num_heads 整除
+// 输入/输出: (seq_len, d_model) — 自注意力保持 shape 不变
+// 8 个参数矩阵: W_q, W_k, W_v, W_o + 4 bias
+// 用途: Transformer 编码器/解码器核心
+```
+
 ### Residual — 残差连接
 
 ```cpp
@@ -279,6 +339,23 @@ Residual(Module<float>* sublayer)
 ResNetBlock(int channels, bool use_bn=true)
 //          ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^   通道数 / 是否使用 BN
 // Conv3×3(same)→BN?→ReLU→Conv3×3(same)→BN? + skip → ReLU
+```
+
+### GradientClipping — 梯度裁剪
+
+```cpp
+// 按范数裁剪: 保持梯度方向, 限制最大幅度
+GradientClipping::clip_by_norm(modules, max_norm);
+float norm = GradientClipping::clip_by_norm(modules, max_norm, true); // 返回范数
+
+// 按值裁剪: 逐元素 clamp 到 [min_val, max_val]
+GradientClipping::clip_by_value(modules, min_val, max_val);
+
+// 单矩阵裁剪 (直接操作梯度张量)
+GradientClipping::clip_by_norm(grad_matrix, max_norm);
+GradientClipping::clip_by_value(grad_matrix, min_val, max_val);
+
+// 用途: RNN/LSTM/GRU/Transformer 训练必需品, 防止梯度爆炸
 ```
 
 ---
