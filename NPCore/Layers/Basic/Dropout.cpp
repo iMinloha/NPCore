@@ -32,8 +32,10 @@ Matrix<float> Dropout::backward(Matrix<float>& grad_output) {
 }
 
 void Dropout::CleanGard() {
-    for(auto p:gard)delete p; gard.clear();
-    for(auto p:output)delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     delete mask_; mask_=nullptr;
 }
 

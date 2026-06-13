@@ -72,8 +72,10 @@ Matrix<float> BatchNorm1d::backward(Matrix<float>& grad_output) {
 }
 
 void BatchNorm1d::CleanGard() {
-    for(auto p:gard)delete p; gard.clear();
-    for(auto p:output)delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     delete dgamma; dgamma=nullptr;
     delete dbeta; dbeta=nullptr;
 }
@@ -193,9 +195,9 @@ Matrix<float> BatchNorm2d::backward(Matrix<float>& grad_output) {
 }
 
 void BatchNorm2d::CleanGard() {
-    for (auto p : gard) delete p;
+    for (auto p : gard) { delete p; }
     gard.clear();
-    for (auto p : output) delete p;
+    for (auto p : output) { delete p; }
     output.clear();
     delete dgamma; dgamma = nullptr;
     delete dbeta;  dbeta  = nullptr;

@@ -58,8 +58,10 @@ std::vector<Matrix<float>*> ResNetBlock::getAllGrads() {
 }
 
 void ResNetBlock::CleanGard() {
-    for (auto p : gard) delete p; gard.clear();
-    for (auto p : output) delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     conv1->CleanGard(); conv2->CleanGard();
     if (bn1) bn1->CleanGard();
     if (bn2) bn2->CleanGard();

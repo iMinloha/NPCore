@@ -17,7 +17,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ LeakyReLU ============
@@ -30,7 +30,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ Sigmoid ============
@@ -42,7 +42,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ Tanh ============
@@ -54,7 +54,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ SoftMax ============
@@ -66,7 +66,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ ELU ============
@@ -79,7 +79,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ SELU ============
@@ -91,7 +91,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ Softplus ============
@@ -103,7 +103,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ Mish ============
@@ -115,7 +115,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ GELU ============
@@ -127,7 +127,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 // ============ Swish ============
@@ -139,7 +139,7 @@ public:
     std::vector<Matrix<float>*> getParams() override { return {}; }
     Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
     Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for(auto p:gard)delete p;gard.clear(); for(auto p:output)delete p;output.clear(); }
+    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 };
 
 } // namespace Activation

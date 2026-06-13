@@ -30,9 +30,9 @@ public:
 
     void CleanGard() override {
         for (auto ptr : gard) delete ptr;
-        gard.clear();
+    gard.clear();
         for (auto ptr : output) delete ptr;
-        output.clear();
+    output.clear();
     }
 };
 

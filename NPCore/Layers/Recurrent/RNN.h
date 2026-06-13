@@ -64,9 +64,9 @@ public:
 
     void CleanGard() override {
         for (auto ptr : gard) delete ptr;
-        gard.clear();
+    gard.clear();
         for (auto ptr : output) delete ptr;
-        output.clear();
+    output.clear();
         delete weight_grad_; weight_grad_ = nullptr;
         delete dW_hh; dW_hh = nullptr;
         delete db_h;  db_h  = nullptr;

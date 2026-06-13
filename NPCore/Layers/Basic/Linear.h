@@ -43,9 +43,9 @@ public:
     // Clear gradients
     void CleanGard() override {
         for (auto ptr : gard) delete ptr;
-        gard.clear();
+    gard.clear();
         for (auto ptr : output) delete ptr;
-        output.clear();
+    output.clear();
         delete weight_grad_; weight_grad_ = nullptr;
         delete bias_grad_; bias_grad_ = nullptr;
     }

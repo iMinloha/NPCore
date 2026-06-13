@@ -132,7 +132,7 @@ Matrix<float> ConvTranspose2d::backward(Matrix<float>& grad_output) {
 
 void ConvTranspose2d::CleanGard() {
     for (auto p : gard)   delete p;
-    for (auto p : output) delete p;
+    for (auto p : output) { delete p; }
     gard.clear();
     output.clear();
     delete weight_grad_; weight_grad_ = nullptr;

@@ -139,9 +139,9 @@ Matrix<float> GroupNorm::backward(Matrix<float>& grad_output) {
 }
 
 void GroupNorm::CleanGard() {
-    for (auto p : gard) delete p;
+    for (auto p : gard) { delete p; }
     gard.clear();
-    for (auto p : output) delete p;
+    for (auto p : output) { delete p; }
     output.clear();
     delete dgamma; dgamma = nullptr;
     delete dbeta;  dbeta  = nullptr;

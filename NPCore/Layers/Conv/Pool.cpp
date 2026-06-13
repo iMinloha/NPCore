@@ -45,8 +45,10 @@ Matrix<float> MaxPool2d::backward(Matrix<float>& grad_output) {
 }
 
 void MaxPool2d::CleanGard() {
-    for(auto p:gard)delete p; gard.clear();
-    for(auto p:output)delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     delete mask; mask=nullptr;
 }
 
@@ -93,8 +95,10 @@ Matrix<float> AvgPool2d::backward(Matrix<float>& grad_output) {
 }
 
 void AvgPool2d::CleanGard() {
-    for (auto p : gard) delete p; gard.clear();
-    for (auto p : output) delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
 }
 
 // =================================[AdaptiveAvgPool2d]================================
@@ -159,8 +163,10 @@ Matrix<float> AdaptiveAvgPool2d::backward(Matrix<float>& grad_output) {
 }
 
 void AdaptiveAvgPool2d::CleanGard() {
-    for (auto p : gard) delete p; gard.clear();
-    for (auto p : output) delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
 }
 
 } // namespace NPCore

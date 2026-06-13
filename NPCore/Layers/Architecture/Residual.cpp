@@ -22,8 +22,10 @@ std::vector<Matrix<float>*> Residual::getParams() { return sublayer->getParams()
 std::vector<Matrix<float>*> Residual::getAllGrads() { return sublayer->getAllGrads(); }
 
 void Residual::CleanGard() {
-    for (auto p : gard) delete p; gard.clear();
-    for (auto p : output) delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     sublayer->CleanGard();
 }
 

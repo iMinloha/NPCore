@@ -43,10 +43,10 @@ public:
     Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
 
     void CleanGard() override {
-        for (auto p : gard) delete p;
-        gard.clear();
-        for (auto p : output) delete p;
-        output.clear();
+        for (auto p : gard) { delete p; }
+    gard.clear();
+        for (auto p : output) { delete p; }
+    output.clear();
         delete dW; dW = nullptr;
         delete db; db = nullptr;
         h_cache.clear(); x_cache.clear(); gate_cache.clear();

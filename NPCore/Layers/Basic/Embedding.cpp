@@ -34,8 +34,10 @@ Matrix<float> Embedding::backward(Matrix<float>& grad_output) {
 }
 
 void Embedding::CleanGard() {
-    for(auto p:gard)delete p; gard.clear();
-    for(auto p:output)delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     delete dW; dW=nullptr;
 }
 

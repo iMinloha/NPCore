@@ -303,8 +303,10 @@ Matrix<float> MultiHeadAttention::backward(Matrix<float>& grad_output) {
 }
 
 void MultiHeadAttention::CleanGard() {
-    for (auto p : gard) delete p; gard.clear();
-    for (auto p : output) delete p; output.clear();
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
     delete dW_q; dW_q = nullptr;
     delete dW_k; dW_k = nullptr;
     delete dW_v; dW_v = nullptr;
