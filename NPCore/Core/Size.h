@@ -10,21 +10,13 @@ public:
     int height;
     int channel;
 
-    Size(int width, int height, int channel)
-        : width(width), height(height), channel(channel) {}
+    Size(int width, int height, int channel);
 
     // 尺寸判断
-    bool operator==(Size size) const {
-        return width == size.width && height == size.height && channel == size.channel;
-    }
+    bool operator==(Size size) const;
 
     // 尺寸拷贝
-    Size& operator=(Size size) {
-        width = size.width;
-        height = size.height;
-        channel = size.channel;
-        return *this;
-    }
+    Size& operator=(Size size);
 };
 
 #endif // NPCORE_CORE_SIZE_H

@@ -16,30 +16,15 @@ private:
 
 public:
     // 初始化种子（线程安全）
-    static void init_seed(unsigned int seed = 0) {
-        static std::once_flag flag;
-        std::call_once(flag, [seed]() {
-            if (seed == 0) {
-                generator.seed(seed_source());
-            } else {
-                generator.seed(seed);
-            }
-        });
-    }
+    static void init_seed(unsigned int seed = 0);
 
     // 均匀分布
     template<typename T>
-    static T uniform(T min, T max) {
-        std::uniform_real_distribution<T> dist(min, max);
-        return dist(generator);
-    }
+    static T uniform(T min, T max);
 
     // 高斯分布
     template<typename T>
-    static T normal(T mean, T stddev) {
-        std::normal_distribution<T> dist(mean, stddev);
-        return dist(generator);
-    }
+    static T normal(T mean, T stddev);
 };
 
 #endif // NPCORE_CORE_RANDOMGENERATOR_H

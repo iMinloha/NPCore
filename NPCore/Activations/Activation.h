@@ -14,23 +14,23 @@ public:
     ReLU() = default; ~ReLU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ LeakyReLU ============
 class LeakyReLU : public Module<float> {
     float alpha;
 public:
-    LeakyReLU(float a=0.01f):alpha(a){} ~LeakyReLU() override = default;
+    LeakyReLU(float a = 0.01f); ~LeakyReLU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ Sigmoid ============
@@ -39,10 +39,10 @@ public:
     Sigmoid() = default; ~Sigmoid() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ Tanh ============
@@ -51,10 +51,10 @@ public:
     Tanh() = default; ~Tanh() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ SoftMax ============
@@ -63,23 +63,23 @@ public:
     SoftMax() = default; ~SoftMax() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ ELU ============
 class ELU : public Module<float> {
     float alpha;
 public:
-    ELU(float a=1.0f):alpha(a){} ~ELU() override = default;
+    ELU(float a = 1.0f); ~ELU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ SELU ============
@@ -88,10 +88,10 @@ public:
     SELU() = default; ~SELU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ Softplus ============
@@ -100,10 +100,10 @@ public:
     Softplus() = default; ~Softplus() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ Mish ============
@@ -112,10 +112,10 @@ public:
     Mish() = default; ~Mish() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ GELU ============
@@ -124,10 +124,10 @@ public:
     GELU() = default; ~GELU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 // ============ Swish ============
@@ -136,10 +136,10 @@ public:
     Swish() = default; ~Swish() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return gard.empty()?nullptr:gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty()?nullptr:output.back(); }
-    void CleanGard() override { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
+    void CleanGard() override;
 };
 
 } // namespace Activation

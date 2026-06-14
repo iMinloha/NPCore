@@ -30,30 +30,16 @@ public:
            InitMode mode = InitMode::XavierUniform,
            double mu = 0.0, double sigma = 1.0);
 
-    ~Conv2d() override {
-        delete weight; delete bias; delete col_cache;
-        delete weight_2d_cache_;
-    }
+    ~Conv2d() override;
 
     Matrix<float> forward(Matrix<float>& input) override;
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
-    // Get params - marks weight cache dirty (will recompute on next forward)
-    std::vector<Matrix<float>*> getParams() override {
-        weight_2d_dirty_ = true;
-        return {weight, bias};
-    }
-    Matrix<float>* getGard() override { return gard.empty() ? nullptr : gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 
-    void CleanGard() override {
-        for (auto p : gard)   delete p;
-        for (auto p : output) { delete p; }
-    gard.clear();
-    output.clear();
-        delete weight_grad_; weight_grad_ = nullptr;
-        delete bias_grad_;  bias_grad_  = nullptr;
-    }
+    void CleanGard() override;
 };
 
 } // namespace NPCore

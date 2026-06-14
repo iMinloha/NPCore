@@ -7,7 +7,45 @@
 
 namespace NPCore {
 
+// =================================[DataLoader base]================================
+void DataLoader::reset() {}
+void DataLoader::set_split(DataSplit) {}
+void DataLoader::train() { set_split(DataSplit::Train); }
+void DataLoader::test()  { set_split(DataSplit::Test);  }
+void DataLoader::val()   { set_split(DataSplit::Val);   }
+
+// =================================[SingleSampleLoader]================================
+SingleSampleLoader::SingleSampleLoader(const Matrix<float>& x, const Matrix<float>& y, int bs)
+    : x_(x), y_(y), batch_size_(bs) {}
+
+int SingleSampleLoader::num_samples() const { return 1; }
+void SingleSampleLoader::reset() { count_ = 0; }
+
+bool SingleSampleLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
+    if (count_ >= batch_size_) { count_ = 0; return false; }
+    x = x_; y = y_; count_++; return true;
+}
+
 // =================================[InMemoryLoader]================================
+InMemoryLoader::InMemoryLoader(int batch_size, bool shuffle)
+    : batch_size_(batch_size), shuffle_(shuffle) {}
+
+void InMemoryLoader::add_sample(const Matrix<float>& x, const Matrix<float>& y) {
+    inputs_.push_back(x); targets_.push_back(y);
+}
+
+void InMemoryLoader::split(float train_r, float test_r, float /*val_r*/) {
+    int n = (int)inputs_.size();
+    train_idx_.clear(); test_idx_.clear(); val_idx_.clear();
+    for (int i = 0; i < n; ++i) {
+        if (i < n * train_r) train_idx_.push_back(i);
+        else if (i < n * (train_r + test_r)) test_idx_.push_back(i);
+        else val_idx_.push_back(i);
+    }
+}
+
+void InMemoryLoader::set_split(DataSplit s) { split_ = s; cursor_ = 0; }
+void InMemoryLoader::reset() { cursor_ = 0; }
 
 int InMemoryLoader::num_samples() const {
     if (split_ == DataSplit::Train) return (int)train_idx_.size();
@@ -65,6 +103,13 @@ bool InMemoryLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
 }
 
 // =================================[BatchStackLoader]================================
+BatchStackLoader::BatchStackLoader(DataLoader* src, int bs, bool pad_seq)
+    : source_(src), batch_size_(bs), pad_sequences_(pad_seq) {}
+
+int BatchStackLoader::num_samples() const { return source_->num_samples() / batch_size_; }
+void BatchStackLoader::set_split(DataSplit s) { source_->set_split(s); }
+void BatchStackLoader::reset() { source_->reset(); }
+const std::vector<int>& BatchStackLoader::last_lengths() const { return lengths_; }
 
 bool BatchStackLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
     lengths_.clear();
@@ -114,6 +159,10 @@ bool BatchStackLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
 }
 
 // =================================[CSVLoader]================================
+CSVLoader::CSVLoader(const std::string& path, int target_cols, bool header)
+    : filepath_(path), n_target_cols_(target_cols), has_header_(header) {}
+void CSVLoader::set_split(DataSplit s) { split_ = s; cursor_ = 0; }
+void CSVLoader::reset() { cursor_ = 0; }
 
 bool CSVLoader::load() {
     std::ifstream file(filepath_);
@@ -195,6 +244,11 @@ bool CSVLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
 ImageFolderLoader::ImageFolderLoader(const std::string& root, ImageDecoder decoder, int bs)
     : root_dir_(root), decoder_(decoder), batch_size_(bs) {}
 
+int ImageFolderLoader::num_classes() const { return (int)class_names_.size(); }
+const std::vector<std::string>& ImageFolderLoader::classes() const { return class_names_; }
+void ImageFolderLoader::set_split(DataSplit s) { split_ = s; cursor_ = 0; }
+void ImageFolderLoader::reset() { cursor_ = 0; }
+
 int ImageFolderLoader::scan() {
     namespace fs = std::filesystem;
     paths_.clear();
@@ -259,6 +313,15 @@ bool ImageFolderLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
 }
 
 // =================================[SequenceLoader]================================
+SequenceLoader::SequenceLoader(int, int, int bs) : batch_size_(bs) {}
+
+void SequenceLoader::add_sequence(const Matrix<float>& x, const Matrix<float>& y) {
+    inputs_.push_back(x); targets_.push_back(y);
+}
+
+int SequenceLoader::num_samples() const { return (int)inputs_.size(); }
+void SequenceLoader::set_split(DataSplit s) { split_ = s; cursor_ = 0; }
+void SequenceLoader::reset() { cursor_ = 0; }
 
 void SequenceLoader::split(float train_r, float test_r, float /*val_r*/) {
     int n = (int)inputs_.size();
@@ -312,5 +375,27 @@ bool SequenceLoader::next_batch(Matrix<float>& x, Matrix<float>& y, Matrix<float
     }
     return true;
 }
+
+// =================================[detail::split_csv_line]================================
+namespace detail {
+std::vector<std::string> split_csv_line(const std::string& line) {
+    std::vector<std::string> result;
+    std::string cell;
+    bool in_quotes = false;
+    for (char c : line) {
+        if (c == '"') { in_quotes = !in_quotes; continue; }
+        if (c == ',' && !in_quotes) {
+            while (!cell.empty() && cell.back() == '\r') cell.pop_back();
+            result.push_back(cell);
+            cell.clear();
+        } else {
+            cell += c;
+        }
+    }
+    while (!cell.empty() && cell.back() == '\r') cell.pop_back();
+    if (!cell.empty() || !result.empty()) result.push_back(cell);
+    return result;
+}
+} // namespace detail
 
 } // namespace NPCore

@@ -2,6 +2,34 @@
 #include <cmath>
 namespace NPCore {
 
+GRU::GRU(int input_size, int hidden_size, InitMode mode)
+    : input_size(input_size), hidden_size(hidden_size) {
+    int td = input_size + hidden_size;
+    W = new Matrix<float>(3 * hidden_size, td);
+    b = new Matrix<float>(3 * hidden_size, 1);
+    InitMatrixFunc(*W, mode); InitMatrixFunc(*b, Zeros);
+    for (int i = 0; i < 3 * hidden_size; ++i)
+        for (int j = input_size; j < td; ++j) W->at(i, j) *= 0.1f;
+    for (int i = 0; i < hidden_size; ++i) b->at(2*hidden_size + i, 0) = 2.0f;
+}
+
+GRU::~GRU() { delete W; delete b; delete dW; delete db; }
+
+std::vector<Matrix<float>*> GRU::getParams() { return {W, b}; }
+std::vector<Matrix<float>*> GRU::getAllGrads() { return {dW, db}; }
+Matrix<float>* GRU::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* GRU::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void GRU::CleanGard() {
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
+    delete dW; dW = nullptr;
+    delete db; db = nullptr;
+    h_cache.clear(); x_cache.clear(); gate_cache.clear();
+}
+
 Matrix<float> GRU::forward(Matrix<float>& input) {
     seq_len = input.row; NPCORE_ASSERT(input.col == input_size, "GRU size mismatch");
     auto* res = new Matrix<float>(seq_len, hidden_size);

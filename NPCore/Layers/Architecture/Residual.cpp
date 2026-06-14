@@ -21,6 +21,14 @@ Matrix<float> Residual::backward(Matrix<float>& grad_output) {
 std::vector<Matrix<float>*> Residual::getParams() { return sublayer->getParams(); }
 std::vector<Matrix<float>*> Residual::getAllGrads() { return sublayer->getAllGrads(); }
 
+Matrix<float>* Residual::getGard() { return nullptr; }
+Matrix<float>* Residual::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void Residual::cuda() { sublayer->cuda(); }
+void Residual::cpu()  { sublayer->cpu();  }
+void Residual::eval()  { train_mode = false; sublayer->eval();  }
+void Residual::train() { train_mode = true;  sublayer->train(); }
+
 void Residual::CleanGard() {
     for (auto p : gard) { delete p; }
     gard.clear();

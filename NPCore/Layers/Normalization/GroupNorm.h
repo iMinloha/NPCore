@@ -18,8 +18,6 @@ class GroupNorm : public Module<float> {
     Matrix<float> *dgamma = nullptr, *dbeta = nullptr;
     float eps = 1e-5f;
 
-    int group_of(int ch) const { return ch / channels_per_group; }
-
 public:
     GroupNorm(int num_groups, int channels);
     ~GroupNorm() override;
@@ -28,10 +26,10 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {gamma, beta}; }
-    std::vector<Matrix<float>*> getAllGrads() override { return {dgamma, dbeta}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    std::vector<Matrix<float>*> getAllGrads() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 } // namespace NPCore

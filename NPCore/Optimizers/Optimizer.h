@@ -21,9 +21,9 @@ private:
     std::vector<Module<float>*> params;
     OptimState state;
 public:
-    Optim()=default;
-    explicit Optim(Optimizer o):optimizerMethod(o){}
-    explicit Optim(std::vector<Module<float>*> p,Optimizer o=SGD,float lr=0.001):optimizerMethod(o),learn_rate(lr),params(std::move(p)){}
+    Optim() = default;
+    explicit Optim(Optimizer o);
+    explicit Optim(std::vector<Module<float>*> p, Optimizer o = SGD, float lr = 0.001);
     void step(Matrix<float> loss);
 };
 

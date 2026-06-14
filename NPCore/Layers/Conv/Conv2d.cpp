@@ -121,4 +121,25 @@ Matrix<float> Conv2d::backward(Matrix<float>& grad_output) {
                   C_in, K, K, stride, padding);
 }
 
+Conv2d::~Conv2d() {
+    delete weight; delete bias; delete col_cache;
+    delete weight_2d_cache_;
+}
+
+std::vector<Matrix<float>*> Conv2d::getParams() {
+    weight_2d_dirty_ = true;
+    return {weight, bias};
+}
+Matrix<float>* Conv2d::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* Conv2d::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void Conv2d::CleanGard() {
+    for (auto p : gard)   delete p;
+    for (auto p : output) { delete p; }
+    gard.clear();
+    output.clear();
+    delete weight_grad_; weight_grad_ = nullptr;
+    delete bias_grad_;  bias_grad_  = nullptr;
+}
+
 } // namespace NPCore

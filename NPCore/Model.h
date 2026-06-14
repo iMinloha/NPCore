@@ -43,60 +43,22 @@ Optim SGD(float lr = 0.01f);
 Optim Adam(float lr = 0.001f);
 Optim RMSProp(float lr = 0.01f);
 
-// =================================[Trainer: Training Loop (template)]================================
-template<typename ModelType>
+// =================================[Trainer: Training Loop]================================
 class Trainer {
-    ModelType* model_;
+    Module<float>* model_;
     Optim optim_;
     LossType loss_;
 
 public:
-    Trainer(ModelType& model, LossType loss, Optim optim)
-        : model_(&model), optim_(optim), loss_(loss) {}
-
-    void bind(Optim optim) { optim_ = optim; }
-
+    Trainer(Module<float>& model, LossType loss, Optim optim);
+    void bind(Optim optim);
     void fit(Matrix<float>& input, Matrix<float>& target, int epochs,
-             std::function<void(int, float)> callback = nullptr) {
-        for (int e = 0; e < epochs; ++e) {
-            Matrix<float> out = model_->forward(input);
-            optim_.step(loss_grad(out, target, loss_));
-            if (callback && (e % 50 == 0 || e == epochs - 1))
-                callback(e, loss_val(out, target, loss_));
-        }
-    }
-
+             std::function<void(int, float)> callback = nullptr);
     void fit(std::vector<std::pair<Matrix<float>*, Matrix<float>*>>& samples,
              int epochs,
-             std::function<void(int, float)> callback = nullptr) {
-        for (int e = 0; e < epochs; ++e) {
-            float total = 0;
-            for (auto& [in, tgt] : samples) {
-                Matrix<float> out = model_->forward(*in);
-                optim_.step(loss_grad(out, *tgt, loss_));
-                total += loss_val(out, *tgt, loss_);
-            }
-            if (callback && (e % 50 == 0 || e == epochs - 1))
-                callback(e, total / samples.size());
-        }
-    }
-
+             std::function<void(int, float)> callback = nullptr);
     void fit(DataLoader& loader, int epochs,
-             std::function<void(int, float)> callback = nullptr) {
-        for (int e = 0; e < epochs; ++e) {
-            loader.reset();
-            float total = 0; int count = 0;
-            Matrix<float> x, y;
-            while (loader.next_batch(x, y)) {
-                Matrix<float> out = model_->forward(x);
-                optim_.step(loss_grad(out, y, loss_));
-                total += loss_val(out, y, loss_);
-                count++;
-            }
-            if (callback && (e % 50 == 0 || e == epochs - 1))
-                callback(e, count > 0 ? total / count : 0);
-        }
-    }
+             std::function<void(int, float)> callback = nullptr);
 };
 
 } // namespace nn

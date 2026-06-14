@@ -57,6 +57,14 @@ std::vector<Matrix<float>*> ResNetBlock::getAllGrads() {
     return g;
 }
 
+Matrix<float>* ResNetBlock::getGard() { return nullptr; }
+Matrix<float>* ResNetBlock::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void ResNetBlock::cuda() { conv1->cuda(); conv2->cuda(); if(bn1)bn1->cuda(); if(bn2)bn2->cuda(); }
+void ResNetBlock::cpu()  { conv1->cpu();  conv2->cpu();  if(bn1)bn1->cpu();  if(bn2)bn2->cpu();  }
+void ResNetBlock::eval()  { train_mode=false; conv1->eval();  conv2->eval();  if(bn1)bn1->eval();  if(bn2)bn2->eval(); }
+void ResNetBlock::train() { train_mode=true;  conv1->train(); conv2->train(); if(bn1)bn1->train(); if(bn2)bn2->train(); }
+
 void ResNetBlock::CleanGard() {
     for (auto p : gard) { delete p; }
     gard.clear();

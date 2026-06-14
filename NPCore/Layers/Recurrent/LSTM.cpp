@@ -162,4 +162,21 @@ Matrix<float> LSTM::backward(Matrix<float>& grad_output) {
     return *grad_input;
 }
 
+LSTM::~LSTM() { delete W; delete b; delete dW; delete db; }
+
+std::vector<Matrix<float>*> LSTM::getParams() { return {W, b}; }
+std::vector<Matrix<float>*> LSTM::getAllGrads() { return {dW, db}; }
+Matrix<float>* LSTM::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* LSTM::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void LSTM::CleanGard() {
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
+    delete dW; dW = nullptr;
+    delete db; db = nullptr;
+    h_cache.clear(); c_cache.clear(); x_cache.clear(); gate_cache.clear();
+}
+
 } // namespace NPCore

@@ -22,35 +22,18 @@ class GRU : public Module<float> {
     float grad_clip = 10.0f;
 
 public:
-    GRU(int input_size, int hidden_size, InitMode mode = XavierUniform)
-        : input_size(input_size), hidden_size(hidden_size) {
-        int td = input_size + hidden_size;
-        W = new Matrix<float>(3 * hidden_size, td);
-        b = new Matrix<float>(3 * hidden_size, 1);
-        InitMatrixFunc(*W, mode); InitMatrixFunc(*b, Zeros);
-        for (int i = 0; i < 3 * hidden_size; ++i)
-            for (int j = input_size; j < td; ++j) W->at(i, j) *= 0.1f;
-        for (int i = 0; i < hidden_size; ++i) b->at(2*hidden_size + i, 0) = 2.0f; // update gate bias
-    }
-    ~GRU() override { delete W; delete b; delete dW; delete db; }
+    GRU(int input_size, int hidden_size, InitMode mode = XavierUniform);
+    ~GRU() override;
 
     Matrix<float> forward(Matrix<float>& input) override;
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
-    std::vector<Matrix<float>*> getParams() override { return {W, b}; }
-    std::vector<Matrix<float>*> getAllGrads() override { return {dW, db}; }
-    Matrix<float>* getGard() override { return gard.empty() ? nullptr : gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    std::vector<Matrix<float>*> getAllGrads() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 
-    void CleanGard() override {
-        for (auto p : gard) { delete p; }
-    gard.clear();
-        for (auto p : output) { delete p; }
-    output.clear();
-        delete dW; dW = nullptr;
-        delete db; db = nullptr;
-        h_cache.clear(); x_cache.clear(); gate_cache.clear();
-    }
+    void CleanGard() override;
 };
 
 } // namespace

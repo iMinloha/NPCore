@@ -130,6 +130,32 @@ Matrix<float> ConvTranspose2d::backward(Matrix<float>& grad_output) {
     return *d_input;
 }
 
+std::vector<Matrix<float>*> ConvTranspose2d::getParams() {
+    weight_2d_T_dirty_ = true;
+    return {weight, bias};
+}
+Matrix<float>* ConvTranspose2d::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* ConvTranspose2d::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+Matrix<float> ConvTranspose2d::weight_2d_T() const {
+    if (weight_2d_T_cache_ && !weight_2d_T_dirty_) return *weight_2d_T_cache_;
+    delete weight_2d_T_cache_;
+    int K = kernel_size, C_in = in_channels, C_out = out_channels, K2 = K * K;
+    auto* W = new Matrix<float>(C_out * K2, C_in);
+    for (int in_ch = 0; in_ch < C_in; ++in_ch) {
+        for (int out_ch = 0; out_ch < C_out; ++out_ch) {
+            int ch_offset = in_ch * C_out + out_ch;
+            int base_row = out_ch * K2;
+            for (int ki = 0; ki < K; ++ki)
+                for (int kj = 0; kj < K; ++kj)
+                    W->at(base_row + ki * K + kj, in_ch) = weight->at(ki, kj, ch_offset);
+        }
+    }
+    weight_2d_T_cache_ = W;
+    weight_2d_T_dirty_ = false;
+    return *W;
+}
+
 void ConvTranspose2d::CleanGard() {
     for (auto p : gard)   delete p;
     for (auto p : output) { delete p; }

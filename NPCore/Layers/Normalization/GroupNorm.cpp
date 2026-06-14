@@ -21,6 +21,11 @@ GroupNorm::~GroupNorm() {
     delete dgamma; delete dbeta;
 }
 
+std::vector<Matrix<float>*> GroupNorm::getParams() { return {gamma, beta}; }
+std::vector<Matrix<float>*> GroupNorm::getAllGrads() { return {dgamma, dbeta}; }
+Matrix<float>* GroupNorm::getGard() { return nullptr; }
+Matrix<float>* GroupNorm::getOutput() { return output.empty() ? nullptr : output.back(); }
+
 Matrix<float> GroupNorm::forward(Matrix<float>& input) {
     int H = input.row, W = input.col, C = input.channel;
     int spatial = H * W;

@@ -27,13 +27,13 @@ public:
 
     std::vector<Matrix<float>*> getParams() override;
     std::vector<Matrix<float>*> getAllGrads() override;
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 
-    void cuda() override { conv1->cuda(); conv2->cuda(); if(bn1)bn1->cuda(); if(bn2)bn2->cuda(); }
-    void cpu()  override { conv1->cpu();  conv2->cpu();  if(bn1)bn1->cpu();  if(bn2)bn2->cpu();  }
-    void eval()  { train_mode=false; conv1->eval();  conv2->eval();  if(bn1)bn1->eval();  if(bn2)bn2->eval(); }
-    void train() { train_mode=true;  conv1->train(); conv2->train(); if(bn1)bn1->train(); if(bn2)bn2->train(); }
+    void cuda() override;
+    void cpu() override;
+    void eval() override;
+    void train() override;
 };
 
 } // namespace NPCore

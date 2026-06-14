@@ -1,6 +1,10 @@
 #include "Optimizers/Optimizer.h"
 namespace NPCore {
 
+Optim::Optim(Optimizer o) : optimizerMethod(o) {}
+Optim::Optim(std::vector<Module<float>*> p, Optimizer o, float lr)
+    : optimizerMethod(o), learn_rate(lr), params(std::move(p)) {}
+
 void Optim::step(Matrix<float> loss) {
     float lm=loss.max();
     if(lm>50.0f)loss=loss*(50.0f/lm);

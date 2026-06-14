@@ -8,7 +8,6 @@
 namespace NPCore {
 
 // =================================[LSTM 长短期记忆网络]================================
-// Placeholder - full implementation below
 
 class LSTM : public Module<float> {
 private:
@@ -25,26 +24,18 @@ private:
 public:
     LSTM(int input_size, int hidden_size,
          InitMode mode = InitMode::XavierUniform);
-    ~LSTM() override { delete W; delete b; delete dW; delete db; }
+    ~LSTM() override;
 
     Matrix<float> forward(Matrix<float>& input) override;
     Matrix<float> backward(Matrix<float>& grad_output) override;
 
-    std::vector<Matrix<float>*> getParams() override { return {W, b}; }
-    std::vector<Matrix<float>*> getAllGrads() override { return {dW, db}; }
+    std::vector<Matrix<float>*> getParams() override;
+    std::vector<Matrix<float>*> getAllGrads() override;
 
-    Matrix<float>* getGard() override { return gard.empty() ? nullptr : gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 
-    void CleanGard() override {
-        for (auto p : gard) { delete p; }
-    gard.clear();
-        for (auto p : output) { delete p; }
-    output.clear();
-        delete dW; dW = nullptr;
-        delete db; db = nullptr;
-        h_cache.clear(); c_cache.clear(); x_cache.clear(); gate_cache.clear();
-    }
+    void CleanGard() override;
 };
 
 } // namespace NPCore

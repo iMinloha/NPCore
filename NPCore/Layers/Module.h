@@ -25,12 +25,12 @@ public:
 
     // Train/eval mode
     bool train_mode = true;
-    void eval()  { train_mode = false; }
-    void train() { train_mode = true;  }
+    void eval();
+    void train();
 
     // GPU: move all parameters to GPU / back to CPU
-    virtual void cuda() { for (auto* p : getParams()) p->to(Device::GPU); }
-    virtual void cpu()  { for (auto* p : getParams()) p->to(Device::CPU); }
+    virtual void cuda();
+    virtual void cpu();
 
     Module() = default;
     virtual ~Module();
@@ -46,9 +46,7 @@ public:
     virtual std::vector<Matrix<float> *> getParams() = 0;
 
     // Get all gradients (corresponds to getParams order; RNN/LSTM have multiple weight matrices)
-    virtual std::vector<Matrix<float>*> getAllGrads() {
-        return {weight_grad_, bias_grad_};
-    }
+    virtual std::vector<Matrix<float>*> getAllGrads();
 
     // Get stored gradient (activation layers return derivative, parameter layers return input)
     virtual Matrix<T>* getGard() = 0;
@@ -57,10 +55,10 @@ public:
     virtual Matrix<T>* getOutput() = 0;
 
     // Get pre-computed weight gradient (valid after backward)
-    Matrix<T>* getWeightGrad() { return weight_grad_; }
+    Matrix<T>* getWeightGrad();
 
     // Get pre-computed bias gradient (valid after backward)
-    Matrix<T>* getBiasGrad() { return bias_grad_; }
+    Matrix<T>* getBiasGrad();
 
     // Clear gradients
     virtual void CleanGard() = 0;

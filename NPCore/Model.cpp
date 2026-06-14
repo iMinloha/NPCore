@@ -53,5 +53,53 @@ Optim SGD(float lr)   { return Optim({}, NPCore::SGD, lr); }
 Optim Adam(float lr) { return Optim({}, NPCore::Adam, lr); }
 Optim RMSProp(float lr) { return Optim({}, NPCore::RMSProp, lr); }
 
+// =================================[Trainer]================================
+Trainer::Trainer(Module<float>& model, LossType loss, Optim optim)
+    : model_(&model), optim_(optim), loss_(loss) {}
+
+void Trainer::bind(Optim optim) { optim_ = optim; }
+
+void Trainer::fit(Matrix<float>& input, Matrix<float>& target, int epochs,
+         std::function<void(int, float)> callback) {
+    for (int e = 0; e < epochs; ++e) {
+        Matrix<float> out = model_->forward(input);
+        optim_.step(loss_grad(out, target, loss_));
+        if (callback && (e % 50 == 0 || e == epochs - 1))
+            callback(e, loss_val(out, target, loss_));
+    }
+}
+
+void Trainer::fit(std::vector<std::pair<Matrix<float>*, Matrix<float>*>>& samples,
+         int epochs,
+         std::function<void(int, float)> callback) {
+    for (int e = 0; e < epochs; ++e) {
+        float total = 0;
+        for (auto& [in, tgt] : samples) {
+            Matrix<float> out = model_->forward(*in);
+            optim_.step(loss_grad(out, *tgt, loss_));
+            total += loss_val(out, *tgt, loss_);
+        }
+        if (callback && (e % 50 == 0 || e == epochs - 1))
+            callback(e, total / samples.size());
+    }
+}
+
+void Trainer::fit(DataLoader& loader, int epochs,
+         std::function<void(int, float)> callback) {
+    for (int e = 0; e < epochs; ++e) {
+        loader.reset();
+        float total = 0; int count = 0;
+        Matrix<float> x, y;
+        while (loader.next_batch(x, y)) {
+            Matrix<float> out = model_->forward(x);
+            optim_.step(loss_grad(out, y, loss_));
+            total += loss_val(out, y, loss_);
+            count++;
+        }
+        if (callback && (e % 50 == 0 || e == epochs - 1))
+            callback(e, count > 0 ? total / count : 0);
+    }
+}
+
 } // namespace nn
 } // namespace NPCore

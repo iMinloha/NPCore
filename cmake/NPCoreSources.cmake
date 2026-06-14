@@ -1,7 +1,15 @@
 # =================================[NPCore Source Files]================================
 
 # --- Core module ---
-set(NPCORE_CORE_SOURCES NPCore/Core/RandomGenerator.cpp NPCore/DataLoader.cpp)
+set(NPCORE_CORE_SOURCES
+    NPCore/Core/RandomGenerator.cpp
+    NPCore/Core/LinearAlgebra.cpp
+    NPCore/Core/Size.cpp
+    NPCore/Core/GEMM.cpp
+    NPCore/Core/ConvUtils.cpp
+    NPCore/Core/CudaBridge.cpp
+    NPCore/DataLoader.cpp
+)
 set(NPCORE_CORE_HEADERS
     NPCore/Core/Assert.h NPCore/Core/ConvUtils.h NPCore/Core/CudaBridge.h
     NPCore/Core/GEMM.h NPCore/Core/LinearAlgebra.h NPCore/Core/Matrix.hpp
@@ -14,11 +22,13 @@ set(NPCORE_ACTIVATIONS_SOURCES NPCore/Activations/Activation.cpp)
 set(NPCORE_ACTIVATIONS_HEADERS NPCore/Activations/Activation.h)
 
 # --- Losses module ---
+set(NPCORE_LOSSES_SOURCES NPCore/Losses/Loss.cpp)
 set(NPCORE_LOSSES_HEADERS NPCore/Losses/Loss.h)
 
 # --- Layers: Basic ---
 set(NPCORE_LAYERS_SOURCES
     NPCore/Layers/Module.cpp NPCore/Layers/Sequence.cpp
+    NPCore/Layers/ParamInit.cpp
     NPCore/Layers/Basic/Linear.cpp NPCore/Layers/Basic/Flatten.cpp
     NPCore/Layers/Basic/Embedding.cpp NPCore/Layers/Basic/Dropout.cpp
 )
@@ -93,7 +103,7 @@ set(NPCORE_UTILS_HEADERS NPCore/Utils/Timer.h)
 set(NPCORE_CUDA_HEADERS NPCore/Cuda/cuda_runtime.h)
 
 # --- Module umbrellas ---
-set(NPCORE_MODULE_SOURCES NPCore/Model.cpp)
+set(NPCORE_MODULE_SOURCES NPCore/Model.cpp NPCore/Autograd.cpp)
 set(NPCORE_MODULE_HEADERS
     NPCore/NPCore.h NPCore/Core.h NPCore/NN.h NPCore/Optim.h
     NPCore/Autograd.h NPCore/Model.h
@@ -101,8 +111,9 @@ set(NPCORE_MODULE_HEADERS
 
 # --- Aggregated ---
 set(NPCORE_ALL_SOURCES
-    ${NPCORE_CORE_SOURCES} ${NPCORE_ACTIVATIONS_SOURCES} ${NPCORE_LAYERS_SOURCES}
-    ${NPCORE_OPTIMIZERS_SOURCES} ${NPCORE_UTILS_SOURCES} ${NPCORE_MODULE_SOURCES}
+    ${NPCORE_CORE_SOURCES} ${NPCORE_ACTIVATIONS_SOURCES} ${NPCORE_LOSSES_SOURCES}
+    ${NPCORE_LAYERS_SOURCES} ${NPCORE_OPTIMIZERS_SOURCES} ${NPCORE_UTILS_SOURCES}
+    ${NPCORE_MODULE_SOURCES}
 )
 set(NPCORE_ALL_HEADERS
     ${NPCORE_MODULE_HEADERS} ${NPCORE_CORE_HEADERS} ${NPCORE_ACTIVATIONS_HEADERS}
