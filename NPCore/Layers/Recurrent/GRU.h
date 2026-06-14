@@ -14,7 +14,7 @@ namespace NPCore {
 //
 // 合并权重: W(3H, I+H), b(3H, 1)
 
-class GRU : public Module<float> {
+class NPCORE_API GRU : public Module<float> {
     Matrix<float>* W, *b;
     int input_size, hidden_size, seq_len = 0;
     std::vector<Matrix<float>> h_cache, x_cache, gate_cache;

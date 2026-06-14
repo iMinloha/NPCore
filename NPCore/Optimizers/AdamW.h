@@ -2,16 +2,14 @@
 #define NPCORE_OPTIMIZERS_ADAMW_H
 
 #include <vector>
-#include "Core/Matrix.hpp"
+#include "Layers/Module.h"
 
 namespace NPCore {
-
-template<typename T> class Module;
 
 // =================================[AdamW - Adam with Decoupled Weight Decay]================================
 // Reference: Loshchilov & Hutter (2019)
 
-class AdamW {
+class NPCORE_API AdamW {
     std::vector<Module<float>*> params;
     float lr, beta1, beta2, eps, weight_decay;
     int t = 0;

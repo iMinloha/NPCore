@@ -10,7 +10,7 @@ namespace NPCore {
 // =================================[DataLoader Abstract Base]================================
 enum class DataSplit { Train, Test, Val };
 
-class DataLoader {
+class NPCORE_API DataLoader {
 public:
     virtual ~DataLoader() = default;
 
@@ -26,7 +26,7 @@ public:
 };
 
 // =================================[SingleSampleLoader]================================
-class SingleSampleLoader : public DataLoader {
+class NPCORE_API SingleSampleLoader : public DataLoader {
     Matrix<float> x_, y_;
     int batch_size_, count_ = 0;
 public:
@@ -37,7 +37,7 @@ public:
 };
 
 // =================================[InMemoryLoader]================================
-class InMemoryLoader : public DataLoader {
+class NPCORE_API InMemoryLoader : public DataLoader {
     std::vector<Matrix<float>> inputs_, targets_;
     std::vector<int> train_idx_, test_idx_, val_idx_;
     DataSplit split_ = DataSplit::Train;
@@ -55,7 +55,7 @@ public:
 };
 
 // =================================[BatchStackLoader]================================
-class BatchStackLoader : public DataLoader {
+class NPCORE_API BatchStackLoader : public DataLoader {
     DataLoader* source_;
     int batch_size_;
     bool pad_sequences_;
@@ -71,7 +71,7 @@ public:
 };
 
 // =================================[CSVLoader]================================
-class CSVLoader : public DataLoader {
+class NPCORE_API CSVLoader : public DataLoader {
     std::string filepath_;
     int n_target_cols_;
     bool has_header_;
@@ -95,7 +95,7 @@ public:
 // =================================[ImageFolderLoader]================================
 using ImageDecoder = std::function<Matrix<float>(const std::string& filepath)>;
 
-class ImageFolderLoader : public DataLoader {
+class NPCORE_API ImageFolderLoader : public DataLoader {
     std::string root_dir_;
     ImageDecoder decoder_;
     int batch_size_;
@@ -119,7 +119,7 @@ public:
 };
 
 // =================================[SequenceLoader]================================
-class SequenceLoader : public DataLoader {
+class NPCORE_API SequenceLoader : public DataLoader {
     std::vector<Matrix<float>> inputs_, targets_;
     std::vector<int> train_idx_, test_idx_, val_idx_;
     DataSplit split_ = DataSplit::Train;

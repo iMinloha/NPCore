@@ -5,7 +5,7 @@
 
 namespace NPCore {
 
-class Dropout : public Module<float> {
+class NPCORE_API Dropout : public Module<float> {
     float rate;
     Matrix<float>* mask_ = nullptr;
 
@@ -17,9 +17,9 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 } // namespace NPCore

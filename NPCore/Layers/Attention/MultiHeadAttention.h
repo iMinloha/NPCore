@@ -10,7 +10,7 @@ namespace NPCore {
 // Reference: Vaswani et al. (2017) "Attention Is All You Need"
 // Input/Output: (seq_len, d_model)
 
-class MultiHeadAttention : public Module<float> {
+class NPCORE_API MultiHeadAttention : public Module<float> {
 private:
     int d_model, num_heads, d_head;
     float scale;
@@ -31,14 +31,10 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override {
-        return {W_q, W_k, W_v, W_o, b_q, b_k, b_v, b_o};
-    }
-    std::vector<Matrix<float>*> getAllGrads() override {
-        return {dW_q, dW_k, dW_v, dW_o, db_q, db_k, db_v, db_o};
-    }
-    Matrix<float>* getGard() override { return gard.empty() ? nullptr : gard.back(); }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    std::vector<Matrix<float>*> getAllGrads() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 } // namespace NPCore

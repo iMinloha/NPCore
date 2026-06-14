@@ -17,7 +17,7 @@ int main() {
     out.Analysis("Initial");
     cout << "MSE: " << mse_loss(out, y) << endl;
 
-    Optim optim({&gru}, Adam, 0.005f);
+    Optim optim(Adam_step, {&gru}, 0.005f);
     for (int e = 0; e < 600; e++) {
         out = gru.forward(x);
         optim.step(out - y);

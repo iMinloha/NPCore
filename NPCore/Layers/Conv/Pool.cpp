@@ -169,4 +169,17 @@ void AdaptiveAvgPool2d::CleanGard() {
     output.clear();
 }
 
+// --- Trivial accessors ---
+std::vector<Matrix<float>*> MaxPool2d::getParams() { return {}; }
+Matrix<float>* MaxPool2d::getGard() { return nullptr; }
+Matrix<float>* MaxPool2d::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+std::vector<Matrix<float>*> AvgPool2d::getParams() { return {}; }
+Matrix<float>* AvgPool2d::getGard() { return nullptr; }
+Matrix<float>* AvgPool2d::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+std::vector<Matrix<float>*> AdaptiveAvgPool2d::getParams() { return {}; }
+Matrix<float>* AdaptiveAvgPool2d::getGard() { return nullptr; }
+Matrix<float>* AdaptiveAvgPool2d::getOutput() { return output.empty() ? nullptr : output.back(); }
+
 } // namespace NPCore

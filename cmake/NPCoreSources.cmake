@@ -2,6 +2,7 @@
 
 # --- Core module ---
 set(NPCORE_CORE_SOURCES
+    NPCore/Core/Matrix.cpp
     NPCore/Core/RandomGenerator.cpp
     NPCore/Core/LinearAlgebra.cpp
     NPCore/Core/Size.cpp
@@ -12,8 +13,8 @@ set(NPCORE_CORE_SOURCES
 )
 set(NPCORE_CORE_HEADERS
     NPCore/Core/Assert.h NPCore/Core/ConvUtils.h NPCore/Core/CudaBridge.h
-    NPCore/Core/GEMM.h NPCore/Core/LinearAlgebra.h NPCore/Core/Matrix.hpp
-    NPCore/Core/Matrix.inl NPCore/Core/RandomGenerator.h NPCore/Core/Size.h
+    NPCore/Core/Export.h NPCore/Core/GEMM.h NPCore/Core/LinearAlgebra.h
+    NPCore/Core/Matrix.hpp NPCore/Core/RandomGenerator.h NPCore/Core/Size.h
     NPCore/DataLoader.h
 )
 
@@ -57,10 +58,12 @@ list(APPEND NPCORE_LAYERS_HEADERS
 
 # --- Layers: Normalization ---
 list(APPEND NPCORE_LAYERS_SOURCES
+    NPCore/Layers/Normalization/NormLayerBase.cpp
     NPCore/Layers/Normalization/BatchNorm.cpp NPCore/Layers/Normalization/LayerNorm.cpp
     NPCore/Layers/Normalization/GroupNorm.cpp
 )
 list(APPEND NPCORE_LAYERS_HEADERS
+    NPCore/Layers/Normalization/NormLayerBase.h
     NPCore/Layers/Normalization/BatchNorm.h NPCore/Layers/Normalization/LayerNorm.h
     NPCore/Layers/Normalization/GroupNorm.h
 )

@@ -6,29 +6,47 @@
 
 namespace NPCore {
 
-typedef enum {SGD,Momentum,Adam,RMSProp,Adagrad,Adadelta,NAdam,RAdam,AdamW} Optimizer;
-
+// =================================[OptimState — shared state across optimizer steps]================================
 struct OptimState {
-    int adam_t=0;
-    std::unordered_map<Matrix<float>*,Matrix<float>> momentum_velocity;
+    int adam_t = 0;
+    std::unordered_map<Matrix<float>*, Matrix<float>> momentum_velocity;
 };
 
-class Optim {
-public:
-    Optimizer optimizerMethod;
-private:
-    float learn_rate=0.001;
+// =================================[OptimStepFn — strategy function pointer]================================
+// Every optimizer algorithm conforms to this signature.
+using OptimStepFn = void(*)(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+
+// =================================[Optim — lightweight wrapper]================================
+class NPCORE_API Optim {
+    OptimStepFn step_fn_ = nullptr;
+    float learn_rate = 0.001f;
     std::vector<Module<float>*> params;
     OptimState state;
+
 public:
     Optim() = default;
-    explicit Optim(Optimizer o);
-    explicit Optim(std::vector<Module<float>*> p, Optimizer o = SGD, float lr = 0.001);
+    Optim(OptimStepFn fn, std::vector<Module<float>*> p, float lr);
     void step(Matrix<float> loss);
 };
 
+// =================================[Factory functions]================================
+NPCORE_API Optim SGD(float lr = 0.01f);
+NPCORE_API Optim Adam(float lr = 0.001f);
+NPCORE_API Optim RMSProp(float lr = 0.01f);
+
+// =================================[Wrapper functions (match OptimStepFn)]================================
+NPCORE_API void SGD_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void Momentum_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void Adam_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void RMSProp_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void Adagrad_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void Adadelta_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void NAdam_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+NPCORE_API void RAdam_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);
+
 } // namespace NPCore
 
+// Backward-compatible sub-headers (internal use only)
 #include "Optimizers/SGD.h"
 #include "Optimizers/Momentum.h"
 #include "Optimizers/Adam.h"

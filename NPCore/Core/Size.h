@@ -1,10 +1,12 @@
 #ifndef NPCORE_CORE_SIZE_H
 #define NPCORE_CORE_SIZE_H
 
+#include "Core/Export.h"
+
 // =================================[Size 尺寸类]================================
 // 仅作参数类型传递使用
 
-class Size {
+class NPCORE_API Size {
 public:
     int width;
     int height;

@@ -8,138 +8,97 @@
 namespace NPCore {
 namespace Activation {
 
-// ============ ReLU ============
-class ReLU : public Module<float> {
+// =================================[ActivationLayer — shared base for all activations]================================
+// Provides the four boilerplate methods shared by all 11 activation classes.
+// Subclasses only need to implement forward() and backward().
+
+class NPCORE_API ActivationLayer : public Module<float> {
 public:
-    ReLU() = default; ~ReLU() override = default;
-    Matrix<float> forward(Matrix<float>&) override;
-    Matrix<float> backward(Matrix<float>&) override;
     std::vector<Matrix<float>*> getParams() override;
     Matrix<float>* getGard() override;
     Matrix<float>* getOutput() override;
     void CleanGard() override;
+};
+
+// ============ ReLU ============
+class NPCORE_API ReLU : public ActivationLayer {
+public:
+    Matrix<float> forward(Matrix<float>&) override;
+    Matrix<float> backward(Matrix<float>&) override;
 };
 
 // ============ LeakyReLU ============
-class LeakyReLU : public Module<float> {
+class NPCORE_API LeakyReLU : public ActivationLayer {
     float alpha;
 public:
-    LeakyReLU(float a = 0.01f); ~LeakyReLU() override = default;
+    LeakyReLU(float a = 0.01f);
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ Sigmoid ============
-class Sigmoid : public Module<float> {
+class NPCORE_API Sigmoid : public ActivationLayer {
 public:
-    Sigmoid() = default; ~Sigmoid() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ Tanh ============
-class Tanh : public Module<float> {
+class NPCORE_API Tanh : public ActivationLayer {
 public:
-    Tanh() = default; ~Tanh() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ SoftMax ============
-class SoftMax : public Module<float> {
+class NPCORE_API SoftMax : public ActivationLayer {
 public:
-    SoftMax() = default; ~SoftMax() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ ELU ============
-class ELU : public Module<float> {
+class NPCORE_API ELU : public ActivationLayer {
     float alpha;
 public:
-    ELU(float a = 1.0f); ~ELU() override = default;
+    ELU(float a = 1.0f);
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ SELU ============
-class SELU : public Module<float> {
+class NPCORE_API SELU : public ActivationLayer {
 public:
-    SELU() = default; ~SELU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ Softplus ============
-class Softplus : public Module<float> {
+class NPCORE_API Softplus : public ActivationLayer {
 public:
-    Softplus() = default; ~Softplus() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ Mish ============
-class Mish : public Module<float> {
+class NPCORE_API Mish : public ActivationLayer {
 public:
-    Mish() = default; ~Mish() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ GELU ============
-class GELU : public Module<float> {
+class NPCORE_API GELU : public ActivationLayer {
 public:
-    GELU() = default; ~GELU() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 // ============ Swish ============
-class Swish : public Module<float> {
+class NPCORE_API Swish : public ActivationLayer {
 public:
-    Swish() = default; ~Swish() override = default;
     Matrix<float> forward(Matrix<float>&) override;
     Matrix<float> backward(Matrix<float>&) override;
-    std::vector<Matrix<float>*> getParams() override;
-    Matrix<float>* getGard() override;
-    Matrix<float>* getOutput() override;
-    void CleanGard() override;
 };
 
 } // namespace Activation

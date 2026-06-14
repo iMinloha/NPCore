@@ -1,4 +1,19 @@
-// =====================================[Matrix 模板实现]====================================
+// =================================[Matrix 模板实现]================================
+#include "Core/Matrix.hpp"
+
+#include <cmath>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
+#include <type_traits>
+
+#ifdef __AVX__
+#include <immintrin.h>
+#endif
+#ifdef __ARM_NEON
+#include <arm_neon.h>
+#endif
 
 template<typename T>
 Matrix<T> Matrix<T>::operator+(Matrix<T> mat2) const {
@@ -120,7 +135,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> mat2) const {
             if (NPCore::cuda_gemm_device(row, mat2.col, col, data, mat2.data, result.data))
                 return result;
         }
-        // --- CPU fallback: one-shot H2D→kernel→D2H ---
+        // --- CPU fallback: one-shot H2D->kernel->D2H ---
         int total = row * result.col;
         for (int i = 0; i < total; ++i) result.data[i] = T(0);
         if (NPCore::cuda_gemm_dispatch(row, mat2.col, col, data, mat2.data, result.data))
@@ -130,13 +145,11 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> mat2) const {
 #ifdef __AVX__
     int total = result.row * result.col;
     for (int i = 0; i < total; ++i) result.data[i] = T(0);
-
     gemm(row, mat2.col, col,
          data, col,
          mat2.data, mat2.col,
          result.data, result.col);
 #else
-    // Scalar fallback with basic blocking + OpenMP
     constexpr int BLOCK_SIZE = 64;
 #pragma omp parallel for collapse(2) if (row * mat2.col > 4096)
     for (int i = 0; i < row; i += BLOCK_SIZE) {
@@ -157,7 +170,6 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> mat2) const {
         }
     }
 #endif
-
     return result;
 }
 
@@ -194,50 +206,38 @@ Matrix<T> Matrix<T>::getKernelSlice(int out_ch, int in_ch)  {
     for (int i = 0; i < row; ++i)
         for (int j = 0; j < col; ++j)
             slice.at(i, j) = this->at(i, j, kernel_ch);
-
     return slice;
 }
 
 template<typename T>
 Matrix<T> Matrix<T>::conv2d(Matrix<T>* kernel, int stride, int padding) {
     NPCORE_ASSERT(kernel != nullptr, "Kernel pointer cannot be null");
-
     int in_channels = channel;
     int out_channels = kernel->channel / in_channels;
-
     NPCORE_ASSERT(in_channels * out_channels == kernel->channel,
                  "Kernel channel mismatch with in/out channels");
     NPCORE_ASSERT(stride > 0, "Stride must be positive");
-
-    int k_row = kernel->row;
-    int k_col = kernel->col;
-
+    int k_row = kernel->row, k_col = kernel->col;
     int out_row = (row - k_row + 2 * padding) / stride + 1;
     int out_col = (col - k_col + 2 * padding) / stride + 1;
-
     NPCORE_ASSERT(out_row > 0 && out_col > 0, "Output dimensions must be positive");
-
     Matrix<T> output(out_row, out_col, out_channels);
 
-    #pragma omp parallel for collapse(3) if (out_row * out_col * out_channels > 1000)
+#pragma omp parallel for collapse(3) if (out_row * out_col * out_channels > 1000)
     for (int out_ch = 0; out_ch < out_channels; ++out_ch) {
         for (int i = 0; i < out_row; ++i) {
             for (int j = 0; j < out_col; ++j) {
                 T sum = T(0);
                 int base_i = i * stride - padding;
                 int base_j = j * stride - padding;
-
                 for (int in_ch = 0; in_ch < in_channels; ++in_ch) {
                     int kernel_offset = (out_ch * in_channels + in_ch) * k_row * k_col;
-
                     for (int ki = 0; ki < k_row; ++ki) {
                         int src_i = base_i + ki;
                         if (src_i < 0 || src_i >= row) continue;
-
                         for (int kj = 0; kj < k_col; ++kj) {
                             int src_j = base_j + kj;
                             if (src_j < 0 || src_j >= col) continue;
-
                             T pixel_val = this->at(src_i, src_j, in_ch);
                             T kernel_val = kernel->data[kernel_offset + ki * k_col + kj];
                             sum += pixel_val * kernel_val;
@@ -248,14 +248,13 @@ Matrix<T> Matrix<T>::conv2d(Matrix<T>* kernel, int stride, int padding) {
             }
         }
     }
-
     return output;
 }
 
 template<typename T>
 Matrix<T> Matrix<T>::Translate() const {
     Matrix<T> result(col, row);
-    #pragma omp parallel for collapse(2) if (row > 64)
+#pragma omp parallel for collapse(2) if (row > 64)
     for (int i = 0; i < row; ++i) for (int j = 0; j < col; ++j) result.at(j, i) = at(i, j);
     return result;
 }
@@ -275,7 +274,6 @@ Matrix<T> Matrix<T>::sqrt() {
     int i = 0;
     for (; i + 4 <= total; i += 4) {
         float32x4_t a = vld1q_f32(&data[i]);
-        // NEON doesn't have native sqrt; fall back to scalar
         float tmp[4];
         vst1q_f32(tmp, a);
         for (int k = 0; k < 4; ++k) tmp[k] = std::sqrt(tmp[k]);
@@ -295,7 +293,6 @@ Matrix<T> Matrix<T>::rotate180() {
         for (int i = 0; i < row; ++i)
             for (int j = 0; j < col; ++j)
                 result.at(row - 1 - i, col - 1 - j, ch) = at(i, j, ch);
-
     return result;
 }
 
@@ -356,19 +353,14 @@ Matrix<T> Matrix<T>::operator&(Matrix<T> mat2) const {
 template<typename T>
 T Matrix<T>::det() {
     NPCORE_ASSERT(row == col, "Det can only be calculated for square matrix");
-
     T** temp = new T*[row];
     for (int i = 0; i < row; ++i) {
         temp[i] = new T[col];
-        for (int j = 0; j < col; ++j)
-            temp[i][j] = at(i, j);
+        for (int j = 0; j < col; ++j) temp[i][j] = at(i, j);
     }
-
     T result = laplaceDeterminant(temp, row);
-
     for (int i = 0; i < row; ++i) delete[] temp[i];
     delete[] temp;
-
     return result;
 }
 
@@ -391,7 +383,6 @@ T Matrix<T>::laplaceDeterminant(T **data, int dim) {
             }
             if (i % 2 == 0) result += data[0][i] * laplaceDeterminant(temp, dim - 1);
             else result -= data[0][i] * laplaceDeterminant(temp, dim - 1);
-
             for (int j = 0; j < dim - 1; j++) delete[] temp[j];
             delete[] temp;
         }
@@ -400,7 +391,7 @@ T Matrix<T>::laplaceDeterminant(T **data, int dim) {
 }
 
 template<typename T>
-Size Matrix<T>::shape() {
+Size Matrix<T>::shape() const {
     return {row, col, channel};
 }
 
@@ -468,7 +459,6 @@ T Matrix<T>::max() {
     T max = 0;
     for (int i = 0; i < row; i++)
         for (int j = 0; j < col; j++) if (at(i, j) > max) max = at(i, j);
-
     return max;
 }
 
@@ -491,27 +481,24 @@ const Matrix<T>& Matrix<T>::setChannel(Matrix<T>& mat, int channel) {
 
 template<typename T>
 void Matrix<T>::Analysis(const std::string& title) {
-    // ── Number formatter: returns raw string, no leading space ──
     auto fmt = [](T v) -> std::string {
         T av = std::abs(v);
         std::ostringstream oss;
-        if (av == T(0)) {
-            return "0";
-        } else if (av < T(1e-6) || av >= T(1e7)) {
+        if (av == T(0)) return "0";
+        else if (av < T(1e-6) || av >= T(1e7))
             oss << std::scientific << std::setprecision(3) << v;
-        } else if (av < T(0.01)) {
+        else if (av < T(0.01))
             oss << std::scientific << std::setprecision(2) << v;
-        } else if (av < T(1)) {
+        else if (av < T(1))
             oss << std::fixed << std::setprecision(5) << v;
-        } else if (av < T(10)) {
+        else if (av < T(10))
             oss << std::fixed << std::setprecision(3) << v;
-        } else if (av < T(100)) {
+        else if (av < T(100))
             oss << std::fixed << std::setprecision(2) << v;
-        } else if (av < T(1000)) {
+        else if (av < T(1000))
             oss << std::fixed << std::setprecision(1) << v;
-        } else {
+        else
             oss << std::fixed << std::setprecision(0) << v;
-        }
         return oss.str();
     };
 
@@ -521,12 +508,10 @@ void Matrix<T>::Analysis(const std::string& title) {
         return "~";
     };
 
-    // Build full cell string: "+1.000", "~0", etc.
     auto cell_str = [&](T v) -> std::string {
         return sgn(v) + fmt(std::abs(v));
     };
 
-    // ── Compute column widths ──
     int cellW = 6;
     for (int i = 0; i < row; ++i)
         for (int j = 0; j < col; ++j)
@@ -535,27 +520,22 @@ void Matrix<T>::Analysis(const std::string& title) {
                 int len = (int)cell_str(v).length();
                 if (len > cellW) cellW = len;
             }
-    // Minimum padding between columns
     cellW += 1;
 
     int totalW = col * (cellW + 1) + 3;
     int lblW   = (row > 99) ? 4 : (row > 9 ? 3 : 2);
 
-    // Make sure title and footer fit
     std::ostringstream title_hdr;
     title_hdr << title << "  [" << row << "x" << col;
     if (channel > 1) title_hdr << "x" << channel;
     title_hdr << "]";
-    int titleLen = (int)title_hdr.str().length() + 4; // "| " + " |"
+    int titleLen = (int)title_hdr.str().length() + 4;
     if (totalW < titleLen) totalW = titleLen;
-
-    int footerLen = 75; // stats line typical width
+    int footerLen = 75;
     if (totalW < footerLen) totalW = footerLen;
-
     int innerW = totalW - 2;
 
-    // ── ASCII box helpers ──
-    auto hline = [&](char left, char /*mid*/, char right, char fill) {
+    auto hline = [&](char left, char, char right, char fill) {
         std::cout << std::string(lblW, ' ') << left
                   << std::string(innerW, fill) << right << '\n';
     };
@@ -564,7 +544,6 @@ void Matrix<T>::Analysis(const std::string& title) {
     auto bot = [&]() { hline('+', '-', '+', '-'); };
     auto sep = [&]() { hline('|', '.', '|', '-'); };
 
-    // ── Title bar ──
     std::ostringstream hdr;
     hdr << title << "  [" << row << "x" << col;
     if (channel > 1) hdr << "x" << channel;
@@ -576,7 +555,6 @@ void Matrix<T>::Analysis(const std::string& title) {
               << std::setw(innerW - 2) << hs << " |\n";
     mid();
 
-    // ── Column indices ──
     if (col <= 20 && col > 1) {
         std::cout << std::string(lblW, ' ') << "| ";
         for (int j = 0; j < col; ++j) {
@@ -590,7 +568,6 @@ void Matrix<T>::Analysis(const std::string& title) {
         sep();
     }
 
-    // ── Data rows ──
     T tmin = T(0), tmax = T(0);
     double tsum = 0;
     bool first = true;
@@ -622,7 +599,6 @@ void Matrix<T>::Analysis(const std::string& title) {
         }
     }
 
-    // ── Footer with statistics ──
     mid();
     double mean = tsum / n;
     double var = 0;
@@ -660,8 +636,6 @@ void Matrix<T>::Analysis(const std::string& title) {
     bot();
 }
 
-// ====================================[Device Transfer]=================================
-
 template<typename T>
 void Matrix<T>::to(Device target) {
     if (device_ == target) return;
@@ -689,8 +663,6 @@ void Matrix<T>::to(Device target) {
     }
 }
 
-// ====================================[Fused Optimizer Updates]=================================
-
 template<typename T>
 void Matrix<T>::fused_adam_update(const Matrix<T>& grad, Matrix<T>& m, Matrix<T>& v,
                                    T beta1, T beta2, T m_corr, T v_corr, T lr, T eps) {
@@ -710,15 +682,12 @@ void Matrix<T>::fused_adam_update(const Matrix<T>& grad, Matrix<T>& m, Matrix<T>
         __m256 mm = _mm256_loadu_ps(&m.data[i]);
         __m256 vv = _mm256_loadu_ps(&v.data[i]);
 
-        // m = beta1 * m + (1-beta1) * g
         mm = _mm256_add_ps(_mm256_mul_ps(vb1, mm), _mm256_mul_ps(v1mb1, g));
-        // v = beta2 * v + (1-beta2) * g^2
         vv = _mm256_add_ps(_mm256_mul_ps(vb2, vv), _mm256_mul_ps(v1mb2, _mm256_mul_ps(g, g)));
 
         _mm256_storeu_ps(&m.data[i], mm);
         _mm256_storeu_ps(&v.data[i], vv);
 
-        // w -= lr * (m_hat) / (sqrt(v_hat) + eps)
         __m256 mhat = _mm256_mul_ps(vmc, mm);
         __m256 vhat = _mm256_mul_ps(vvc, vv);
         __m256 denom = _mm256_add_ps(_mm256_sqrt_ps(vhat), veps);
@@ -821,4 +790,5 @@ void Matrix<T>::fused_adagrad_update(const Matrix<T>& grad, Matrix<T>& v,
 #endif
 }
 
-// ====================================[模板实现结束]=================================
+// Explicit template instantiation for float
+template class Matrix<float>;

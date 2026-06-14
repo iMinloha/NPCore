@@ -11,7 +11,7 @@ namespace NPCore {
 // =================================[ResNet Block]================================
 // Conv3x3 -> BN -> ReLU -> Conv3x3 -> BN  +  skip -> ReLU
 
-class ResNetBlock : public Module<float> {
+class NPCORE_API ResNetBlock : public Module<float> {
     Conv2d *conv1, *conv2, *skip_conv = nullptr;
     BatchNorm1d *bn1, *bn2;
     Activation::ReLU *relu1, *relu2;
@@ -32,8 +32,8 @@ public:
 
     void cuda() override;
     void cpu() override;
-    void eval() override;
-    void train() override;
+    void eval();
+    void train();
 };
 
 } // namespace NPCore

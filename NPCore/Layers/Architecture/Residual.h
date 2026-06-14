@@ -8,7 +8,7 @@ namespace NPCore {
 // =================================[Residual Connection]================================
 // y = F(x) + x — skip connection wrapper
 
-class Residual : public Module<float> {
+class NPCORE_API Residual : public Module<float> {
     Module<float>* sublayer;
     bool owns_sublayer;
 
@@ -27,8 +27,8 @@ public:
 
     void cuda() override;
     void cpu() override;
-    void eval() override;
-    void train() override;
+    void eval();
+    void train();
 };
 
 } // namespace NPCore

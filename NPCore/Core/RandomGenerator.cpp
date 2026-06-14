@@ -32,8 +32,6 @@ T RandomGenerator::normal(T mean, T stddev) {
     return dist(generator);
 }
 
-// 显式模板实例化定义
+// 显式模板实例化
 template float RandomGenerator::uniform<float>(float, float);
-template double RandomGenerator::uniform<double>(double, double);
 template float RandomGenerator::normal<float>(float, float);
-template double RandomGenerator::normal<double>(double, double);

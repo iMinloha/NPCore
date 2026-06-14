@@ -41,4 +41,9 @@ void Embedding::CleanGard() {
     delete dW; dW=nullptr;
 }
 
+std::vector<Matrix<float>*> Embedding::getParams() { return {weight}; }
+std::vector<Matrix<float>*> Embedding::getAllGrads() { return {dW}; }
+Matrix<float>* Embedding::getGard() { return nullptr; }
+Matrix<float>* Embedding::getOutput() { return output.empty() ? nullptr : output.back(); }
+
 } // namespace NPCore

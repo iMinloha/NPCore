@@ -62,13 +62,4 @@ Matrix<float> LayerNorm::backward(Matrix<float>& grad_output) {
     return *gi;
 }
 
-void LayerNorm::CleanGard() {
-    for (auto p : gard) { delete p; }
-    gard.clear();
-    for (auto p : output) { delete p; }
-    output.clear();
-    delete dgamma; dgamma = nullptr;
-    delete dbeta;  dbeta  = nullptr;
-}
-
 } // namespace NPCore

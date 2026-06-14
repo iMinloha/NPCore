@@ -35,15 +35,15 @@ Matrix<T> col2im(const Matrix<T>& col, int H, int W, int C_in,
 
 namespace NPCore {
 
-void winograd_BT_d_B(const float d[16], float U[16]);
-void winograd_G_g_GT(const float g[9], float V[16]);
-void winograd_AT_M_A(const float M[16], float Y[4]);
-void winograd_B_dU_BT(const float dU[16], float dD[16]);
-void winograd_GT_dV_G(const float dV[16], float dG[9]);
-void winograd_forward_3x3(const float* input, int H, int W, int C_in,
-                          const float* V_packed, int C_out, float* output);
-void winograd_transform_filter(const float* weight, int C_out, int C_in,
-                               float* V_packed);
+NPCORE_API void winograd_BT_d_B(const float d[16], float U[16]);
+NPCORE_API void winograd_G_g_GT(const float g[9], float V[16]);
+NPCORE_API void winograd_AT_M_A(const float M[16], float Y[4]);
+NPCORE_API void winograd_B_dU_BT(const float dU[16], float dD[16]);
+NPCORE_API void winograd_GT_dV_G(const float dV[16], float dG[9]);
+NPCORE_API void winograd_forward_3x3(const float* input, int H, int W, int C_in,
+                                      const float* V_packed, int C_out, float* output);
+NPCORE_API void winograd_transform_filter(const float* weight, int C_out, int C_in,
+                                           float* V_packed);
 
 } // namespace NPCore
 

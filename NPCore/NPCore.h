@@ -12,13 +12,7 @@
 //   NPCORE_USE_DLL        - Defined when linking against NPCore DLL
 
 // --- DLL export/import ---
-#if defined(NPCORE_BUILD_DLL)
-    #define NPCORE_API __declspec(dllexport)
-#elif defined(NPCORE_USE_DLL)
-    #define NPCORE_API __declspec(dllimport)
-#else
-    #define NPCORE_API
-#endif
+#include "Core/Export.h"
 
 // Enable algorithm acceleration by default
 #define AlgorithmAccelerator

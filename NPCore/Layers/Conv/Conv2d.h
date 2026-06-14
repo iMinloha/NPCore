@@ -9,7 +9,7 @@
 
 namespace NPCore {
 
-class Conv2d : public Module<float> {
+class NPCORE_API Conv2d : public Module<float> {
 private:
     Matrix<float>* weight;
     Matrix<float>* bias;

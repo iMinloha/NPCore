@@ -12,7 +12,7 @@ namespace NPCore {
 // Input: (H_in, W_in, C_in), Output: (H_out, W_out, C_out)
 // H_out = (H_in-1)*stride - 2*padding + kernel_size
 
-class ConvTranspose2d : public Module<float> {
+class NPCORE_API ConvTranspose2d : public Module<float> {
 private:
     Matrix<float>* weight;
     Matrix<float>* bias;

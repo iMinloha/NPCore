@@ -6,7 +6,7 @@
 
 namespace NPCore {
 
-class Embedding : public Module<float> {
+class NPCORE_API Embedding : public Module<float> {
     Matrix<float>* weight;
     int vocab_size, embed_dim;
     Matrix<float>* dW = nullptr;
@@ -19,10 +19,10 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {weight}; }
-    std::vector<Matrix<float>*> getAllGrads() override { return {dW}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    std::vector<Matrix<float>*> getAllGrads() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 } // namespace NPCore

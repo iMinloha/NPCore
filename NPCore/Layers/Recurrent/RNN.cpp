@@ -122,4 +122,26 @@ Matrix<float> RNN::backward(Matrix<float>& grad_output) {
     return *grad_input;
 }
 
+RNN::~RNN() {
+    delete W_ih; delete W_hh; delete b_h;
+    delete dW_hh; delete db_h;
+}
+
+std::vector<Matrix<float>*> RNN::getParams() { return {W_ih, W_hh, b_h}; }
+std::vector<Matrix<float>*> RNN::getAllGrads() { return {weight_grad_, dW_hh, db_h}; }
+Matrix<float>* RNN::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* RNN::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void RNN::CleanGard() {
+    for (auto ptr : gard) delete ptr;
+    gard.clear();
+    for (auto ptr : output) delete ptr;
+    output.clear();
+    delete weight_grad_; weight_grad_ = nullptr;
+    delete dW_hh; dW_hh = nullptr;
+    delete db_h;  db_h  = nullptr;
+    h_cache.clear();
+    x_cache.clear();
+}
+
 } // namespace NPCore

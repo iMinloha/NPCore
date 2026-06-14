@@ -50,4 +50,3 @@ void GramSchmidtOrthogonalization(Matrix<T>& mat) {
 
 // Explicit instantiation
 template void GramSchmidtOrthogonalization<float>(Matrix<float>&);
-template void GramSchmidtOrthogonalization<double>(Matrix<double>&);

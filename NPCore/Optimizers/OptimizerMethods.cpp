@@ -183,4 +183,30 @@ void RAdam_method(std::vector<Module<float>*> params, Matrix<float>& grad, float
     }
 }
 
+// =================================[Wrapper functions — bind default hyperparameters]================================
+void SGD_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState&) {
+    SGD_method(p, g, lr);
+}
+void Momentum_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState& st) {
+    Momentum_method(p, g, lr, st, 0.9f);
+}
+void Adam_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState& st) {
+    Adam_method(p, g, lr, st, 0.9f, 0.999f, 1e-8f);
+}
+void RMSProp_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState&) {
+    RMSProp_method(p, g, lr, 0.99f, 1e-8f);
+}
+void Adagrad_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState&) {
+    Adagrad_method(p, g, lr, 1e-8f);
+}
+void Adadelta_step(std::vector<Module<float>*> p, Matrix<float>& g, float, OptimState&) {
+    Adadelta_method(p, g, 0.9f, 1e-6f);
+}
+void NAdam_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState& st) {
+    NAdam_method(p, g, lr, st, 0.9f, 0.999f, 1e-8f);
+}
+void RAdam_step(std::vector<Module<float>*> p, Matrix<float>& g, float lr, OptimState& st) {
+    RAdam_method(p, g, lr, st, 0.9f, 0.999f, 1e-8f);
+}
+
 } // namespace NPCore

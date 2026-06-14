@@ -79,7 +79,7 @@ Matrix<T> col2im(const Matrix<T>& col, int H, int W, int C_in,
 
 // Explicit instantiation for float
 template Matrix<float> im2col(const Matrix<float>&, int, int, int, int);
-template Matrix<float> col2im(const Matrix<float>&, int, int, int, int, int, int);
+template Matrix<float> col2im(const Matrix<float>&, int, int, int, int, int, int, int);
 
 } // namespace NPCore
 

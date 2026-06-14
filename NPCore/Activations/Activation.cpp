@@ -2,76 +2,22 @@
 #include <cmath>
 namespace NPCore { namespace Activation {
 
-// =================================[Trivial method implementations]================================
-// ReLU
-std::vector<Matrix<float>*> ReLU::getParams() { return {}; }
-Matrix<float>* ReLU::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* ReLU::getOutput() { return output.empty() ? nullptr : output.back(); }
-void ReLU::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
+// =================================[ActivationLayer — shared boilerplate]================================
+std::vector<Matrix<float>*> ActivationLayer::getParams() { return {}; }
+Matrix<float>* ActivationLayer::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* ActivationLayer::getOutput() { return output.empty() ? nullptr : output.back(); }
+void ActivationLayer::CleanGard() {
+    for (auto p : gard) { delete p; }
+    gard.clear();
+    for (auto p : output) { delete p; }
+    output.clear();
+}
 
-// LeakyReLU
+// ============ Constructors ============
 LeakyReLU::LeakyReLU(float a) : alpha(a) {}
-std::vector<Matrix<float>*> LeakyReLU::getParams() { return {}; }
-Matrix<float>* LeakyReLU::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* LeakyReLU::getOutput() { return output.empty() ? nullptr : output.back(); }
-void LeakyReLU::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// Sigmoid
-std::vector<Matrix<float>*> Sigmoid::getParams() { return {}; }
-Matrix<float>* Sigmoid::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* Sigmoid::getOutput() { return output.empty() ? nullptr : output.back(); }
-void Sigmoid::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// Tanh
-std::vector<Matrix<float>*> Tanh::getParams() { return {}; }
-Matrix<float>* Tanh::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* Tanh::getOutput() { return output.empty() ? nullptr : output.back(); }
-void Tanh::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// SoftMax
-std::vector<Matrix<float>*> SoftMax::getParams() { return {}; }
-Matrix<float>* SoftMax::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* SoftMax::getOutput() { return output.empty() ? nullptr : output.back(); }
-void SoftMax::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// ELU
 ELU::ELU(float a) : alpha(a) {}
-std::vector<Matrix<float>*> ELU::getParams() { return {}; }
-Matrix<float>* ELU::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* ELU::getOutput() { return output.empty() ? nullptr : output.back(); }
-void ELU::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
 
-// SELU
-std::vector<Matrix<float>*> SELU::getParams() { return {}; }
-Matrix<float>* SELU::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* SELU::getOutput() { return output.empty() ? nullptr : output.back(); }
-void SELU::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// Softplus
-std::vector<Matrix<float>*> Softplus::getParams() { return {}; }
-Matrix<float>* Softplus::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* Softplus::getOutput() { return output.empty() ? nullptr : output.back(); }
-void Softplus::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// Mish
-std::vector<Matrix<float>*> Mish::getParams() { return {}; }
-Matrix<float>* Mish::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* Mish::getOutput() { return output.empty() ? nullptr : output.back(); }
-void Mish::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// GELU
-std::vector<Matrix<float>*> GELU::getParams() { return {}; }
-Matrix<float>* GELU::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* GELU::getOutput() { return output.empty() ? nullptr : output.back(); }
-void GELU::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// Swish
-std::vector<Matrix<float>*> Swish::getParams() { return {}; }
-Matrix<float>* Swish::getGard() { return gard.empty() ? nullptr : gard.back(); }
-Matrix<float>* Swish::getOutput() { return output.empty() ? nullptr : output.back(); }
-void Swish::CleanGard() { for (auto p : gard) { delete p; } gard.clear(); for (auto p : output) { delete p; } output.clear(); }
-
-// =================================[Forward / Backward]================================
+// ============ Forward / Backward ============
 
 Matrix<float> ReLU::forward(Matrix<float>& in) {
     auto *r=new Matrix<float>(in.row,in.col,in.channel),*d=new Matrix<float>(in.row,in.col,in.channel);

@@ -6,7 +6,7 @@
 namespace NPCore {
 
 // =================================[MaxPool2d]================================
-class MaxPool2d : public Module<float> {
+class NPCORE_API MaxPool2d : public Module<float> {
     int pool_size, stride;
     int in_h, in_w, in_c;
     Matrix<float>* mask = nullptr;
@@ -19,15 +19,13 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 // =================================[AvgPool2d]================================
-// Averages over pooling windows. Input: (H, W, C), Output: (H_out, W_out, C)
-
-class AvgPool2d : public Module<float> {
+class NPCORE_API AvgPool2d : public Module<float> {
     int pool_size, stride;
     int in_h, in_w, in_c;
 
@@ -39,16 +37,13 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 // =================================[AdaptiveAvgPool2d]================================
-// Pools to a fixed output size regardless of input dimensions.
-// Input: (H, W, C), Output: (output_h, output_w, C)
-
-class AdaptiveAvgPool2d : public Module<float> {
+class NPCORE_API AdaptiveAvgPool2d : public Module<float> {
     int output_h, output_w;
     int in_h, in_w, in_c;
 
@@ -61,9 +56,9 @@ public:
     Matrix<float> backward(Matrix<float>& grad_output) override;
     void CleanGard() override;
 
-    std::vector<Matrix<float>*> getParams() override { return {}; }
-    Matrix<float>* getGard() override { return nullptr; }
-    Matrix<float>* getOutput() override { return output.empty() ? nullptr : output.back(); }
+    std::vector<Matrix<float>*> getParams() override;
+    Matrix<float>* getGard() override;
+    Matrix<float>* getOutput() override;
 };
 
 } // namespace NPCore

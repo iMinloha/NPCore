@@ -38,4 +38,15 @@ Matrix<float> Flatten::backward(Matrix<float>& grad_output) {
     return *reshaped;
 }
 
+std::vector<Matrix<float>*> Flatten::getParams() { return {}; }
+Matrix<float>* Flatten::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* Flatten::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void Flatten::CleanGard() {
+    for (auto ptr : gard) delete ptr;
+    gard.clear();
+    for (auto ptr : output) delete ptr;
+    output.clear();
+}
+
 } // namespace NPCore

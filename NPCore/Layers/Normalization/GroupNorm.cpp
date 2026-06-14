@@ -21,11 +21,6 @@ GroupNorm::~GroupNorm() {
     delete dgamma; delete dbeta;
 }
 
-std::vector<Matrix<float>*> GroupNorm::getParams() { return {gamma, beta}; }
-std::vector<Matrix<float>*> GroupNorm::getAllGrads() { return {dgamma, dbeta}; }
-Matrix<float>* GroupNorm::getGard() { return nullptr; }
-Matrix<float>* GroupNorm::getOutput() { return output.empty() ? nullptr : output.back(); }
-
 Matrix<float> GroupNorm::forward(Matrix<float>& input) {
     int H = input.row, W = input.col, C = input.channel;
     int spatial = H * W;
@@ -141,15 +136,6 @@ Matrix<float> GroupNorm::backward(Matrix<float>& grad_output) {
     }
 
     return *gi;
-}
-
-void GroupNorm::CleanGard() {
-    for (auto p : gard) { delete p; }
-    gard.clear();
-    for (auto p : output) { delete p; }
-    output.clear();
-    delete dgamma; dgamma = nullptr;
-    delete dbeta;  dbeta  = nullptr;
 }
 
 } // namespace NPCore

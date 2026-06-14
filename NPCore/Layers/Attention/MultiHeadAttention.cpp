@@ -317,4 +317,13 @@ void MultiHeadAttention::CleanGard() {
     delete db_o; db_o = nullptr;
 }
 
+std::vector<Matrix<float>*> MultiHeadAttention::getParams() {
+    return {W_q, W_k, W_v, W_o, b_q, b_k, b_v, b_o};
+}
+std::vector<Matrix<float>*> MultiHeadAttention::getAllGrads() {
+    return {dW_q, dW_k, dW_v, dW_o, db_q, db_k, db_v, db_o};
+}
+Matrix<float>* MultiHeadAttention::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* MultiHeadAttention::getOutput() { return output.empty() ? nullptr : output.back(); }
+
 } // namespace NPCore

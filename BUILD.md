@@ -67,6 +67,7 @@ build/
 
 ```
 # === Core ===
+NPCore/Core/Matrix.cpp
 NPCore/Core/RandomGenerator.cpp
 NPCore/Core/LinearAlgebra.cpp
 NPCore/Core/Size.cpp
@@ -136,9 +137,9 @@ NPCore/Optim.h         NPCore/Autograd.h     NPCore/Model.h
 NPCore/DataLoader.h
 
 NPCore/Core/Assert.h         NPCore/Core/ConvUtils.h
-NPCore/Core/CudaBridge.h     NPCore/Core/GEMM.h
-NPCore/Core/LinearAlgebra.h  NPCore/Core/Matrix.hpp
-NPCore/Core/Matrix.inl       NPCore/Core/RandomGenerator.h
+NPCore/Core/CudaBridge.h     NPCore/Core/Export.h
+NPCore/Core/GEMM.h           NPCore/Core/LinearAlgebra.h
+NPCore/Core/Matrix.hpp       NPCore/Core/RandomGenerator.h
 NPCore/Core/Size.h
 
 NPCore/Activations/Activation.h
@@ -177,7 +178,7 @@ This project follows a strict **zero-logic-in-headers** rule:
 
 ### Matrix Template
 
-`Matrix<T>` uses the `.inl` pattern: declarations in `Matrix.hpp`, implementations in `Matrix.inl` (included by the header). This is the only template-heavy type — all other templates use explicit instantiation.
+`Matrix<T>` uses **explicit template instantiation**: declarations in `Matrix.hpp`, all implementations in `Core/Matrix.cpp` with `template class Matrix<float>;` at the bottom. This means the library only supports `Matrix<float>` (sufficient for all neural network use cases).
 
 ## Compiler Flags
 

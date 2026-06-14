@@ -24,6 +24,7 @@
 
 #include "Assert.h"
 #include "Size.h"
+#include "Export.h"
 #include "GEMM.h"
 #include "CudaBridge.h"
 
@@ -151,7 +152,7 @@ public:
     Matrix<T> sqrt();
     Matrix<T> rotate180();
 
-    Size shape();
+    Size shape() const;
     T det();
 
     T& at(int i, int j);
@@ -188,8 +189,5 @@ public:
     void Analysis(const std::string& title = "Matrix");
     // ==============================[公有方法定义结束]==============================
 };
-
-// 包含模板实现
-#include "Matrix.inl"
 
 #endif // NPCORE_CORE_MATRIX_HPP

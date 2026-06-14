@@ -39,4 +39,8 @@ void Dropout::CleanGard() {
     delete mask_; mask_=nullptr;
 }
 
+std::vector<Matrix<float>*> Dropout::getParams() { return {}; }
+Matrix<float>* Dropout::getGard() { return nullptr; }
+Matrix<float>* Dropout::getOutput() { return output.empty() ? nullptr : output.back(); }
+
 } // namespace NPCore

@@ -42,22 +42,30 @@ int main() {
 
     // 2. 网络
     auto net = nn::FNN({2, 8, 1}, nn::Sigmoid);
-    net.train();  // 确保训练模式
+    net.train();
 
     // 3. 用 DataLoader 训练
     loader.train();
     cout << "Training samples: " << loader.num_samples() << endl;
 
-    nn::Trainer trainer(net, nn::MSE, Optim(net.getParams(), Adam, 0.01f));
-    trainer.fit(loader, 50, [](int e, float loss) {
-        if (e % 10 == 0) printf("  epoch %2d: loss=%.4f\n", e, loss);
-    });
+    Optim optim(Adam_step, net.getParams(), 0.01f);
+    Matrix<float> x, y;
+    for (int e = 0; e < 50; e++) {
+        loader.reset();
+        float total_loss = 0; int count = 0;
+        while (loader.next_batch(x, y)) {
+            auto out = net.forward(x);
+            optim.step(loss_grad(out, y, nn::MSE));
+            total_loss += loss_val(out, y, nn::MSE);
+            count++;
+        }
+        if (e % 10 == 0) printf("  epoch %2d: loss=%.4f\n", e, total_loss / count);
+    }
 
     // 4. 测试
     loader.test();
     net.eval();
     int correct = 0, total = 0;
-    Matrix<float> x, y;
     while (loader.next_batch(x, y)) {
         auto out = net.forward(x);
         if ((out.at(0,0) > 0.5f) == (y.at(0,0) > 0.5f)) correct++;

@@ -1,5 +1,5 @@
-#ifndef NPCORE_CORE_H
-#define NPCORE_CORE_H
+#ifndef NPCORE_CORE_CORE_H
+#define NPCORE_CORE_CORE_H
 
 // =================================[NPCore/Core - Foundation Types]================================
 // Include this for matrix operations, random generation, and linear algebra.
@@ -11,4 +11,4 @@
 #include "Core/LinearAlgebra.h"
 #include "Core/RandomGenerator.h"
 
-#endif // NPCORE_CORE_H
+#endif // NPCORE_CORE_CORE_H

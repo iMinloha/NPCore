@@ -31,4 +31,22 @@ Matrix<float> Linear::backward(Matrix<float>& grad_output) {
     return weight->Translate() * grad_output;
 }
 
+Linear::~Linear() {
+    delete weight;
+    delete bias;
+}
+
+std::vector<Matrix<float>*> Linear::getParams() { return {weight, bias}; }
+Matrix<float>* Linear::getGard() { return gard.empty() ? nullptr : gard.back(); }
+Matrix<float>* Linear::getOutput() { return output.empty() ? nullptr : output.back(); }
+
+void Linear::CleanGard() {
+    for (auto ptr : gard) delete ptr;
+    gard.clear();
+    for (auto ptr : output) delete ptr;
+    output.clear();
+    delete weight_grad_; weight_grad_ = nullptr;
+    delete bias_grad_; bias_grad_ = nullptr;
+}
+
 } // namespace NPCore

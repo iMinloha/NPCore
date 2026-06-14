@@ -20,28 +20,6 @@
 #define GEMM_MR 6
 #define GEMM_NR 16
 
-// Pack A panel: (MR, K) sub-block of A -> A_packed[MR * K]
-// A is row-major with leading dimension lda (= col).
-// A_packed stores MR rows of length K, column-major: A_packed[row * K + k]
-static void gemm_pack_A(int K, const float* A, int lda, float* A_packed) {
-    for (int k = 0; k < K; ++k) {
-        for (int i = 0; i < GEMM_MR; ++i) {
-            A_packed[i * K + k] = A[i * lda + k];
-        }
-    }
-}
-
-// Pack B panel: (K, NR) sub-block of B -> B_packed[K * NR]
-// B is row-major with leading dimension ldb (= B_col).
-// B_packed stores NR cols, row-major: B_packed[k * NR + j]
-static void gemm_pack_B(int K, const float* B, int ldb, float* B_packed) {
-    for (int k = 0; k < K; ++k) {
-        for (int j = 0; j < GEMM_NR; ++j) {
-            B_packed[k * GEMM_NR + j] = B[k * ldb + j];
-        }
-    }
-}
-
 // 6x16 micro-kernel: C[MR, NR] += A_packed[MR, K] * B_packed[K, NR]
 // C is row-major with ldc. Updated in-place.
 static void gemm_micro_kernel_6x16(int K,

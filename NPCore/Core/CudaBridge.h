@@ -1,6 +1,9 @@
 #ifndef NPCORE_CORE_CUDABRIDGE_H
 #define NPCORE_CORE_CUDABRIDGE_H
 
+#include <cstddef>
+#include "Core/Export.h"
+
 // =================================[NPCore CUDA Bridge - 自动 GPU 加速]================================
 //
 // 所有 Matrix 运算和 Activation 通过此桥接自动分发到 CUDA。
@@ -41,7 +44,7 @@ int   cuda_corepp_lstm_cell(int batch, int input_size, int hidden_size,
 namespace NPCore {
 
 // =================================[CudaDevice - 单例]================================
-class CudaDevice {
+class NPCORE_API CudaDevice {
 public:
     static CudaDevice& instance();
     bool available() const;
@@ -54,22 +57,22 @@ private:
 };
 
 // =================================[GPU Memory]================================
-void* cuda_malloc_device(size_t bytes);
-void  cuda_free_device(void* p);
+NPCORE_API void* cuda_malloc_device(size_t bytes);
+NPCORE_API void  cuda_free_device(void* p);
 
 // =================================[GPU-Resident GEMM]================================
-bool cuda_gemm_device(int M, int N, int K,
-                      const float* d_A, const float* d_B, float* d_C);
+NPCORE_API bool cuda_gemm_device(int M, int N, int K,
+                               const float* d_A, const float* d_B, float* d_C);
 
 // =================================[CPU GEMM dispatch (H2D->kernel->D2H)]================================
-bool cuda_should_use(int total_ops);
-bool cuda_gemm_dispatch(int M, int N, int K,
-                        const float* A, const float* B, float* C);
+NPCORE_API bool cuda_should_use(int total_ops);
+NPCORE_API bool cuda_gemm_dispatch(int M, int N, int K,
+                                    const float* A, const float* B, float* C);
 
 // =================================[Activation dispatch]================================
-bool cuda_sigmoid_dispatch(float* data, int n);
-bool cuda_tanh_dispatch(float* data, int n);
-bool cuda_relu_dispatch(float* data, int n);
+NPCORE_API bool cuda_sigmoid_dispatch(float* data, int n);
+NPCORE_API bool cuda_tanh_dispatch(float* data, int n);
+NPCORE_API bool cuda_relu_dispatch(float* data, int n);
 
 } // namespace NPCore
 

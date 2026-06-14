@@ -9,7 +9,7 @@ namespace NPCore {
 
 // =================================[LSTM 长短期记忆网络]================================
 
-class LSTM : public Module<float> {
+class NPCORE_API LSTM : public Module<float> {
 private:
     Matrix<float>* W;     // (4*hidden, input+hidden) merged weights
     Matrix<float>* b;     // (4*hidden, 1) merged bias

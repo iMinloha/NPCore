@@ -11,7 +11,7 @@ namespace NPCore {
 // Owns a list of layers. Forwards input through each layer sequentially.
 // Non-copyable, movable - ensures single ownership of layer pointers.
 
-class Sequence {
+class NPCORE_API Sequence {
 private:
     std::vector<Module<float> *> layers;
 

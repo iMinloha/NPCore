@@ -16,35 +16,35 @@ namespace NPCore {
 namespace nn {
 
 // =================================[Activation shorthands]================================
-Module<float>* ReLU();
-Module<float>* Sigmoid();
-Module<float>* SoftMax();
-Module<float>* Tanh();
-Module<float>* Flatten();
+NPCORE_API Module<float>* ReLU();
+NPCORE_API Module<float>* Sigmoid();
+NPCORE_API Module<float>* SoftMax();
+NPCORE_API Module<float>* Tanh();
+NPCORE_API Module<float>* Flatten();
 
 // =================================[FNN / CNN builders]================================
-Sequence FNN(std::initializer_list<int> sizes,
-             Module<float>* (*activation)() = Sigmoid);
-Sequence CNN(std::initializer_list<int> channels,
-             int kernel = 3,
-             Module<float>* (*activation)() = Sigmoid,
-             int output_classes = 4);
+NPCORE_API Sequence FNN(std::initializer_list<int> sizes,
+                        Module<float>* (*activation)() = Sigmoid);
+NPCORE_API Sequence CNN(std::initializer_list<int> channels,
+                        int kernel = 3,
+                        Module<float>* (*activation)() = Sigmoid,
+                        int output_classes = 4);
 
 // =================================[Loss function shorthands]================================
 enum LossType { MSE, CrossEntropy };
 
-Matrix<float> loss_grad(const Matrix<float>& pred, const Matrix<float>& target,
-                        LossType loss = MSE);
-float loss_val(const Matrix<float>& pred, const Matrix<float>& target,
-               LossType = MSE);
+NPCORE_API Matrix<float> loss_grad(const Matrix<float>& pred, const Matrix<float>& target,
+                                    LossType loss = MSE);
+NPCORE_API float loss_val(const Matrix<float>& pred, const Matrix<float>& target,
+                           LossType = MSE);
 
 // =================================[Optimizer shorthands]================================
-Optim SGD(float lr = 0.01f);
-Optim Adam(float lr = 0.001f);
-Optim RMSProp(float lr = 0.01f);
+NPCORE_API Optim SGD(float lr = 0.01f);
+NPCORE_API Optim Adam(float lr = 0.001f);
+NPCORE_API Optim RMSProp(float lr = 0.01f);
 
 // =================================[Trainer: Training Loop]================================
-class Trainer {
+class NPCORE_API Trainer {
     Module<float>* model_;
     Optim optim_;
     LossType loss_;

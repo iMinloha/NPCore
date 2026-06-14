@@ -49,9 +49,9 @@ float loss_val(const Matrix<float>& pred, const Matrix<float>& target, LossType)
     return mse_loss(pred, target);
 }
 
-Optim SGD(float lr)   { return Optim({}, NPCore::SGD, lr); }
-Optim Adam(float lr) { return Optim({}, NPCore::Adam, lr); }
-Optim RMSProp(float lr) { return Optim({}, NPCore::RMSProp, lr); }
+Optim SGD(float lr)     { return Optim(SGD_step, {}, lr); }
+Optim Adam(float lr)    { return Optim(Adam_step, {}, lr); }
+Optim RMSProp(float lr) { return Optim(RMSProp_step, {}, lr); }
 
 // =================================[Trainer]================================
 Trainer::Trainer(Module<float>& model, LossType loss, Optim optim)
