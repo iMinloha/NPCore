@@ -17,6 +17,7 @@ private:
     Matrix<float>* weight;
     Matrix<float>* bias;
     Matrix<float>* col_cache = nullptr;
+    bool use_bias;
     int in_channels, out_channels, kernel_size, stride, padding;
 
     mutable Matrix<float>* weight_2d_T_cache_ = nullptr;
@@ -26,6 +27,7 @@ public:
     ConvTranspose2d(int in_channels, int out_channels, int kernel_size = 3,
                     int stride = 2, int padding = 1,
                     InitMode mode = InitMode::XavierUniform,
+                    bool use_bias = true,
                     double mu = 0.0, double sigma = 1.0);
     ~ConvTranspose2d() override;
 

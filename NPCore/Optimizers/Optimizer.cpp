@@ -4,6 +4,8 @@ namespace NPCore {
 Optim::Optim(OptimStepFn fn, std::vector<Module<float>*> p, float lr)
     : step_fn_(fn), learn_rate(lr), params(std::move(p)) {}
 
+void Optim::set_params(std::vector<Module<float>*> p) { params = std::move(p); }
+
 void Optim::step(Matrix<float> loss) {
     float lm = loss.max();
     if (lm > 50.0f) loss = loss * (50.0f / lm);

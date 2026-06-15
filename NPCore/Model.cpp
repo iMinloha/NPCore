@@ -6,7 +6,7 @@ namespace nn {
 Module<float>* ReLU()    { return new Activation::ReLU(); }
 Module<float>* Sigmoid() { return new Activation::Sigmoid(); }
 Module<float>* SoftMax(){ return new Activation::SoftMax(); }
-Module<float>* Tanh()    { return new Activation::Sigmoid(); }
+Module<float>* Tanh()    { return new Activation::Tanh(); }
 Module<float>* Flatten() { return new NPCore::Flatten(); }
 
 Sequence FNN(std::initializer_list<int> sizes, Module<float>* (*activation)()) {
@@ -45,19 +45,32 @@ Matrix<float> loss_grad(const Matrix<float>& pred, const Matrix<float>& target, 
     return mse_loss_grad(pred, target);
 }
 
-float loss_val(const Matrix<float>& pred, const Matrix<float>& target, LossType) {
+float loss_val(const Matrix<float>& pred, const Matrix<float>& target, LossType loss) {
+    if (loss == CrossEntropy) return cross_entropy_loss(pred, target);
     return mse_loss(pred, target);
 }
 
-Optim SGD(float lr)     { return Optim(SGD_step, {}, lr); }
-Optim Adam(float lr)    { return Optim(Adam_step, {}, lr); }
-Optim RMSProp(float lr) { return Optim(RMSProp_step, {}, lr); }
+Optim SGD(float lr)      { return Optim(SGD_step, {}, lr); }
+Optim Momentum(float lr) { return Optim(Momentum_step, {}, lr); }
+Optim Adam(float lr)     { return Optim(Adam_step, {}, lr); }
+Optim RMSProp(float lr)  { return Optim(RMSProp_step, {}, lr); }
+Optim Adagrad(float lr)  { return Optim(Adagrad_step, {}, lr); }
+Optim Adadelta(float lr) { return Optim(Adadelta_step, {}, lr); }
+Optim NAdam(float lr)    { return Optim(NAdam_step, {}, lr); }
+Optim RAdam(float lr)    { return Optim(RAdam_step, {}, lr); }
 
 // =================================[Trainer]================================
-Trainer::Trainer(Module<float>& model, LossType loss, Optim optim)
-    : model_(&model), optim_(optim), loss_(loss) {}
+Trainer::Trainer(Sequence& model, LossType loss, Optim optim)
+    : model_(&model), optim_(optim), loss_(loss) {
+    // Inject model layers into optimizer so step() can update parameters
+    optim_.set_params(model.getParams());
+}
 
-void Trainer::bind(Optim optim) { optim_ = optim; }
+void Trainer::bind(Optim optim) {
+    optim_ = optim;
+    // Re-bind params from current model
+    if (model_) optim_.set_params(model_->getParams());
+}
 
 void Trainer::fit(Matrix<float>& input, Matrix<float>& target, int epochs,
          std::function<void(int, float)> callback) {

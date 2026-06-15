@@ -5,14 +5,15 @@ namespace NPCore {
 
 ConvTranspose2d::ConvTranspose2d(int in_channels, int out_channels, int kernel_size,
                                  int stride, int padding,
-                                 InitMode mode, double mu, double sigma)
+                                 InitMode mode, bool use_bias,
+                                 double mu, double sigma)
     : in_channels(in_channels), out_channels(out_channels),
-      kernel_size(kernel_size), stride(stride), padding(padding)
+      kernel_size(kernel_size), stride(stride), padding(padding), use_bias(use_bias)
 {
     weight = new Matrix<float>(kernel_size, kernel_size, in_channels * out_channels);
-    bias   = new Matrix<float>(out_channels, 1);
+    bias   = use_bias ? new Matrix<float>(out_channels, 1) : nullptr;
     InitMatrixFunc(*weight, mode, {.mu = mu, .sigma = sigma});
-    InitMatrixFunc(*bias, InitMode::Zeros);
+    if (bias) InitMatrixFunc(*bias, InitMode::Zeros);
 }
 
 ConvTranspose2d::~ConvTranspose2d() {
@@ -60,7 +61,7 @@ Matrix<float> ConvTranspose2d::forward(Matrix<float>& input) {
     for (int oc = 0; oc < out_channels; ++oc)
         for (int i = 0; i < H_out; ++i)
             for (int j = 0; j < W_out; ++j)
-                out->at(i, j, oc) += bias->at(oc, 0);
+                out->at(i, j, oc) += bias ? bias->at(oc, 0) : 0.0f;
 
     if (train_mode) {
         gard.push_back(new Matrix<float>(input));
@@ -108,13 +109,17 @@ Matrix<float> ConvTranspose2d::backward(Matrix<float>& grad_output) {
         }
     }
 
-    bias_grad_ = new Matrix<float>(C_out, 1);
-    for (int c = 0; c < C_out; ++c) {
-        float sum = 0.0f;
-        for (int i = 0; i < H_out; ++i)
-            for (int j = 0; j < W_out; ++j)
-                sum += grad_output.at(i, j, c);
-        bias_grad_->at(c, 0) = sum;
+    if (bias) {
+        bias_grad_ = new Matrix<float>(C_out, 1);
+        for (int c = 0; c < C_out; ++c) {
+            float sum = 0.0f;
+            for (int i = 0; i < H_out; ++i)
+                for (int j = 0; j < W_out; ++j)
+                    sum += grad_output.at(i, j, c);
+            bias_grad_->at(c, 0) = sum;
+        }
+    } else {
+        bias_grad_ = nullptr;
     }
 
     const Matrix<float>& W = weight_2d_T();
@@ -132,7 +137,8 @@ Matrix<float> ConvTranspose2d::backward(Matrix<float>& grad_output) {
 
 std::vector<Matrix<float>*> ConvTranspose2d::getParams() {
     weight_2d_T_dirty_ = true;
-    return {weight, bias};
+    if (bias) return {weight, bias};
+    return {weight};
 }
 Matrix<float>* ConvTranspose2d::getGard() { return gard.empty() ? nullptr : gard.back(); }
 Matrix<float>* ConvTranspose2d::getOutput() { return output.empty() ? nullptr : output.back(); }

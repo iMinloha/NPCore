@@ -40,17 +40,22 @@ NPCORE_API float loss_val(const Matrix<float>& pred, const Matrix<float>& target
 
 // =================================[Optimizer shorthands]================================
 NPCORE_API Optim SGD(float lr = 0.01f);
+NPCORE_API Optim Momentum(float lr = 0.01f);
 NPCORE_API Optim Adam(float lr = 0.001f);
 NPCORE_API Optim RMSProp(float lr = 0.01f);
+NPCORE_API Optim Adagrad(float lr = 0.01f);
+NPCORE_API Optim Adadelta(float lr = 0.01f);
+NPCORE_API Optim NAdam(float lr = 0.001f);
+NPCORE_API Optim RAdam(float lr = 0.001f);
 
 // =================================[Trainer: Training Loop]================================
 class NPCORE_API Trainer {
-    Module<float>* model_;
+    Sequence* model_;
     Optim optim_;
     LossType loss_;
 
 public:
-    Trainer(Module<float>& model, LossType loss, Optim optim);
+    Trainer(Sequence& model, LossType loss, Optim optim);
     void bind(Optim optim);
     void fit(Matrix<float>& input, Matrix<float>& target, int epochs,
              std::function<void(int, float)> callback = nullptr);

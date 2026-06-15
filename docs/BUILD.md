@@ -99,10 +99,12 @@ NPCore/Layers/Conv/Pool.cpp
 NPCore/Layers/Recurrent/RNN.cpp
 NPCore/Layers/Recurrent/LSTM.cpp
 NPCore/Layers/Recurrent/GRU.cpp
+NPCore/Layers/Normalization/NormLayerBase.cpp
 NPCore/Layers/Normalization/BatchNorm.cpp
 NPCore/Layers/Normalization/LayerNorm.cpp
 NPCore/Layers/Normalization/GroupNorm.cpp
 NPCore/Layers/Attention/MultiHeadAttention.cpp
+NPCore/Layers/Attention/PositionalEncoding.cpp
 NPCore/Layers/Architecture/Residual.cpp
 NPCore/Layers/Architecture/ResNetBlock.cpp
 
@@ -154,8 +156,9 @@ NPCore/Layers/Conv/Pool.h
 NPCore/Layers/Recurrent/RNN.h  NPCore/Layers/Recurrent/LSTM.h
 NPCore/Layers/Recurrent/GRU.h
 NPCore/Layers/Normalization/BatchNorm.h  NPCore/Layers/Normalization/LayerNorm.h
-NPCore/Layers/Normalization/GroupNorm.h
+NPCore/Layers/Normalization/GroupNorm.h  NPCore/Layers/Normalization/NormLayerBase.h
 NPCore/Layers/Attention/MultiHeadAttention.h
+NPCore/Layers/Attention/PositionalEncoding.h
 NPCore/Layers/Architecture/Residual.h     NPCore/Layers/Architecture/ResNetBlock.h
 
 NPCore/Optimizers/Optimizer.h  NPCore/Optimizers/SGD.h

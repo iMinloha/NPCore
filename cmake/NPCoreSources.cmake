@@ -41,10 +41,12 @@ set(NPCORE_LAYERS_HEADERS
 
 # --- Layers: Conv ---
 list(APPEND NPCORE_LAYERS_SOURCES
+    NPCore/Layers/Conv/Conv1d.cpp
     NPCore/Layers/Conv/Conv2d.cpp NPCore/Layers/Conv/ConvTranspose2d.cpp
     NPCore/Layers/Conv/Pool.cpp
 )
 list(APPEND NPCORE_LAYERS_HEADERS
+    NPCore/Layers/Conv/Conv1d.h
     NPCore/Layers/Conv/Conv2d.h NPCore/Layers/Conv/ConvTranspose2d.h NPCore/Layers/Conv/Pool.h
 )
 
@@ -61,19 +63,25 @@ list(APPEND NPCORE_LAYERS_SOURCES
     NPCore/Layers/Normalization/NormLayerBase.cpp
     NPCore/Layers/Normalization/BatchNorm.cpp NPCore/Layers/Normalization/LayerNorm.cpp
     NPCore/Layers/Normalization/GroupNorm.cpp
+    NPCore/Layers/Normalization/InstanceNorm.cpp
 )
 list(APPEND NPCORE_LAYERS_HEADERS
     NPCore/Layers/Normalization/NormLayerBase.h
     NPCore/Layers/Normalization/BatchNorm.h NPCore/Layers/Normalization/LayerNorm.h
     NPCore/Layers/Normalization/GroupNorm.h
+    NPCore/Layers/Normalization/InstanceNorm.h
 )
 
 # --- Layers: Attention ---
 list(APPEND NPCORE_LAYERS_SOURCES
     NPCore/Layers/Attention/MultiHeadAttention.cpp
+    NPCore/Layers/Attention/PositionalEncoding.cpp
+    NPCore/Layers/Attention/TransformerEncoder.cpp
 )
 list(APPEND NPCORE_LAYERS_HEADERS
     NPCore/Layers/Attention/MultiHeadAttention.h
+    NPCore/Layers/Attention/PositionalEncoding.h
+    NPCore/Layers/Attention/TransformerEncoder.h
 )
 
 # --- Layers: Architecture ---
@@ -99,8 +107,8 @@ set(NPCORE_OPTIMIZERS_HEADERS
 )
 
 # --- Utils ---
-set(NPCORE_UTILS_SOURCES NPCore/Utils/Timer.cpp)
-set(NPCORE_UTILS_HEADERS NPCore/Utils/Timer.h)
+set(NPCORE_UTILS_SOURCES NPCore/Utils/Timer.cpp NPCore/Utils/Serializer.cpp NPCore/Utils/ONNXModel.cpp)
+set(NPCORE_UTILS_HEADERS NPCore/Utils/Timer.h NPCore/Utils/Serializer.h NPCore/Utils/ONNXModel.h)
 
 # --- CUDA ---
 set(NPCORE_CUDA_HEADERS NPCore/Cuda/cuda_runtime.h)

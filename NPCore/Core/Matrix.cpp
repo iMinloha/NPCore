@@ -44,8 +44,8 @@ Matrix<T> Matrix<T>::operator+(Matrix<T> mat2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator+(float number) const {
-    Matrix<T> res(row, col);
-    int total = row * col;
+    Matrix<T> res(row, col, channel);
+    int total = row * col * channel;
 #ifdef __AVX__
     __m256 num = _mm256_set1_ps(number);
     int i = 0;
@@ -70,8 +70,8 @@ Matrix<T> Matrix<T>::operator+(float number) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator/(float value) const {
-    Matrix<T> res(row, col);
-    int total = row * col;
+    Matrix<T> res(row, col, channel);
+    int total = row * col * channel;
 #ifdef __AVX__
     __m256 denom = _mm256_set1_ps(value);
     int i = 0;

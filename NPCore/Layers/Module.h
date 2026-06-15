@@ -25,8 +25,8 @@ public:
 
     // Train/eval mode
     bool train_mode = true;
-    void eval();
-    void train();
+    virtual void eval();
+    virtual void train();
 
     // GPU: move all parameters to GPU / back to CPU
     virtual void cuda();

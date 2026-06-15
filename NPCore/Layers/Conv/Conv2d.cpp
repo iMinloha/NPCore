@@ -3,15 +3,15 @@
 namespace NPCore {
 
 Conv2d::Conv2d(int in_channels, int out_channels, int kernel_size, int stride, int padding,
-               InitMode mode, double mu, double sigma)
+               InitMode mode, bool use_bias, double mu, double sigma)
     : in_channels(in_channels), out_channels(out_channels),
-      kernel_size(kernel_size), stride(stride), padding(padding) {
+      kernel_size(kernel_size), stride(stride), padding(padding), use_bias(use_bias) {
 
     weight = new Matrix<float>(kernel_size, kernel_size, in_channels * out_channels);
-    bias = new Matrix<float>(out_channels, 1);
+    bias = use_bias ? new Matrix<float>(out_channels, 1) : nullptr;
 
     InitMatrixFunc(*weight, mode, {.mu = mu, .sigma = sigma});
-    InitMatrixFunc(*bias, InitMode::Zeros);
+    if (bias) InitMatrixFunc(*bias, InitMode::Zeros);
 }
 
 // weight_2d with lazy caching
@@ -63,7 +63,8 @@ Matrix<float> Conv2d::forward(Matrix<float>& input) {
     for (int c = 0; c < out_channels; ++c)
         for (int i = 0; i < H_out; ++i)
             for (int j = 0; j < W_out; ++j)
-                out->at(i, j, c) = result_2d.at(c, i * W_out + j) + bias->at(c, 0);
+                out->at(i, j, c) = result_2d.at(c, i * W_out + j)
+                    + (bias ? bias->at(c, 0) : 0.0f);
 
     // Inference: skip gradient storage for speed
     if (train_mode) {
@@ -104,13 +105,17 @@ Matrix<float> Conv2d::backward(Matrix<float>& grad_output) {
         }
     }
 
-    bias_grad_ = new Matrix<float>(C_out, 1);
-    for (int c = 0; c < C_out; ++c) {
-        float sum = 0.0f;
-        for (int i = 0; i < H_out; ++i)
-            for (int j = 0; j < W_out; ++j)
-                sum += grad_output.at(i, j, c);
-        bias_grad_->at(c, 0) = sum;
+    if (bias) {
+        bias_grad_ = new Matrix<float>(C_out, 1);
+        for (int c = 0; c < C_out; ++c) {
+            float sum = 0.0f;
+            for (int i = 0; i < H_out; ++i)
+                for (int j = 0; j < W_out; ++j)
+                    sum += grad_output.at(i, j, c);
+            bias_grad_->at(c, 0) = sum;
+        }
+    } else {
+        bias_grad_ = nullptr;
     }
 
     const Matrix<float>& W2 = weight_2d();
@@ -128,7 +133,8 @@ Conv2d::~Conv2d() {
 
 std::vector<Matrix<float>*> Conv2d::getParams() {
     weight_2d_dirty_ = true;
-    return {weight, bias};
+    if (bias) return {weight, bias};
+    return {weight};
 }
 Matrix<float>* Conv2d::getGard() { return gard.empty() ? nullptr : gard.back(); }
 Matrix<float>* Conv2d::getOutput() { return output.empty() ? nullptr : output.back(); }

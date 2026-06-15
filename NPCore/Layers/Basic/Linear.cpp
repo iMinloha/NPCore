@@ -2,16 +2,21 @@
 
 namespace NPCore {
 
-Linear::Linear(int in_features, int out_features, InitMode mode, double mu, double sigma) {
+Linear::Linear(int in_features, int out_features,
+               InitMode mode, bool use_bias,
+               double mu, double sigma)
+    : use_bias(use_bias) {
     weight = new Matrix<float>(out_features, in_features);
-    bias = new Matrix<float>(out_features, 1);
+    bias = use_bias ? new Matrix<float>(out_features, 1) : nullptr;
 
     InitMatrixFunc(*weight, mode, {.mu = mu, .sigma = sigma});
-    InitMatrixFunc(*bias, InitMode::Zeros);
+    if (bias) InitMatrixFunc(*bias, InitMode::Zeros);
 }
 
 Matrix<float> Linear::forward(Matrix<float> &input) {
-    auto* result = new Matrix<float>(*weight * input + *bias);
+    Matrix<float> prod = *weight * input;
+    if (bias) prod = prod + *bias;
+    auto* result = new Matrix<float>(prod);
     if (train_mode) gard.push_back(new Matrix<float>(input));
     output.push_back(result);
     return *result;
@@ -24,8 +29,9 @@ Matrix<float> Linear::backward(Matrix<float>& grad_output) {
     // Weight gradient: dL/dW = grad_output * input^T
     weight_grad_ = new Matrix<float>(grad_output * input_cache.Translate());
 
-    // Bias gradient: dL/db = grad_output
-    bias_grad_ = new Matrix<float>(grad_output);
+    // Bias gradient: dL/db = grad_output (only if bias exists)
+    if (bias) bias_grad_ = new Matrix<float>(grad_output);
+    else bias_grad_ = nullptr;
 
     // Input gradient: dL/dx = W^T * grad_output
     return weight->Translate() * grad_output;
@@ -36,7 +42,10 @@ Linear::~Linear() {
     delete bias;
 }
 
-std::vector<Matrix<float>*> Linear::getParams() { return {weight, bias}; }
+std::vector<Matrix<float>*> Linear::getParams() {
+    if (bias) return {weight, bias};
+    return {weight};
+}
 Matrix<float>* Linear::getGard() { return gard.empty() ? nullptr : gard.back(); }
 Matrix<float>* Linear::getOutput() { return output.empty() ? nullptr : output.back(); }
 

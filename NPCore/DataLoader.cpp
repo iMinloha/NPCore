@@ -4,6 +4,8 @@
 #include <fstream>
 #include <filesystem>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 
 namespace NPCore {
 
@@ -313,9 +315,17 @@ bool ImageFolderLoader::next_batch(Matrix<float>& x, Matrix<float>& y) {
 }
 
 // =================================[SequenceLoader]================================
-SequenceLoader::SequenceLoader(int, int, int bs) : batch_size_(bs) {}
+SequenceLoader::SequenceLoader(int input_dim, int output_dim, int bs)
+    : batch_size_(bs), input_dim_(input_dim), output_dim_(output_dim) {}
 
 void SequenceLoader::add_sequence(const Matrix<float>& x, const Matrix<float>& y) {
+    // Validate dimensions if specified (0 = accept any)
+    if (input_dim_ > 0 && x.col != input_dim_)
+        throw std::runtime_error("SequenceLoader: input dim mismatch. Expected " +
+            std::to_string(input_dim_) + ", got " + std::to_string(x.col));
+    if (output_dim_ > 0 && y.col != output_dim_)
+        throw std::runtime_error("SequenceLoader: output dim mismatch. Expected " +
+            std::to_string(output_dim_) + ", got " + std::to_string(y.col));
     inputs_.push_back(x); targets_.push_back(y);
 }
 

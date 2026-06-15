@@ -26,13 +26,9 @@ class NPCORE_API Optim {
 public:
     Optim() = default;
     Optim(OptimStepFn fn, std::vector<Module<float>*> p, float lr);
+    void set_params(std::vector<Module<float>*> p);
     void step(Matrix<float> loss);
 };
-
-// =================================[Factory functions]================================
-NPCORE_API Optim SGD(float lr = 0.01f);
-NPCORE_API Optim Adam(float lr = 0.001f);
-NPCORE_API Optim RMSProp(float lr = 0.01f);
 
 // =================================[Wrapper functions (match OptimStepFn)]================================
 NPCORE_API void SGD_step(std::vector<Module<float>*>, Matrix<float>&, float, OptimState&);

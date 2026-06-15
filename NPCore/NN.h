@@ -12,6 +12,7 @@
 #include "Layers/Basic/Dropout.h"
 
 // Convolution
+#include "Layers/Conv/Conv1d.h"
 #include "Layers/Conv/Conv2d.h"
 #include "Layers/Conv/ConvTranspose2d.h"
 #include "Layers/Conv/Pool.h"
@@ -25,9 +26,12 @@
 #include "Layers/Normalization/BatchNorm.h"
 #include "Layers/Normalization/LayerNorm.h"
 #include "Layers/Normalization/GroupNorm.h"
+#include "Layers/Normalization/InstanceNorm.h"
 
 // Attention
 #include "Layers/Attention/MultiHeadAttention.h"
+#include "Layers/Attention/PositionalEncoding.h"
+#include "Layers/Attention/TransformerEncoder.h"
 
 // Architecture
 #include "Layers/Architecture/Residual.h"

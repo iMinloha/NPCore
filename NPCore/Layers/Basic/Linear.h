@@ -14,9 +14,12 @@ class NPCORE_API Linear : public Module<float> {
 private:
     Matrix<float>* weight;
     Matrix<float>* bias;
+    bool use_bias;
 
 public:
-    Linear(int in_features, int out_features, InitMode mode = InitMode::Uniform,
+    Linear(int in_features, int out_features,
+           InitMode mode = InitMode::Uniform,
+           bool use_bias = true,
            double mu = 0.0, double sigma = 1.0);
 
     ~Linear() override;

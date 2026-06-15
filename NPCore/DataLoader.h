@@ -124,6 +124,7 @@ class NPCORE_API SequenceLoader : public DataLoader {
     std::vector<int> train_idx_, test_idx_, val_idx_;
     DataSplit split_ = DataSplit::Train;
     int batch_size_, cursor_ = 0;
+    int input_dim_, output_dim_;  // Expected dimensions for validation
 
 public:
     SequenceLoader(int input_dim = 0, int output_dim = 0, int bs = 16);

@@ -20,6 +20,9 @@
 // --- Foundation Types (always included) ---
 #include "Core.h"
 
+// --- Autograd ---
+#include "Autograd.h"
+
 // --- Neural Network Layers ---
 #include "NN.h"
 
@@ -37,5 +40,7 @@
 
 // --- Utilities ---
 #include "Utils/Timer.h"
+#include "Utils/Serializer.h"
+#include "Utils/ONNXModel.h"
 
 #endif // NPCORE_CORE_H

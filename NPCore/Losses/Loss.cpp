@@ -39,6 +39,22 @@ T smooth_l1_loss(const Matrix<T>& p, const Matrix<T>& t, T b) {
 }
 
 template<typename T>
+T cross_entropy_loss(const Matrix<T>& lg, const Matrix<T>& t) {
+    if (lg.row != t.row || lg.col != t.col) throw std::runtime_error("CE shape");
+    T total_loss = 0;
+    for (int i = 0; i < lg.row; ++i) {
+        T mx = lg(i, 0);
+        for (int j = 1; j < lg.col; ++j) if (lg(i, j) > mx) mx = lg(i, j);
+        T sum_exp = 0;
+        for (int j = 0; j < lg.col; ++j) sum_exp += std::exp(lg(i, j) - mx);
+        T log_sum_exp = std::log(sum_exp) + mx;
+        for (int j = 0; j < lg.col; ++j)
+            total_loss -= t(i, j) * (lg(i, j) - log_sum_exp);
+    }
+    return total_loss / (T)lg.row;
+}
+
+template<typename T>
 Matrix<T> cross_entropy_loss_grad(const Matrix<T>& lg, const Matrix<T>& t) {
     if (lg.row != t.row || lg.col != t.col) throw std::runtime_error("CE shape");
     Matrix<T> sm(lg.row, lg.col);
@@ -62,6 +78,32 @@ T bce_loss(const Matrix<T>& p, const Matrix<T>& t) {
 }
 
 template<typename T>
+Matrix<T> bce_loss_grad(const Matrix<T>& p, const Matrix<T>& t) {
+    if (p.row != t.row || p.col != t.col) throw std::runtime_error("BCE grad shape");
+    Matrix<T> g(p.row, p.col, p.channel);
+    int n = p.row * p.col * p.channel;
+    T eps = 1e-7f;
+    for (int i = 0; i < n; ++i) {
+        T v = std::max(eps, std::min((T)1 - eps, p.data_ptr()[i]));
+        g.data_ptr()[i] = -(t.data_ptr()[i] / v - (1 - t.data_ptr()[i]) / (1 - v)) / (T)n;
+    }
+    return g;
+}
+
+template<typename T>
+Matrix<T> smooth_l1_loss_grad(const Matrix<T>& p, const Matrix<T>& t, T b) {
+    if (p.row != t.row || p.col != t.col) throw std::runtime_error("Huber grad shape");
+    Matrix<T> g(p.row, p.col, p.channel);
+    int n = p.row * p.col * p.channel;
+    for (int i = 0; i < n; ++i) {
+        T d = p.data_ptr()[i] - t.data_ptr()[i];
+        if (std::abs(d) < b) g.data_ptr()[i] = d / b;
+        else g.data_ptr()[i] = (d > 0 ? (T)1 : (T)-1);
+    }
+    return g;
+}
+
+template<typename T>
 T kl_loss(const Matrix<T>& lp, const Matrix<T>& tp) {
     if (lp.row != tp.row || lp.col != tp.col) throw std::runtime_error("KL shape");
     T s = 0; int n = lp.row * lp.col * lp.channel;
@@ -75,8 +117,11 @@ template Matrix<float> mse_loss_grad<float>(const Matrix<float>&, const Matrix<f
 template float l1_loss<float>(const Matrix<float>&, const Matrix<float>&);
 template Matrix<float> l1_loss_grad<float>(const Matrix<float>&, const Matrix<float>&);
 template float smooth_l1_loss<float>(const Matrix<float>&, const Matrix<float>&, float);
+template Matrix<float> smooth_l1_loss_grad<float>(const Matrix<float>&, const Matrix<float>&, float);
+template float cross_entropy_loss<float>(const Matrix<float>&, const Matrix<float>&);
 template Matrix<float> cross_entropy_loss_grad<float>(const Matrix<float>&, const Matrix<float>&);
 template float bce_loss<float>(const Matrix<float>&, const Matrix<float>&);
+template Matrix<float> bce_loss_grad<float>(const Matrix<float>&, const Matrix<float>&);
 template float kl_loss<float>(const Matrix<float>&, const Matrix<float>&);
 
 } // namespace NPCore

@@ -27,8 +27,8 @@ public:
 
     void cuda() override;
     void cpu() override;
-    void eval();
-    void train();
+    void eval() override;
+    void train() override;
 };
 
 } // namespace NPCore
