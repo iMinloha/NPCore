@@ -1,41 +1,29 @@
-<p align="center">
-  <img src="assets/img/architecture.png" alt="NPCore Architecture" width="720">
-</p>
+# NPCore — C++20 Deep Learning Library
 
----
-
-<p align="center">
-  <strong>NPCore</strong> — 纯 C++20 深度学习库，AVX2 SIMD 与 CUDA GPU 双后端加速
-</p>
+**纯 C++20 深度学习库** · AVX2 SIMD + CUDA GPU 双后端 · 零外部依赖 · ONNX 互操作
 
 <p align="center">
   <img src="https://img.shields.io/badge/C%2B%2B-20-blue?logo=cplusplus" alt="C++20">
   <img src="https://img.shields.io/badge/SIMD-AVX2-ff69b4" alt="AVX2">
   <img src="https://img.shields.io/badge/GPU-CUDA-76b900?logo=nvidia" alt="CUDA">
+  <img src="https://img.shields.io/badge/ONNX-import%2Fexport-005ced?logo=onnx" alt="ONNX">
   <img src="https://img.shields.io/badge/build-CMake-064f8c?logo=cmake" alt="CMake">
-  <img src="https://img.shields.io/badge/tests-14%2F14-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-22%2B-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License">
 </p>
 
 ---
 
-## 特性总览
+## 特性
 
 | 类别 | 数量 | 内容 |
 |:-----|:----:|:-----|
-| 层 | **25+** | `Linear` `Conv2d` `ConvTranspose2d` `MaxPool2d` `AvgPool2d` `AdaptiveAvgPool2d` `Flatten` `RNN` `LSTM` `GRU` `BatchNorm1d` `BatchNorm2d` `LayerNorm` `GroupNorm` `Dropout` `Embedding` `MultiHeadAttention` `Residual` `ResNetBlock` |
-| 激活函数 | **12** | `ReLU` `LeakyReLU` `Sigmoid` `Tanh` `SoftMax` `ELU` `SELU` `Softplus` `Mish` `GELU` `Swish` |
-| 损失函数 | **6** | `MSE` `MAE` `SmoothL1` `CrossEntropy` `BCE` `KL Divergence` |
+| 层 | **30+** | `Linear` `Conv1d` `Conv2d` `ConvTranspose2d` `MaxPool2d` `AvgPool2d` `AdaptiveAvgPool2d` `Flatten` `RNN` `LSTM` `GRU` `BatchNorm1d` `BatchNorm2d` `LayerNorm` `GroupNorm` `InstanceNorm1d` `InstanceNorm2d` `Dropout` `Embedding` `MultiHeadAttention` `PositionalEncoding` `TransformerEncoder` `Residual` `ResNetBlock` `Sequence` `Concat` |
+| 激活函数 | **11** | `ReLU` `LeakyReLU` `Sigmoid` `Tanh` `SoftMax` `ELU` `SELU` `Softplus` `Mish` `GELU` `Swish` |
+| 损失函数 | **9** | `MSE` `MAE` `SmoothL1` `CrossEntropy` `BCE` `KL` + 所有对应梯度函数 |
 | 优化器 | **10** | `SGD` `Momentum` `Adam` `AdamW` `RMSProp` `Adagrad` `Adadelta` `NAdam` `RAdam` + `CosineLR` `StepLR` |
-| 工具 | — | `GradientClipping` · `DataLoader` · `numerical_gradient` · `gradcheck` |
-
-### 核心架构图
-
-<p align="center">
-  <img src="assets/img/normalization.png" alt="Normalization" width="540"><br>
-  <img src="assets/img/mha.png" alt="MultiHeadAttention" width="540"><br>
-  <img src="assets/img/convtranspose2d.png" alt="ConvTranspose2d" width="540">
-</p>
+| 互操作 | **ONNX** | `ONNXModel::load()` / `from_sequence()` / `save()` / `to_sequence()` |
+| 工具 | — | `GradientClipping` · `DataLoader` · `numerical_gradient` · `gradcheck` · `save_model` · `load_model_weights` |
 
 ---
 
@@ -43,16 +31,18 @@
 
 ```cpp
 #include "NPCore.h"
+#include "Model.h"
 using namespace NPCore;
+using namespace NPCore::nn;
 
 int main() {
-    // 一行创建网络: 4 → 8 → 16 → 8 → 4
-    auto net = nn::FNN({4, 8, 16, 8, 4}, nn::Sigmoid);
+    // 一行建网: 4→8→16→8→4
+    auto net = FNN({4, 8, 16, 8, 4}, Sigmoid);
 
     Matrix<float> x(4, 1); x << 3 << 4 << 2 << 1;
     Matrix<float> y(4, 1); y << 1 << 0 << 0 << 0;
 
-    nn::Trainer(net, nn::MSE, Optim(net.getParams(), Adam, 0.01f))
+    Trainer(net, MSE, Adam(0.01f))
         .fit(x, y, 300, [](int e, float loss) {
             printf("epoch %d: %.6f\n", e, loss);
         });
@@ -62,155 +52,100 @@ int main() {
 ```
 
 <details>
-<summary><b>GPU 加速 — 一行代码</b></summary>
+<summary><b>ONNX 导出 — 与 PyTorch 互通</b></summary>
 
 ```cpp
-net.cuda();   // 整个网络搬到 GPU
-net.cpu();    // 搬回 CPU
+// NPCore → ONNX: 导出模型供 Python/ONNX Runtime 使用
+auto model = FNN({4, 8, 4}, ReLU);
+auto onnx = ONNXModel::from_sequence(model, {1, 4}, "MLP");
+onnx.save("model.onnx");
+
+// ONNX → NPCore: 加载 PyTorch 导出的模型
+auto loaded = ONNXModel::load("from_pytorch.onnx");
+Sequence imported = loaded.to_sequence();  // 直接推理
+imported.eval();
+auto out = imported.forward(input);
 ```
+
+详见 [ONNX 互操作文档](docs/ONNX.md)
 
 </details>
 
 <details>
-<summary><b>Transformer 解码器 — 因果注意力</b></summary>
+<summary><b>嵌套模型 + 分支结构</b></summary>
 
 ```cpp
-MultiHeadAttention mha(/*d_model=*/512, /*heads=*/8, /*causal=*/true);
-auto output = mha.forward(embedding);    // (seq_len, 512) -> (seq_len, 512)
+// Sequence 可嵌套
+auto* encoder = new Sequence({new Linear(64,32), new ReLU(), new Linear(32,16)});
+auto* decoder = new Sequence({new Linear(16,32), new ReLU(), new Linear(32,64)});
+Sequence autoencoder({encoder, decoder});
+
+// Concat 支持 Inception/U-Net 分支
+auto* b1 = new Sequence({new Conv2d(1,4,3,1,1), new ReLU()});
+auto* b2 = new Sequence({new Conv2d(1,3,5,1,2), new ReLU()});
+Concat inception({b1, b2});
 ```
 
 </details>
 
 ---
 
-## 编译与安装
-
-| 平台 | 编译器 | 命令 |
-|:-----|:------|:-----|
-| CPU | MinGW GCC 12+ / MSVC 2022 | `cmake -G "MinGW Makefiles" -B _build && cmake --build _build` |
-| GPU (CUDA) | + CUDA Toolkit 11.0+ | `cmake -B _build -DNPCORE_ENABLE_CUDA=ON` |
-| DLL | 同 CPU | `cmake -B _build -DBUILD_SHARED_LIBS=ON` |
-
-> **依赖:** CMake 3.18+, C++20 编译器。可选: CUDA 11.0+ 用于 GPU。
-
-### 安装到指定路径
+## 编译
 
 ```bash
-# 安装到默认路径 (_build/install)
-cmake --install _build
-
-# 安装到自定义路径
-cmake --install _build --prefix /path/to/install
+git clone <repo> && cd Korea_C++
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j8
 ```
 
-安装后的目录结构:
-```
-prefix/
-├── include/
-│   └── NPCore/       NPCore.h  Layers/  Optimizers/  ...
-├── lib/
-│   ├── libNPCore.a         静态库
-│   └── cmake/NPCore/       CMake 包配置 (find_package 用)
-```
-
-### 在外部项目中使用
-
-将 `install/` 复制到你的项目目录，然后零配置构建:
-
-```
-your_project/
-├── install/              # 复制 NPCore 安装目录
-├── CMakeLists.txt
-└── main.cpp
-```
-
-```cmake
-# CMakeLists.txt — 自动检测 install/
-find_package(NPCore REQUIRED)
-find_package(OpenMP REQUIRED)
-add_executable(my_app main.cpp)
-target_link_libraries(my_app PRIVATE NPCore::NPCore OpenMP::OpenMP_CXX)
-```
-
-```bash
-mkdir _b && cd _b
-cmake ..          # 零参数，自动使用 install/
-cmake --build .
-```
-
-> 完整示例见 `examples/standalone/` — 已包含 `install/`，可直接 `cmake .. && cmake --build .` 运行。
+| 选项 | 默认 | 说明 |
+|:-----|:----:|:-----|
+| `-DBUILD_SHARED_LIBS=ON` | OFF | 构建 DLL |
+| `-DNPCORE_ENABLE_CUDA=ON` | OFF | 启用 CUDA GPU |
+| `-DBUILD_EXAMPLES=ON` | ON | 编译测试 |
 
 ---
 
-## 示例程序
-
-> 14 个分类示例，每个都会打印输入/输出/期望值的精度分析。
+## 测试
 
 ```bash
-# 单元测试
-./_build/examples/test_gradcheck         # 数值梯度 vs 解析梯度
+# 运行全部测试
+cmake --build build -j8
+cd build/examples
 
-# 基础层
-./_build/examples/test_fnn               # 全连接网络: 4->8->16->8->4
+./test_use_bias       # use_bias 参数
+./test_conv1d          # 一维卷积
+./test_transformer     # Transformer 编码器
+./test_instancenorm    # 实例归一化
+./test_serialize       # 模型序列化
+./test_trainer         # Trainer API
+./test_losses          # 损失函数 + DataLoader
+./test_nest_concat     # 序列嵌套 + 分支拼接
+./test_onnx            # ONNX 导入导出
 
-# 卷积
-./_build/examples/test_cnn               # Conv -> ReLU -> Pool -> Flatten -> Linear
-./_build/examples/test_convtranspose2d   # 转置卷积 (U-Net 解码器)
-./_build/examples/test_pooling           # AvgPool2d + AdaptiveAvgPool2d
-
-# 循环网络
-./_build/examples/test_rnn               # Elman RNN (BPTT)
-./_build/examples/test_lstm              # LSTM (4门合并GEMM)
-./_build/examples/test_gru               # GRU  (2门)
-
-# 归一化
-./_build/examples/test_batchnorm2d       # 空间批归一化 (CNN)
-./_build/examples/test_groupnorm         # 分组归一化 (检测/分割/GAN)
-
-# 注意力
-./_build/examples/test_mha               # 多头注意力 (Transformer)
-
-# 工具
-./_build/examples/test_gradclip          # 梯度裁剪 (RNN/Transformer 稳定性)
-
-# 架构
-./_build/examples/test_resnet            # ResNet: Conv -> ResBlock -> Pool -> Linear
-
-# 数据
-./_build/examples/test_dataloader        # 自定义数据集 + Train/Test 划分
+# ONNX Python 验证 (需要 pip install onnx onnxruntime)
+cd examples/onnx && python verify_onnx.py
 ```
-
-> 详见 [示例程序指南](docs/Examples.md)
 
 ---
 
 ## 文档
 
-由浅入深:
-
-| 文档 | 难度 | 说明 |
-|:-----|:----:|:-----|
-| [快速入门](docs/QuickStart.md) | ★ | 安装 + 第一个模型 |
-| [示例程序](docs/Examples.md) | ★★ | 14 个示例及期望输出 |
-| [数据加载](docs/DataLoader.md) | ★★ | 图像/序列/CSV/自定义加载 |
-| [层说明](docs/Layers.md) | ★★★ | 25+ 层数学公式与推导 |
-| [API 参考](docs/API.md) | ★★★ | 完整类与方法参考 |
-| [开发指南](docs/DevGuide.md) | ★★★★ | 实现原理 + 编码规范 |
-| [自定义模型](docs/CustomModel.md) | ★★★★ | 继承 Module 开发新层 |
-| [CUDA 指南](docs/CUDA.md) | ★★★★★ | GPU 编译与内核 |
-
----
-
-## 性能
-
-| 算子 | 配置 | 耗时 | 吞吐 |
-|:-----|:-----|:-----|:-----|
-| GEMM | 1024×1024 | 268 ms | **8.0 GFLOPS** |
-| Conv2d | 64×64×3 -> 16ch, k3 | 4.1 ms | — |
-| FNN | 256->512->256, 100 ep | 583 ms | 5.8 ms/epoch |
-| LSTM | 32->128, seq50, 20 ep | 1545 ms | 77 ms/epoch |
-
-> 测试环境: MinGW GCC 15.2, Intel i7-12700H, AVX2, `-march=native`
+| 文档 | 内容 |
+|:-----|:-----|
+| [快速入门](docs/QuickStart.md) | 安装 + 第一个模型 |
+| [API 参考](docs/API.md) | 完整类与方法参考 |
+| [层说明](docs/Layers.md) | 30+ 层数学公式与推导 |
+| [ONNX 互操作](docs/ONNX.md) | 导入/导出/算子映射/PyTorch 兼容 |
+| [数据加载](docs/DataLoader.md) | 图像/序列/CSV/自定义加载 |
+| [示例程序](docs/Examples.md) | 22+ 个分类测试 |
+| [更新日志](docs/CHANGELOG.md) | 修复 + 新增记录 |
+| [路线图](docs/ROADMAP.md) | 后续开发计划 |
+| [开发指南](docs/DevGuide.md) | 实现原理 + 编码规范 |
+| [自定义模型](docs/CustomModel.md) | 继承 Module 开发新层 |
+| [CUDA 指南](docs/CUDA.md) | GPU 编译与内核 |
+| [编译指南](docs/BUILD.md) | CMake 选项与源文件列表 |
 
 ---
 
@@ -218,28 +153,23 @@ cmake --build .
 
 ```
 NPCore/
-├── Core/                          矩阵引擎 (GEMM, SIMD, CUDA bridge)
+├── Core/                      矩阵引擎 (GEMM, SIMD, CUDA)
 ├── Layers/
-│   ├── Basic/                     Linear  Flatten  Embedding  Dropout
-│   ├── Conv/                      Conv2d  ConvTranspose2d  Pool (Avg/Max/Adaptive)
-│   ├── Recurrent/                 RNN  LSTM  GRU
-│   ├── Normalization/             BatchNorm1d/2d  LayerNorm  GroupNorm
-│   ├── Attention/                 MultiHeadAttention
-│   └── Architecture/              Residual  ResNetBlock  Sequence
-├── Optimizers/                    SGD  Momentum  Adam  AdamW  ...  GradientClipping
-├── Activations/                   12 种激活函数
-├── Losses/                        6 种损失函数
-├── Cuda/                          CUDA 内核 (GEMM, element-wise, RNN)
-├── examples/                      14 个分类测试
-├── assets/                        架构图与生成脚本
-├── docs/                          7 篇文档
-├── Model.h                        高层 API (nn::FNN, nn::CNN, nn::Trainer)
-├── Autograd.h                     梯度检验工具
-└── NPCore.h                       单头文件引入
+│   ├── Basic/                 Linear Flatten Embedding Dropout Concat
+│   ├── Conv/                  Conv1d Conv2d ConvTranspose2d Pool
+│   ├── Recurrent/             RNN LSTM GRU
+│   ├── Normalization/         BatchNorm LayerNorm GroupNorm InstanceNorm
+│   ├── Attention/             MultiHeadAttention PositionalEncoding TransformerEncoder
+│   └── Architecture/          Residual ResNetBlock Sequence
+├── Activations/               11 种激活函数
+├── Losses/                    9 种损失函数
+├── Optimizers/                SGD Adam AdamW ... GradientClipping LRScheduler
+├── Utils/                     Timer Serializer ONNXModel
+├── Cuda/                      CUDA 内核 (可选)
+├── examples/                  22+ 个测试
+├── assets/                    架构图
+├── docs/                      12 篇文档
+├── Model.h                    高层 API (FNN CNN Trainer ONNXModel)
+├── Autograd.h                 梯度检验
+└── NPCore.h                   单头引入
 ```
-
----
-
-<p align="center">
-  <sub>Made with C++20 · AVX2 SIMD · CUDA · OpenMP</sub>
-</p>

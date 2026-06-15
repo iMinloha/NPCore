@@ -32,11 +32,13 @@ set(NPCORE_LAYERS_SOURCES
     NPCore/Layers/ParamInit.cpp
     NPCore/Layers/Basic/Linear.cpp NPCore/Layers/Basic/Flatten.cpp
     NPCore/Layers/Basic/Embedding.cpp NPCore/Layers/Basic/Dropout.cpp
+    NPCore/Layers/Basic/Concat.cpp
 )
 set(NPCORE_LAYERS_HEADERS
     NPCore/Layers/Module.h NPCore/Layers/ParamInit.h NPCore/Layers/Sequence.h
     NPCore/Layers/Basic/Linear.h NPCore/Layers/Basic/Flatten.h
     NPCore/Layers/Basic/Embedding.h NPCore/Layers/Basic/Dropout.h
+    NPCore/Layers/Basic/Concat.h
 )
 
 # --- Layers: Conv ---

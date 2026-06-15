@@ -21,10 +21,12 @@ add_executable(test_gradcheck unit/gradcheck_test.cpp)
 add_executable(test_use_bias  unit/test_use_bias.cpp)
 add_executable(test_trainer   unit/test_trainer.cpp)
 add_executable(test_losses    unit/test_losses.cpp)
+add_executable(test_nest_concat unit/test_nest_concat.cpp)
 target_link_libraries(test_gradcheck PRIVATE ${LIBS})
 target_link_libraries(test_use_bias  PRIVATE ${LIBS})
 target_link_libraries(test_trainer   PRIVATE ${LIBS})
 target_link_libraries(test_losses    PRIVATE ${LIBS})
+target_link_libraries(test_nest_concat PRIVATE ${LIBS})
 
 # --- Basic ---
 add_executable(test_fnn basic/fnn_test.cpp)
@@ -79,15 +81,13 @@ add_executable(test_serialize serialize/test_serialize.cpp)
 target_link_libraries(test_serialize PRIVATE ${LIBS})
 
 # --- ONNX ---
-add_executable(test_onnx        onnx/test_onnx.cpp)
-add_executable(test_onnx_import onnx/test_onnx_import.cpp)
-target_link_libraries(test_onnx        PRIVATE ${LIBS})
-target_link_libraries(test_onnx_import PRIVATE ${LIBS})
+add_executable(test_onnx onnx/test_onnx.cpp)
+target_link_libraries(test_onnx PRIVATE ${LIBS})
 
 # --- All targets ---
 set(ALL_EXAMPLES
     # Unit
-    test_gradcheck test_use_bias test_trainer test_losses
+    test_gradcheck test_use_bias test_trainer test_losses test_nest_concat
     # Basic
     test_fnn
     # Convolution
@@ -107,6 +107,6 @@ set(ALL_EXAMPLES
     # Serialization
     test_serialize
     # ONNX
-    test_onnx test_onnx_import
+    test_onnx
 )
 set_target_properties(${ALL_EXAMPLES} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIR})

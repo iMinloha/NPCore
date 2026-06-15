@@ -28,6 +28,9 @@ template<typename T>
 void Module<T>::cpu() { for (auto* p : getParams()) p->to(Device::CPU); }
 
 template<typename T>
+std::vector<Module<float>*> Module<T>::modules() { return {reinterpret_cast<Module<float>*>(this)}; }
+
+template<typename T>
 std::vector<Matrix<float>*> Module<T>::getAllGrads() {
     return {weight_grad_, bias_grad_};
 }

@@ -7,9 +7,13 @@
 #include "Layers/Conv/Pool.h"
 #include "Layers/Normalization/BatchNorm.h"
 #include "Activations/Activation.h"
+#include "Layers/Basic/Concat.h"
 #include <fstream>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
+#include <functional>
+#include <unordered_map>
 
 namespace NPCore {
 namespace nn {
@@ -235,83 +239,49 @@ ONNXModel ONNXModel::from_sequence(const Sequence& seq,
     ONNXModel m;
     m.graph_name_=graph_name;
     m.inputs_={"input"};
-
-    const auto& ly=seq.getLayers();
-    std::string prev="input";
     int wc=0, nc=0;
-
-    for(size_t li=0; li<ly.size(); ++li){
-        auto* L=ly[li]; auto prm=L->getParams();
+    std::function<std::string(Module<float>*,const std::string&)> em;
+    em=[&](Module<float>* L, const std::string& in)->std::string{
         std::string out="v"+std::to_string(++nc);
-        Node nd;
-
-        // Activations
-        if(dynamic_cast<Activation::ReLU*>(L)) nd=Node{"Relu",{prev},{out}};
-        else if(dynamic_cast<Activation::Sigmoid*>(L)) nd=Node{"Sigmoid",{prev},{out}};
-        else if(dynamic_cast<Activation::Tanh*>(L)) nd=Node{"Tanh",{prev},{out}};
-        else if(dynamic_cast<Activation::SoftMax*>(L)){ nd=Node{"Softmax",{prev},{out}}; nd.attr_int.push_back({"axis",1}); }
-        else if(dynamic_cast<Activation::GELU*>(L)) nd=Node{"Gelu",{prev},{out}};
-        else if(dynamic_cast<Activation::LeakyReLU*>(L)){ nd=Node{"LeakyRelu",{prev},{out}}; nd.attr_float.push_back({"alpha",0.01f}); }
-        // Pooling
-        else if(dynamic_cast<MaxPool2d*>(L)){ nd=Node{"MaxPool",{prev},{out}}; nd.attr_ints.push_back({"kernel_shape",{2,2}}); nd.attr_ints.push_back({"strides",{2,2}}); }
-        else if(dynamic_cast<AvgPool2d*>(L)){ nd=Node{"AveragePool",{prev},{out}}; nd.attr_ints.push_back({"kernel_shape",{2,2}}); nd.attr_ints.push_back({"strides",{2,2}}); }
-        // Flatten
-        else if(dynamic_cast<Flatten*>(L)){ nd=Node{"Flatten",{prev},{out}}; nd.attr_int.push_back({"axis",1}); }
-        // BatchNorm
+        Node nd; auto prm=L->getParams();
+        if(auto* seq=dynamic_cast<Sequence*>(L)){ std::string p=in; for(auto* s:seq->getLayers()) p=em(s,p); return p; }
+        if(auto* cat=dynamic_cast<Concat*>(L)){ std::vector<std::string> bo; for(auto* b:cat->getBranches()) bo.push_back(em(b,in)); Node cn{"Concat",bo,{out}}; cn.attr_int.push_back({"axis",1}); m.nodes_.push_back(cn); return out; }
+        if(dynamic_cast<Activation::ReLU*>(L)) nd=Node{"Relu",{in},{out}};
+        else if(dynamic_cast<Activation::Sigmoid*>(L)) nd=Node{"Sigmoid",{in},{out}};
+        else if(dynamic_cast<Activation::Tanh*>(L)) nd=Node{"Tanh",{in},{out}};
+        else if(dynamic_cast<Activation::SoftMax*>(L)){ nd=Node{"Softmax",{in},{out}}; nd.attr_int.push_back({"axis",1}); }
+        else if(dynamic_cast<Activation::GELU*>(L)) nd=Node{"Gelu",{in},{out}};
+        else if(dynamic_cast<MaxPool2d*>(L)){ nd=Node{"MaxPool",{in},{out}}; nd.attr_ints.push_back({"kernel_shape",{2,2}}); nd.attr_ints.push_back({"strides",{2,2}}); }
+        else if(dynamic_cast<AvgPool2d*>(L)){ nd=Node{"AveragePool",{in},{out}}; nd.attr_ints.push_back({"kernel_shape",{2,2}}); nd.attr_ints.push_back({"strides",{2,2}}); }
+        else if(dynamic_cast<Flatten*>(L)){ nd=Node{"Flatten",{in},{out}}; nd.attr_int.push_back({"axis",1}); }
         else if(dynamic_cast<BatchNorm1d*>(L)||dynamic_cast<BatchNorm2d*>(L)){
             std::string w="w"+std::to_string(wc++),b="w"+std::to_string(wc++),mn="w"+std::to_string(wc++),vr="w"+std::to_string(wc++);
-            if(prm.size()>=2){
-                int N=prm[0]->row; std::vector<float> g(N),bt(N),zm(N,0),om(N,1);
+            if(prm.size()>=2){ int N=prm[0]->row; std::vector<float> g(N),bt(N),zm(N,0),om(N,1);
                 for(int i=0;i<N;++i){g[i]=prm[0]->at(i,0);bt[i]=prm[1]->at(i,0);}
-                m.weights_.push_back({w,{N},g}); m.weights_.push_back({b,{N},bt});
-                m.weights_.push_back({mn,{N},zm}); m.weights_.push_back({vr,{N},om});
-            }
-            nd=Node{"BatchNormalization",{prev,w,b,mn,vr},{out}}; nd.attr_float.push_back({"epsilon",1e-5f});
-        }
-        // Conv2d
-        else if(prm.size()>=1 && prm[0]->channel>1){
-            std::string w="w"+std::to_string(wc++);
-            int k=prm[0]->row, tc=prm[0]->channel;
-            int oc=prm.size()>=2?prm[1]->row:tc, ic=(oc>0&&tc%oc==0)?tc/oc:1;
-            if(ic*oc!=tc){ic=1;oc=tc;}
-            std::vector<float> wd(oc*ic*k*k);
-            for(int o=0;o<oc;++o)for(int ii=0;ii<ic;++ii)
-                for(int ki=0;ki<k;++ki)for(int kj=0;kj<k;++kj)
-                    wd[((o*ic+ii)*k+ki)*k+kj]=prm[0]->at(ki,kj,o*ic+ii);
-            m.weights_.push_back({w,{oc,ic,k,k},wd});
-            std::vector<std::string> ins={prev,w};
-            if(prm.size()>=2){ std::string bn="w"+std::to_string(wc++); std::vector<float> bd(oc); for(int i=0;i<oc;++i)bd[i]=prm[1]->at(i,0);
-                m.weights_.push_back({bn,{oc},bd}); ins.push_back(bn); }
-            nd=Node{"Conv",ins,{out}}; nd.attr_ints.push_back({"kernel_shape",{k,k}});
-        }
-        // Linear (Gemm) — matched by bias shape (col==1, row>0)
-        else if(prm.size()>=2 && prm[1]->col==1 && prm[1]->row>=1){
-            std::string w="w"+std::to_string(wc++),b="w"+std::to_string(wc++);
-            int of=prm[0]->row,inf=prm[0]->col;
-            std::vector<float> wd(inf*of),bd(of);
-            for(int i=0;i<of;++i){for(int j=0;j<inf;++j)wd[i*inf+j]=prm[0]->at(i,j);bd[i]=prm[1]->at(i,0);}
-            m.weights_.push_back({w,{of,inf},wd}); m.weights_.push_back({b,{of},bd});
-            nd=Node{"Gemm",{prev,w,b},{out}}; nd.attr_float.push_back({"alpha",1.0f}); nd.attr_float.push_back({"beta",1.0f}); nd.attr_int.push_back({"transB",1});
-        }
-        // Conv1d
-        else if(prm.size()>=1 && prm[0]->channel==1 && prm[0]->col>1){
-            std::string w="w"+std::to_string(wc++);
-            int oc=prm[0]->row, ks=prm[0]->col;
-            std::vector<float> wd(oc*ks);
-            for(int o=0;o<oc;++o)for(int j=0;j<ks;++j)wd[o*ks+j]=prm[0]->at(o,j);
-            m.weights_.push_back({w,{oc,1,ks},wd});
-            std::vector<std::string> ins={prev,w};
-            if(prm.size()>=2){ std::string bn="w"+std::to_string(wc++); std::vector<float> bd(oc); for(int i=0;i<oc;++i)bd[i]=prm[1]->at(i,0);
-                m.weights_.push_back({bn,{oc},bd}); ins.push_back(bn); }
-            nd=Node{"Conv",ins,{out}}; nd.attr_ints.push_back({"kernel_shape",{ks}});
-        }
-        else { out=prev; }
-
-        if(!nd.op_type.empty()){
-            m.nodes_.push_back(nd);
-            prev=out;
-        }
-    }
+                m.weights_.push_back({w,{N},g});m.weights_.push_back({b,{N},bt});m.weights_.push_back({mn,{N},zm});m.weights_.push_back({vr,{N},om}); }
+            nd=Node{"BatchNormalization",{in,w,b,mn,vr},{out}};nd.attr_float.push_back({"epsilon",1e-5f});
+        }else if(prm.size()>=1 && prm[0]->channel>1){
+            std::string w="w"+std::to_string(wc++);int k=prm[0]->row,tc=prm[0]->channel,oc=prm.size()>=2?prm[1]->row:tc,ic=(oc>0&&tc%oc==0)?tc/oc:1;if(ic*oc!=tc){ic=1;oc=tc;}
+            std::vector<float> wd(oc*ic*k*k);for(int o=0;o<oc;++o)for(int ii=0;ii<ic;++ii)for(int ki=0;ki<k;++ki)for(int kj=0;kj<k;++kj)wd[((o*ic+ii)*k+ki)*k+kj]=prm[0]->at(ki,kj,o*ic+ii);
+            m.weights_.push_back({w,{oc,ic,k,k},wd});std::vector<std::string> ins={in,w};
+            if(prm.size()>=2){std::string bn="w"+std::to_string(wc++);std::vector<float> bd(oc);for(int i=0;i<oc;++i)bd[i]=prm[1]->at(i,0);m.weights_.push_back({bn,{oc},bd});ins.push_back(bn);}
+            nd=Node{"Conv",ins,{out}};nd.attr_ints.push_back({"kernel_shape",{k,k}});
+        }else if(prm.size()>=2 && prm[1]->col==1 && prm[1]->row>=1){
+            std::string w="w"+std::to_string(wc++),b="w"+std::to_string(wc++);int of=prm[0]->row,inf=prm[0]->col;
+            std::vector<float> wd(inf*of),bd(of);for(int i=0;i<of;++i){for(int j=0;j<inf;++j)wd[i*inf+j]=prm[0]->at(i,j);bd[i]=prm[1]->at(i,0);}
+            m.weights_.push_back({w,{of,inf},wd});m.weights_.push_back({b,{of},bd});
+            nd=Node{"Gemm",{in,w,b},{out}};nd.attr_float.push_back({"alpha",1.0f});nd.attr_float.push_back({"beta",1.0f});nd.attr_int.push_back({"transB",1});
+        }else if(prm.size()>=1 && prm[0]->channel==1 && prm[0]->col>1){
+            std::string w="w"+std::to_string(wc++);int oc=prm[0]->row,ks=prm[0]->col;std::vector<float> wd(oc*ks);for(int o=0;o<oc;++o)for(int j=0;j<ks;++j)wd[o*ks+j]=prm[0]->at(o,j);
+            m.weights_.push_back({w,{oc,1,ks},wd});std::vector<std::string> ins={in,w};
+            if(prm.size()>=2){std::string bn="w"+std::to_string(wc++);std::vector<float> bd(oc);for(int i=0;i<oc;++i)bd[i]=prm[1]->at(i,0);m.weights_.push_back({bn,{oc},bd});ins.push_back(bn);}
+            nd=Node{"Conv",ins,{out}};nd.attr_ints.push_back({"kernel_shape",{ks}});
+        }else return in;
+        if(!nd.op_type.empty())m.nodes_.push_back(nd);
+        return out;
+    };
+    std::string prev="input";
+    for(auto* L: seq.getLayers()) prev=em(L,prev);
     m.outputs_={prev};
     return m;
 }
@@ -319,7 +289,7 @@ ONNXModel ONNXModel::from_sequence(const Sequence& seq,
 // =================================[IMPORT to Sequence]================================
 Sequence ONNXModel::to_sequence() const {
     std::vector<Module<float>*> layers;
-    // Map weight names to indices
+    std::unordered_map<std::string, Module<float>*> output_map;
     struct WtInfo { Tensor t; bool used=false; };
     std::vector<WtInfo> wts;
     for(auto& w:weights_) wts.push_back({w,false});
@@ -336,10 +306,10 @@ Sequence ONNXModel::to_sequence() const {
             auto* w=find_w(nd.inputs.size()>1?nd.inputs[1]:"");
             auto* b=find_w(nd.inputs.size()>2?nd.inputs[2]:"");
             if(!w) continue;
-            int64_t transB=0;
-            for(auto& [k,v]:nd.attr_int) if(k=="transB") transB=v;
+            for(auto& [k,v]:nd.attr_int) (void)(k=="transB" && v==1); // transB=1 uses same layout
             int of=(int)w->dims[0], inf=(int)(w->dims.size()>1?w->dims[1]:1);
-            if(transB==1) std::swap(of,inf); // B is transposed → weight is (out,in)
+            // transB=1 means ONNX computes A·B^T. B has shape [out,in].
+            // NPCore Linear computes W·x where W=[out,in]. Same layout — no swap needed.
             auto* lin=new Linear(inf,of,InitMode::Uniform,b!=nullptr);
             auto pp=lin->getParams();
             for(int i=0;i<of;++i) for(int j=0;j<inf;++j) pp[0]->at(i,j)=w->data[i*inf+j];
@@ -393,8 +363,26 @@ Sequence ONNXModel::to_sequence() const {
                 L=bn;
             }
         }
+        else if(nd.op_type=="Concat" && nd.inputs.size()>=2){
+            std::vector<Module<float>*> branches;
+            for(auto& iname: nd.inputs){
+                auto it=output_map.find(iname);
+                if(it!=output_map.end()){
+                    branches.push_back(it->second);
+                    auto lit=std::find(layers.begin(),layers.end(),it->second);
+                    if(lit!=layers.end())*lit=nullptr;
+                }
+            }
+            if(!branches.empty()){
+                layers.erase(std::remove(layers.begin(),layers.end(),nullptr),layers.end());
+                L=new Concat(branches);
+            }
+        }
 
         if(L) layers.push_back(L);
+        if(!nd.outputs.empty() && (L || !layers.empty())){
+            for(auto& oname: nd.outputs) output_map[oname]=L?L:layers.back();
+        }
     }
     return Sequence(layers);
 }

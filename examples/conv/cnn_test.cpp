@@ -26,7 +26,7 @@ int main() {
     cout << "MSE: " << mse_loss(out, y) << endl;
 
     auto t0 = chrono::steady_clock::now();
-    Optim optim(Adam_step, seq.getParams(), 0.002f);
+    Optim optim(Adam_step, seq.modules(), 0.002f);
     for (int e = 0; e < 300; e++) {
         out = seq.forward(x);
         optim.step(mse_loss_grad(out, y));

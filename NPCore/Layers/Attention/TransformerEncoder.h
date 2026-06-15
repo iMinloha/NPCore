@@ -36,6 +36,7 @@ public:
 
     std::vector<Matrix<float>*> getParams() override;
     std::vector<Matrix<float>*> getAllGrads() override;
+    std::vector<Module<float>*> modules() override;
     Matrix<float>* getGard() override;
     Matrix<float>* getOutput() override;
 
@@ -62,6 +63,7 @@ public:
 
     std::vector<Matrix<float>*> getParams() override;
     std::vector<Matrix<float>*> getAllGrads() override;
+    std::vector<Module<float>*> modules() override;
     Matrix<float>* getGard() override;
     Matrix<float>* getOutput() override;
 

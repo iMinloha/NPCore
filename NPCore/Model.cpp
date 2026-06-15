@@ -62,14 +62,14 @@ Optim RAdam(float lr)    { return Optim(RAdam_step, {}, lr); }
 // =================================[Trainer]================================
 Trainer::Trainer(Sequence& model, LossType loss, Optim optim)
     : model_(&model), optim_(optim), loss_(loss) {
-    // Inject model layers into optimizer so step() can update parameters
-    optim_.set_params(model.getParams());
+    // Inject leaf modules into optimizer so step() can update parameters
+    optim_.set_params(model.modules());
 }
 
 void Trainer::bind(Optim optim) {
     optim_ = optim;
-    // Re-bind params from current model
-    if (model_) optim_.set_params(model_->getParams());
+    // Re-bind leaf modules from current model
+    if (model_) optim_.set_params(model_->modules());
 }
 
 void Trainer::fit(Matrix<float>& input, Matrix<float>& target, int epochs,

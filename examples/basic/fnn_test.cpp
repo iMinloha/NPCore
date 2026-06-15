@@ -27,7 +27,7 @@ int main() {
     cout << "MSE: " << mse_loss(out, y) << endl;
 
     // 4. 训练
-    Optim optim(RMSProp_step, seq.getParams(), 0.01f);
+    Optim optim(RMSProp_step, seq.modules(), 0.01f);
     auto t0 = chrono::steady_clock::now();
     for (int e = 0; e < 300; e++) {
         out = seq.forward(x);

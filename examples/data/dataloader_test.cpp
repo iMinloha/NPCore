@@ -48,7 +48,7 @@ int main() {
     loader.train();
     cout << "Training samples: " << loader.num_samples() << endl;
 
-    Optim optim(Adam_step, net.getParams(), 0.01f);
+    Optim optim(Adam_step, net.modules(), 0.01f);
     Matrix<float> x, y;
     for (int e = 0; e < 50; e++) {
         loader.reset();

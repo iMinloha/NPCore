@@ -10,6 +10,7 @@
 #include "Layers/Basic/Flatten.h"
 #include "Layers/Basic/Embedding.h"
 #include "Layers/Basic/Dropout.h"
+#include "Layers/Basic/Concat.h"
 
 // Convolution
 #include "Layers/Conv/Conv1d.h"

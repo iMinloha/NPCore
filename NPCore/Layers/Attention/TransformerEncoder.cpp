@@ -179,6 +179,13 @@ std::vector<Matrix<float>*> TransformerEncoderLayer::getParams() {
     return p;
 }
 
+std::vector<Module<float>*> TransformerEncoderLayer::modules() {
+    std::vector<Module<float>*> all;
+    all.push_back(mha); all.push_back(norm1); all.push_back(norm2);
+    all.push_back(fc1); all.push_back(fc2); all.push_back(gelu);
+    return all;
+}
+
 std::vector<Matrix<float>*> TransformerEncoderLayer::getAllGrads() {
     auto g = mha->getAllGrads();
     for (auto* m : norm1->getAllGrads()) g.push_back(m);
@@ -251,6 +258,15 @@ std::vector<Matrix<float>*> TransformerEncoder::getParams() {
     for (auto* L : layers) {
         auto p = L->getParams();
         all.insert(all.end(), p.begin(), p.end());
+    }
+    return all;
+}
+
+std::vector<Module<float>*> TransformerEncoder::modules() {
+    std::vector<Module<float>*> all;
+    for (auto* L : layers) {
+        auto sub = L->modules();
+        all.insert(all.end(), sub.begin(), sub.end());
     }
     return all;
 }

@@ -266,25 +266,63 @@ auto out = lstm->forward(seq);  // (100, 3) → (100, 16)
 
 ### 4.1 Sequence (顺序容器)
 
+`Sequence` 继承 `Module<float>`，支持**嵌套**和**递归**参数管理。
+
 ```cpp
+// 扁平用法
 vector<Module<float>*> layers = {
     new Linear(4, 16), new Activation::ReLU(),
     new Linear(16, 8), new Activation::ReLU(),
     new Linear(8, 2),  new Activation::SoftMax()
 };
 Sequence model(layers);
-// 或使用工厂
+
+// 嵌套用法 — 内层 Sequence 可以作为外层的一个 Module
+auto* encoder = new Sequence({
+    new Linear(64, 32), new Activation::ReLU(),
+    new Linear(32, 16), new Activation::ReLU()
+});
+auto* decoder = new Sequence({
+    new Linear(16, 32), new Activation::ReLU(),
+    new Linear(32, 64), new Activation::Sigmoid()
+});
+Sequence autoencoder({encoder, decoder});
+// autoencoder.modules() 递归展平所有叶子层
+// autoencoder.getParams() 返回所有权重矩阵（递归展平）
+
+// 工厂
 auto model = nn::FNN({4, 16, 8, 2}, nn::ReLU);            // MLP
 auto model = nn::CNN({3, 16, 32}, 3, nn::ReLU, 10);       // CNN
 ```
 
-### 4.2 Residual (残差连接)
+### 4.2 Sequence 方法对照
+
+| 方法 | 返回 | 说明 |
+|------|------|------|
+| `getParams()` | `vector<Matrix<float>*>` | 所有权重矩阵（递归展平） |
+| `modules()` | `vector<Module<float>*>` | 所有叶子层（用于 Optimizer） |
+| `getLayers()` | `const vector<Module<float>*>&` | 直接子层引用 |
+| `getAllGrads()` | `vector<Matrix<float>*>` | 所有权重梯度（递归展平） |
+
+### 4.3 Concat (分支合并)
+
+多分支并行 + 拼接，用于 Inception / U-Net 等结构。
+
+```cpp
+auto* branch1 = new Sequence({new Conv2d(1,4,3,1,1), new Activation::ReLU()});
+auto* branch2 = new Sequence({new Conv2d(1,3,5,1,2), new Activation::ReLU()});
+Concat inception({branch1, branch2});
+// 输入 (H,W,C) → 分支并行 → 沿通道拼接 (H,W,7)
+// 输入 (N,1) 2D → 分支并行 → 沿行拼接 (N1+N2,1)
+```
+
+### 4.4 Residual (残差连接)
 
 ```cpp
 auto* block = new Residual(new Linear(64, 64));  // y = F(x) + x
 ```
 
-### 4.3 ResNetBlock
+### 4.5 ResNetBlock
 
 ```cpp
 auto* resblock = new ResNetBlock(/*channels=*/64, /*use_bn=*/true);
@@ -343,7 +381,7 @@ Optim nadam   = NAdam(0.001f);     // NAdam lr=0.001
 Optim radam   = RAdam(0.001f);     // RAdam lr=0.001
 
 // 直接构造 (自定义超参数)
-Optim opt(Adam_step, seq.getParams(), 0.001f);
+Optim opt(Adam_step, seq.modules(), 0.001f);
 ```
 
 ### 可用优化器
@@ -363,7 +401,7 @@ Optim opt(Adam_step, seq.getParams(), 0.001f);
 
 ```cpp
 // AdamW (解耦权重衰减) — 独立类
-AdamW adamw(seq.getParams(), /*lr=*/0.001f, /*weight_decay=*/0.01f);
+AdamW adamw(seq.modules(), /*lr=*/0.001f, /*weight_decay=*/0.01f);
 adamw.step(grad);
 
 // 学习率调度
@@ -490,7 +528,7 @@ Sequence seq({lstm, linear});
 Matrix<float> x(100, 3);  // 100 步 x 3 特征
 Matrix<float> y(100, 2);  // 100 步 x 2 目标
 // ... 填充数据 ...
-Optim optim(Adam_step, seq.getParams(), 0.005f);
+Optim optim(Adam_step, seq.modules(), 0.005f);
 for (int e = 0; e < 500; e++) {
     auto out = seq.forward(x);
     optim.step(mse_loss_grad(out, y));

@@ -42,8 +42,11 @@ public:
     // Also stores weight/bias gradients in weight_grad_ / bias_grad_
     virtual Matrix<T> backward(Matrix<T>& grad_output) = 0;
 
-    // Get parameters
+    // Get parameters (weight/bias matrices)
     virtual std::vector<Matrix<float> *> getParams() = 0;
+
+    // Get all leaf modules (for optimizer backward pass). Default: just {this}.
+    virtual std::vector<Module<float>*> modules();
 
     // Get all gradients (corresponds to getParams order; RNN/LSTM have multiple weight matrices)
     virtual std::vector<Matrix<float>*> getAllGrads();

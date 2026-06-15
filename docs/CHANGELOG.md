@@ -1,66 +1,53 @@
-# Changelog — 2026-06-15 修复与新增
+# Changelog
 
-## Bug 修复
+## v1.1 — 2026-06-15
 
-### 1. `nn::Tanh()` 返回的是 Sigmoid 而不是 Tanh
-- **文件**: `NPCore/Model.cpp:9`
-- **问题**: `Module<float>* Tanh() { return new Activation::Sigmoid(); }`
-- **修复**: → `return new Activation::Tanh();`
+### 新增功能
 
-### 2. Trainer 训练不更新任何参数
-- **文件**: `NPCore/Model.h`, `NPCore/Model.cpp`, `NPCore/Optimizers/Optimizer.h`, `NPCore/Optimizers/Optimizer.cpp`
-- **问题**: `Optim` 用空 params `{}` 构造，`Trainer` 从不从模型提取层参数注入优化器，导致 `step()` 内部 `for` 循环直接跳过，所有权重保持不变。
-- **修复**:
-  - `Trainer` 改为接受 `Sequence&`（而非 `Module<float>&`），构造时自动调用 `model.getParams()` 提取层列表
-  - `Optim` 新增 `set_params()` 方法，`Trainer::bind()` 也会重新绑定参数
-  - `Module::eval()/train()` 改为 `virtual`，`Residual`/`ResNetBlock` 加 `override`
+| 功能 | 文件 | 说明 |
+|------|------|------|
+| `Sequence` 嵌套 | `Sequence.h/.cpp` | 继承 `Module<float>`，可放入另一个 Sequence |
+| `Concat` 分支层 | `Basic/Concat.h/.cpp` | 多分支拼接，支持 Inception/U-Net |
+| `Conv1d` | `Conv/Conv1d.h/.cpp` | 一维卷积 (时序信号) |
+| `TransformerEncoder` | `Attention/TransformerEncoder.h/.cpp` | 多层 Transformer 编码器 |
+| `PositionalEncoding` | `Attention/PositionalEncoding.h/.cpp` | 正弦余弦位置编码 |
+| `InstanceNorm1d/2d` | `Normalization/InstanceNorm.h/.cpp` | 实例归一化 (风格迁移) |
+| `ONNXModel` | `Utils/ONNXModel.h/.cpp` | ONNX 导入/导出 OOP API |
+| `Serializer` | `Utils/Serializer.h/.cpp` | 模型序列化 `save_model`/`load_model_weights` |
+| `use_bias` 参数 | `Linear` `Conv2d` `ConvTranspose2d` `Conv1d` | 可选偏置 |
+| `cross_entropy_loss` | `Losses/Loss.h/.cpp` | 完整 CE loss 值函数 |
+| `bce_loss_grad` | `Losses/Loss.h/.cpp` | BCE 梯度函数 |
+| `smooth_l1_loss_grad` | `Losses/Loss.h/.cpp` | Huber 梯度函数 |
+| 优化器工厂 | `Model.h/.cpp` | 8 个 `nn::SGD/Momentum/Adam/...` 工厂函数 |
+| `modules()` | `Module.h/.cpp` | 递归获取叶子层 (替代 `getParams` 传给 Optimizer) |
 
-### 3. `NPCore::SGD/Adam/RMSProp` 等 8 个 factory 函数声明但未实现
-- **文件**: `NPCore/Optimizers/Optimizer.h`, `NPCore/Optimizers/Optimizer.cpp`
-- **问题**: `Optimizer.h` 声明了 `SGD()/Adam()/RMSProp()` 但没有实现（链接错误）
-- **修复**: 补全 8 个 factory: `SGD/Momentum/Adam/RMSProp/Adagrad/Adadelta/NAdam/RAdam`
+### Bug 修复
 
-### 4. `Matrix::operator+(float)` 和 `operator/(float)` 忽略 channel 维度
-- **文件**: `NPCore/Core/Matrix.cpp:46,72`
-- **问题**: 这两个运算符只用 `row * col` 计算元素总数，channel > 1 时访问越界
-- **修复**: → `row * col * channel`
-
-### 5. `Residual`/`ResNetBlock` 的 `eval()/train()` 不是 override
-- **文件**: `NPCore/Layers/Module.h`, `NPCore/Layers/Architecture/Residual.h`, `NPCore/Layers/Architecture/ResNetBlock.h`
-- **问题**: `Module::eval()/train()` 不是 virtual，子类的同名函数隐藏了基类版本→ 通过 `Module<float>*` 指针调用时无法触发子类行为（BatchNorm running stats 不切换等）
-- **修复**: 基类加 `virtual`，子类加 `override`
-
-### 6. GRU 重置门 (reset gate) 未实现
-- **文件**: `NPCore/Layers/Recurrent/GRU.cpp`
-- **问题**: Forward 中 `n = tanh(n_in)` 完全没有使用 `r_t ⊙ (W_hn · h_{t-1})`，standard GRU 公式被简化
-- **修复**:
-  - Forward: 计算 `n_correction = Σ_j W_nh[i,j] * (r_j - 1) * h_prev[j]`，修正 n_t 的 net 输入
-  - Backward: 正确的梯度链——reset gate 通过 n 间接影响 h_t；h_prev 梯度包含 z 门直接路径和 n 修正间接路径
-
-### 7. SequenceLoader 构造函数参数被忽略
-- **文件**: `NPCore/DataLoader.h`, `NPCore/DataLoader.cpp`
-- **问题**: `SequenceLoader(int input_dim, int output_dim, int bs)` 中前两个参数完全忽略
-- **修复**: 存储 `input_dim_`/`output_dim_`，`add_sequence()` 时校验维度（参数为 0 时跳过硬检查）
+| 问题 | 文件 | 修复 |
+|------|------|------|
+| `Tanh()` 返回 Sigmoid | `Model.cpp` | `Activation::Sigmoid()` → `Tanh()` |
+| Trainer 参数不更新 | `Model.h/cpp` `Optimizer.h/cpp` | `modules()` + `set_params()` |
+| `eval/train` 非 virtual | `Module.h` `Residual.h` `ResNetBlock.h` | 基类加 `virtual`，子类加 `override` |
+| GRU 重置门未实现 | `GRU.cpp` | 正向前向+正确反向传播 |
+| `Matrix::operator+(float)` 忽略 channel | `Matrix.cpp` | `row*col` → `row*col*channel` |
+| `Matrix::operator/(float)` 忽略 channel | `Matrix.cpp` | 同上 |
+| `SequenceLoader` 参数废弃 | `DataLoader.h/.cpp` | 维度校验 |
+| `loss_val` 无视 LossType | `Model.cpp` | 正确分发 MSE/CrossEntropy |
+| ONNX Gemm `transB` 维度 | `ONNXModel.cpp` | 移除错误的 swap |
+| Concat 双重释放 | `ONNXModel.cpp` | `to_sequence()` 从 layers 移除分支 |
 
 ---
 
-## 新增功能
+## v1.0 — 初始版本
 
-### 8. Loss 函数补全
-- **`cross_entropy_loss()`** (值): 之前只有 `cross_entropy_loss_grad()`（梯度），现在完整的 log-softmax + NLL loss
-- **`bce_loss_grad()`** (梯度): 之前只有 `bce_loss()`（值）
-- **`smooth_l1_loss_grad()`** (梯度): Huber loss 梯度
-
-### 9. `loss_val()` 修复
-- **文件**: `NPCore/Model.cpp`
-- **问题**: 之前永远返回 `mse_loss`，无视 `LossType` 参数
-- **修复**: → 当 `LossType == CrossEntropy` 时调用 `cross_entropy_loss()`
-
-### 10. PositionalEncoding 层
-- **文件**: `NPCore/Layers/Attention/PositionalEncoding.h/.cpp`（新增）
-- **功能**: 正弦/余弦位置编码，Transformer 必需组件
-- **用法**: `new PositionalEncoding(d_model, max_len)` → forward 输出 `x + PE`
-- **无学习参数**: gradient 直接透传
-
-### 11. Optimizer factory 函数扩展到 8 个
-新增 `Momentum(lr)`, `Adagrad(lr)`, `Adadelta(lr)`, `NAdam(lr)`, `RAdam(lr)`
+- 核心矩阵引擎 (GEMM + AVX2 SIMD)
+- 基础层: Linear, Conv2d, ConvTranspose2d, Pool, Flatten
+- 循环层: RNN, LSTM, GRU
+- 归一化: BatchNorm1d/2d, LayerNorm, GroupNorm
+- 注意力: MultiHeadAttention
+- 架构: Residual, ResNetBlock, Sequence
+- 11 种激活函数, 6 种损失函数
+- 8 种优化器 + LR Scheduler
+- 数值梯度检验
+- CUDA 后端 (可选)
+- 完整文档

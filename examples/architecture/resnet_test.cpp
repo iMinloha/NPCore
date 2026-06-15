@@ -81,7 +81,7 @@ int main() {
     out.Analysis("Initial");
     cout << "MSE: " << mse_loss(out, y) << endl;
 
-    Optim opt(Adam_step, seq.getParams(), 0.005f);
+    Optim opt(Adam_step, seq.modules(), 0.005f);
     for (int e=0;e<300;e++) {
         out = seq.forward(x);
         opt.step(out - y);
